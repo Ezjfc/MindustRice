@@ -197,7 +197,7 @@ function Battery() {
   const percent = createBinding(
     battery,
     "percentage",
-  )((p) => `${Math.floor(p * 100)}%`)
+  )((p) => `${Math.floor(p * 100)}%`)
 
   const setProfile = (profile: string) => {
     powerprofiles.set_active_profile(profile)
@@ -218,6 +218,18 @@ function Battery() {
           ))}
         </box>
       </popover>
+    </menubutton>
+  )
+}
+
+function BatteryNew() {
+  return (
+    <menubutton visible={true}>
+      <box class="BatteryNew">
+        <box class="inner">
+          <label label="Power: 0%                               " />
+        </box>
+      </box>
     </menubutton>
   )
 }
@@ -269,6 +281,7 @@ export default function Bar({ gdkmonitor }: { gdkmonitor: Gdk.Monitor }) {
           <Wireless />
           <AudioOutput />
           <Battery />
+          <BatteryNew />
         </box>
       </centerbox>
     </window>

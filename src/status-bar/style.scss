@@ -2,6 +2,11 @@
 $fg-color: #{"@theme_fg_color"};
 $bg-color: #{"@theme_bg_color"};
 
+* {
+  font-family: Symbols Nerd Fonts Mono, fontello;
+  border-radius: 0px;
+}
+
 window#bar {
   background: transparent;
   color: $fg-color;
@@ -9,14 +14,39 @@ window#bar {
 
   > box {
     background: $bg-color;
-    border-radius: 10px;
     margin: 8px;
   }
 
   button {
-    border-radius: 8px;
     margin: 2px;
     min-height: 0;
     padding: 4px 8px;
   }
+}
+
+.BatteryNew {
+  --corner-radius: 8px;
+  --border-width: 3.5px;
+
+  label {
+    margin-left: 12px;
+    margin-right: 12px;
+    color: white;
+  }
+
+  background: linear-gradient(
+    // Head gradient:
+    135deg, transparent 0px, transparent var(--corner-radius),
+    #EC7B4C var(--corner-radius),
+    // Avoid blocking tail gradient:
+    #EC7B4C 50%, transparent 50%,
+
+  ), linear-gradient(
+    // Tail gradient:
+    -45deg, transparent 0px, transparent var(--corner-radius), #EC7B4C var(--corner-radius),
+    // Avoid blocking head gradient:
+    #EC7B4C calc(var(--corner-radius) + var(--border-width)), #EC7B4C 50%, transparent 50%,
+  );
+
+  filter: drop-shadow(0px var(--border-width) 0px #BA633F);
 }
