@@ -225,11 +225,14 @@ function Battery() {
 function BatteryNew() {
   return (
     <menubutton visible={true}>
-      <box class="BatteryNew">
-        <box class="inner">
-          <label label="Power: 0%                               " />
+      <overlay class="BatteryNew" widthRequest={200}>
+        <box $type="overlay" class="animation" widthRequest={100} overflow={Gtk.Overflow.HIDDEN}>
         </box>
-      </box>
+        <box $type="overlay">
+          <box class="fill" widthRequest={100} />
+        </box>
+        <label $type="overlay" label="Power: 0%" />
+      </overlay>
     </menubutton>
   )
 }

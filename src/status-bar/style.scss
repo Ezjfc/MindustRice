@@ -7,6 +7,7 @@ $bg-color: #{"@theme_bg_color"};
   border-radius: 0px;
 }
 
+ 
 window#bar {
   background: transparent;
   color: $fg-color;
@@ -27,26 +28,81 @@ window#bar {
 .BatteryNew {
   --corner-radius: 8px;
   --border-width: 3.5px;
+  --tail-end: calc(var(--corner-radius) + 0.5px);
 
   label {
     margin-left: 12px;
     margin-right: 12px;
     color: white;
+    // https://stackoverflow.com/a/13427256
+    text-shadow: 2px 0 #3F3F3F, -2px 0 #3F3F3F, 0 2px #3F3F3F, 0 -2px #3F3F3F,
+                 1px 1px #3F3F3F, -1px -1px #3F3F3F, 1px -1px #3F3F3F, -1px 1px #3F3F3F;
   }
 
   background: linear-gradient(
-    // Head gradient:
-    135deg, transparent 0px, transparent var(--corner-radius),
-    #EC7B4C var(--corner-radius),
-    // Avoid blocking tail gradient:
-    #EC7B4C 50%, transparent 50%,
+      // Head gradient:
+      135deg, transparent 0px, transparent var(--corner-radius),
+      #1D2025 var(--corner-radius),
+      // Avoid blocking tail gradient:
+      #1D2025 50%, transparent 50%,
 
-  ), linear-gradient(
-    // Tail gradient:
-    -45deg, transparent 0px, transparent var(--corner-radius), #EC7B4C var(--corner-radius),
-    // Avoid blocking head gradient:
-    #EC7B4C calc(var(--corner-radius) + var(--border-width)), #EC7B4C 50%, transparent 50%,
-  );
+    ), linear-gradient(
+        // Tail gradient:
+        -45deg, transparent 0px, transparent var(--corner-radius), #1D2025 var(--corner-radius),
+        // Avoid blocking head gradient:
+        #1D2025 50%, transparent 50%,
 
-  filter: drop-shadow(0px var(--border-width) 0px #BA633F);
+    );
+
+  .fill {
+    background: linear-gradient(
+      // Head gradient:
+      135deg, transparent 0px, transparent var(--corner-radius),
+      #EC7B4C var(--corner-radius),
+      // Avoid blocking tail gradient:
+      #EC7B4C 50%, transparent 50%,
+
+    ), linear-gradient(
+      // Tail gradient:
+      -45deg, transparent 0px, transparent var(--corner-radius),
+      // Thicken the tail "drop shadow":
+      #B35F3E var(--corner-radius),
+      #B35F3E var(--tail-end),
+      #EC7B4C var(--tail-end),
+      // Avoid blocking head gradient:
+      #EC7B4C 50%, transparent 50%,
+
+    );
+    filter: drop-shadow(0px var(--border-width) 0px #B35F3E);
+    margin-bottom: var(--border-width);
+    // margin-right: -20px;
+  }
+
+  .animation {
+    border-top: 2px solid;
+    border-bottom: 2px solid;
+    border-color: #FFD37F;
+    background: repeating-linear-gradient(
+      90deg, transparent 0px, transparent 10px,
+    #FFD37F 10px, #FFD37F 20px, transparent 20px,
+    );
+    transform: skew(-45deg, 0);
+    // margin-left: calc(-10px + var(--border-width));
+    margin-left: 10px;
+    margin-right: 10px;
+    // padding-left: -10px;
+    // min-width: 200;
+
+    // https://stackoverflow.com/questions/63787241/css-how-to-create-an-infinitely-moving-repeating-linear-gradient
+    --d:100px;
+    --angle:45deg;
+    background-size: calc(var(--d)/sin(var(--angle))) 100%;
+    animation: stripes 3s linear infinite;
+
+    @keyframes stripes {
+      0% {
+        background-position: calc(var(--d)/sin(var(--angle))) 0;
+      }
+    }
+  }
 }
