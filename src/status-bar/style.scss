@@ -7,7 +7,6 @@ $bg-color: #{"@theme_bg_color"};
   border-radius: 0px;
 }
 
- 
 window#bar {
   background: transparent;
   color: $fg-color;
@@ -87,11 +86,7 @@ window#bar {
     #FFD37F 10px, #FFD37F 20px, transparent 20px,
     );
     transform: skew(-45deg, 0);
-    // margin-left: calc(-10px + var(--border-width));
     margin-left: 10px;
-    margin-right: 10px;
-    // padding-left: -10px;
-    // min-width: 200;
 
     // https://stackoverflow.com/questions/63787241/css-how-to-create-an-infinitely-moving-repeating-linear-gradient
     --d:100px;

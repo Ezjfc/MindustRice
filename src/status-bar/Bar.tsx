@@ -223,15 +223,41 @@ function Battery() {
 }
 
 function BatteryNew() {
+  const battery = AstalBattery.get_default()
+  const powerprofiles = AstalPowerProfiles.get_default()
+
+  const percent = createBinding(
+    battery,
+    "percentage", // TODO
+  )((p) => `Stored: ${Math.floor(p * 100)}<span foreground="#7F7F7F">%</span>`)
+  const progressRatio = 200 / 100;
+  const progress = createBinding(
+    battery,
+    "percentage",
+  )((p) => p * 100 * progressRatio)
+  const charging = createBinding(
+    battery,
+    "state",
+  )((s) => s == AstalBattery.State.CHARGING);
+
+  // const setProfile = (profile: string) => {
+  //   powerprofiles.set_active_profile(profile)
+  // } TODO
+
   return (
-    <menubutton visible={true}>
+    <menubutton visible={createBinding(battery, "isPresent")}>
       <overlay class="BatteryNew" widthRequest={200}>
-        <box $type="overlay" class="animation" widthRequest={100} overflow={Gtk.Overflow.HIDDEN}>
-        </box>
+        <revealer
+          transitionType={Gtk.RevealerTransitionType.CROSSFADE}
+          revealChild={charging}
+          transitionDuration={1000}
+        >
+          <box class="animation" />
+        </revealer>
         <box $type="overlay">
-          <box class="fill" widthRequest={100} />
+          <box class="fill" widthRequest={progress} />
         </box>
-        <label $type="overlay" label="Power: 0%" />
+        <label $type="overlay" label={percent} useMarkup={true} />
       </overlay>
     </menubutton>
   )
