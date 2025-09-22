@@ -1,42 +1,60 @@
 // https://gitlab.gnome.org/GNOME/gtk/-/blob/gtk-3-24/gtk/theme/Adwaita/_colors-public.scss
-$fg-color: #{"@theme_fg_color"};
-$bg-color: #{"@theme_bg_color"};
 
 * {
   font-family: Symbols Nerd Fonts Mono, fontello;
   border-radius: 0px;
 }
 
-window#bar {
-  background: transparent;
-  color: $fg-color;
-  font-weight: bold;
+window {
+  border-color: #454545;
+  background: #000000;
+  border-bottom: 3px solid;
+  border-bottom-left-radius: 5px; // TODO: change to corner
+  border-bottom-right-radius: 5px; // TODO: change to corner
+}
 
-  > box {
-    background: $bg-color;
-    margin: 8px;
+label {
+  color: white;
+  // https://stackoverflow.com/a/13427256
+  text-shadow: 2px 0 #3F3F3F, -2px 0 #3F3F3F, 0 2px #3F3F3F, 0 -2px #3F3F3F,
+               1px 1px #3F3F3F, -1px -1px #3F3F3F, 1px -1px #3F3F3F, -1px 1px #3F3F3F;
+}
+
+.Workspaces {
+  label {
+    font-weight: normal;
   }
 
   button {
-    margin: 2px;
-    min-height: 0;
-    padding: 4px 8px;
+    border: 3px solid;
+    border-color: white;
   }
+
+  .focused {
+    border-color: #FFD37F;
+  }
+}
+
+.Focus label {
+  color: #FFD37F;
+}
+
+.Memory {
+  // background-color: #989AA4;
+  background: repeating-linear-gradient(
+    90deg,
+    #4A4B53 0px,
+    #4A4B53 7.5px,
+    #6E7080 7.5px,
+    #6E7080 15.0px,
+    #4A4B53 15.0px,
+  );
 }
 
 .BatteryNew {
   --corner-radius: 8px;
   --border-width: 3.5px;
   --tail-end: calc(var(--corner-radius) + 0.5px);
-
-  label {
-    margin-left: 12px;
-    margin-right: 12px;
-    color: white;
-    // https://stackoverflow.com/a/13427256
-    text-shadow: 2px 0 #3F3F3F, -2px 0 #3F3F3F, 0 2px #3F3F3F, 0 -2px #3F3F3F,
-                 1px 1px #3F3F3F, -1px -1px #3F3F3F, 1px -1px #3F3F3F, -1px 1px #3F3F3F;
-  }
 
   background: linear-gradient(
       // Head gradient:
@@ -99,5 +117,20 @@ window#bar {
         background-position: calc(var(--d)/sin(var(--angle))) 0;
       }
     }
+  }
+}
+
+.Clock {
+  label {
+    font-family: Pixellari;
+    font-weight: normal;
+  }
+}
+
+.FatalError {
+  background: red;
+
+  label {
+    margin: 10px;
   }
 }

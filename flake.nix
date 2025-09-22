@@ -1,5 +1,9 @@
 {
-  description = "My Awesome Desktop Shell";
+  description = ''
+    The Mindustry Linux RICE (cosmetics) based on AGS/Astal.
+
+    https://github.com/Ezjfc/MindustRice | Apache-2 License
+  '';
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";
@@ -7,48 +11,73 @@
       url = "github:aylur/ags";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    # Non-flake inputs:
+    mindustry = { url = "github:anuken/mindustry?ref=v151.1"; flake = false; };
+    animdustry = { url = "github:anuken/animdustry"; flake = false; };
   };
 
   outputs = {
     self,
     nixpkgs,
     ags,
+    # Non-flake inputs:
+    mindustry,
+    animdustry,
   }: let
     system = "x86_64-linux";
     pkgs = nixpkgs.legacyPackages.${system};
     pname = "MindustRice";
 
-    mindustry-fonts = with pkgs; stdenvNoCC.mkDerivation {
-      name = "mindustry-fonts-151.1";
-      src = fetchFromGitHub {
-        owner = "Anuken";
-        repo = "Mindustry";
-        tag = "v151.1";
-        hash = "sha256-/WBO66Ii/1IuL3VaQNCTrcK43VWS8FVLYPxxtJMYKus=";
-      };
-      installPhase = let
-        fonts-count = "4";
-      in ''
-        runHook preInstall
+    mindustry-fonts = with pkgs; stdenvNoCC.mkDerivation (finalAttrs: {
+      pname = "mindustryFonts";
+      version = "151.1";
+      src = mindustry;
 
-        LOC="core/assets/fonts"
-        [ "$(ls $LOC -1 | wc -l)" != "${fonts-count}" ] && echo "assertion error: number of font files is not ${fonts-count}" && exit 1
-        mkdir -p $out/share/fonts
-        cp -r $LOC $out/share/fonts/opentype/
+      nativeBuildInputs = [
+        fontforge
+        util-linux # "rename" command.
+      ];
+      LOC = "./core/assets/fonts";
+      buildPhase = ''
+        runHook preBuild
 
-        runHook postInstall
+        dewoff $LOC/*.woff
+        mv ./*.ttf $LOC
+        rename "" ${finalAttrs.pname}_ $LOC/*
+        install -Dm444 $LOC/*.ttf -t $out/share/fonts/truetype
+
+        runHook postBuild
       '';
-    };
+    });
+    animdustry-fonts = with pkgs; stdenvNoCC.mkDerivation (finalAttrs: {
+      pname = "animdustryFonts";
+      version = "1.2-unstable-2024-07-30";
+      src = animdustry;
+
+      nativeBuildInputs = [
+        util-linux # "rename" command.
+      ];
+      LOC = "./assets";
+      buildPhase = ''
+        runHook preBuild
+
+        rename "" ${finalAttrs.pname}_ $LOC/*
+        install -Dm444 $LOC/*.ttf -t $out/share/fonts/truetype
+
+        runHook postBuild
+      '';
+    });
 
     entry = "app.ts";
     astalPackages = with ags.packages.${system}; [
       io
-      astal4 # or astal3 for gtk3
-      # notifd tray wireplumber
+      astal4
 
       tray
       apps
       mpris
+      hyprland
       wireplumber
       powerprofiles
       network
@@ -59,8 +88,6 @@
       ++ [
         pkgs.libadwaita
         pkgs.libsoup_3
-        mindustry-fonts
-        pkgs.nerd-fonts.symbols-only
       ];
   in {
     packages.${system} = {
@@ -76,7 +103,9 @@
           ags.packages.${system}.default
         ];
 
-        buildInputs = extraPackages ++ [pkgs.gjs];
+        buildInputs = extraPackages ++ [
+          pkgs.gjs
+        ];
 
         installPhase = ''
           runHook preInstall
@@ -97,6 +126,8 @@
           (ags.packages.${system}.default.override {
             inherit extraPackages;
           })
+          # Note: GJS is not NodeJS and AGS is not React!
+          # NodeJS was added for development purposes.
           pkgs.nodejs_24
           pkgs.typescript
 
@@ -111,13 +142,16 @@
           '')
 
           pkgs.fontconfig
-          pkgs.less
-          (let
-            cmd = "fc-query ${mindustry-fonts}/share/fonts/opentype/* | less";
-          in pkgs.writeShellScriptBin "mindustry-fonts-info" ''
+          (pkgs.writeShellScriptBin "load-fonts" ''
             #!/usr/bin/env bash
-            echo "${cmd}"
-            ${cmd}
+            LOC="/home/$(whoami)/.local/share/fonts"
+            mkdir -p $LOC
+            ln -fs ${mindustry-fonts}/share/fonts/truetype $LOC/${mindustry-fonts.pname}
+            ln -fs ${animdustry-fonts}/share/fonts/truetype $LOC/${animdustry-fonts.pname}
+            fc-cache
+
+            fc-pattern fontello
+            fc-pattern Pixellari
           '')
         ];
       };

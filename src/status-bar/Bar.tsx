@@ -13,6 +13,7 @@ import AstalApps from "gi://AstalApps"
 import { For, With, createBinding, onCleanup } from "ags"
 import { createPoll } from "ags/time"
 import { execAsync } from "ags/process"
+import PangoCairo from "gi://PangoCairo"
 
 function Mpris() {
   const mpris = AstalMpris.get_default()
@@ -289,6 +290,18 @@ export default function Bar({ gdkmonitor }: { gdkmonitor: Gdk.Monitor }) {
     win.destroy()
   })
 
+  let hasFonts = true
+  Array(
+    // TODO: nerdfonts
+    "fontello",
+    "Pixellari",
+  ).forEach((family) => {
+    let install = PangoCairo.font_map_get_default().get_family(family)
+    if (install === null) {
+      hasFonts = false
+    }
+  })
+
   return (
     <window
       $={(self) => (win = self)}
@@ -300,19 +313,31 @@ export default function Bar({ gdkmonitor }: { gdkmonitor: Gdk.Monitor }) {
       anchor={TOP | LEFT | RIGHT}
       application={app}
     >
-      <centerbox>
-        <box $type="start">
-          <Clock />
-          <Mpris />
-        </box>
-        <box $type="end">
-          <Tray />
-          <Wireless />
-          <AudioOutput />
-          <Battery />
-          <BatteryNew />
-        </box>
-      </centerbox>
+      {
+        !hasFonts
+          ? <centerbox class="FatalError">
+              <label $type="start" label="MindustRice Status Bar cannot start: font error." />
+              <menubutton $type="end">
+                X
+                <popover>
+                  <button onClicked={
+                    () => app.quit()
+                  }>Close</button>
+                </popover>
+              </menubutton>
+            </centerbox>
+          : <centerbox>
+              <box $type="start">
+                <AudioOutput />
+                <Clock />
+              </box>
+              <box $type="end">
+                <Tray />
+                <Wireless />
+                <BatteryNew />
+              </box>
+            </centerbox>
+      }
     </window>
   )
 }
