@@ -1,6 +1,6 @@
 {
   description = ''
-    The Mindustry Linux RICE (cosmetics) based on AGS/Astal.
+    The Mindustry Race Inspired Cosmetic Enhancement of Linux, based on AGS/Astal.
 
     https://github.com/Ezjfc/MindustRice | Apache-2 License
   '';

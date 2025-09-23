@@ -22,11 +22,6 @@
 //   filter: drop-shadow(-2px 2px 0px white);
 // }
 
-// .tint {
-//   background: black;
-//   opacity: 50%;
-// }
-
 window {
   border-color: #454545;
   background: #00000088;
@@ -80,6 +75,19 @@ label {
   button {
     margin: 0px;
     padding: 0px;
+  }
+}
+
+.Wireless {
+  @include TODOTemporaryFix;
+
+  .spin {
+    animation: spin 2s linear infinite;
+    @keyframes spin {
+      100% {
+        transform:rotate(360deg);
+      }
+    }
   }
 }
 

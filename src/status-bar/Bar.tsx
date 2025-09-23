@@ -25,12 +25,8 @@ import PangoCairo from "gi://PangoCairo"
 
 const GDK_CURSOR = Gdk.Cursor.new_from_name("pointer", null)
 
-// TODO: add typehints, String | Accessible
-function BlockOne({ block }) {
-  const toFile = (b) => "../../resources/Mindustry/core/assets-raw/sprites/blocks/" + b + ".png"
-  return (
-    <image file={typeof block !== "string" ? block(toFile) : toFile(block)} pixelSize={24} />
-  )
+function tooltip(label) {
+  return (self) => self.set_tooltip_markup(`<span background="black">${label}</span>`)
 }
 
 function ohno(image) {
@@ -42,6 +38,14 @@ function ohno(image) {
 
   image.set_from_file(next)
   timeout(5000, () => image.set_from_file(prev))
+}
+
+// TODO: add typehints, String | Accessible
+function BlockOne({ block }) {
+  const toFile = (b) => "../../resources/Mindustry/core/assets-raw/sprites/blocks/" + b + ".png"
+  return (
+    <image file={typeof block !== "string" ? block(toFile) : toFile(block)} pixelSize={24} />
+  )
 }
 
 function Mpris() {
@@ -214,12 +218,47 @@ function Wireless() {
   }
 
   return (
-    <box visible={wifi(Boolean)}>
+    <box visible={wifi(Boolean)} class="Wireless">
       <With value={wifi}>
-        {(wifi) =>
-          wifi && (
-            <menubutton>
-              <image iconName={createBinding(wifi, "iconName")} />
+        {(wifi) => {
+          const enabled = createBinding(
+            wifi,
+            "enabled",
+          )
+          const internet = createBinding(
+            wifi,
+            "internet",
+          )
+          const radarClasses = createComputed(
+            [wifi, internet],
+            (w?, i?) => {
+              if (w === false) {
+                return "blockDisabled"
+              }
+
+              if (i === AstalNetwork.Internet.ASTAL_NETWORK_INTERNET_DISCONNECTED) {
+                return "spin"
+              }
+
+              return ""
+            },
+          )
+
+          return wifi && (
+            <menubutton $={tooltip("Wireless Network")} cursor={GDK_CURSOR}>
+              <overlay>
+                <BlockOne block="defense/radar-base" />
+                <box
+                  $type="overlay"
+                  // Icon explanation:
+                  // 1. transparent and still: disabled (flight mode).
+                  // 2. transparent and spinning: disconnected (enabled).
+                  // 3. opaque and spinning: connected.
+                  // class={radarClasses}
+                >
+                  <BlockOne block="defense/radar" />
+                </box>
+              </overlay>
               <popover>
                 <box orientation={Gtk.Orientation.VERTICAL}>
                   <For each={createBinding(wifi, "accessPoints")(sorted)}>
@@ -242,7 +281,7 @@ function Wireless() {
                 </box>
               </popover>
             </menubutton>
-          )
+          )}
         }
       </With>
     </box>
@@ -268,6 +307,7 @@ function AudioOutput() {
   )
 }
 
+/// https://github.com/maxverbeek/astalconfig/blob/master/service/usage.ts
 function Memory() {
   return (
     <box class="Memory" widthRequest={51 /* Make dividable by 3. */ }>
@@ -280,19 +320,18 @@ function Memory() {
 /// IdleInhibitor is known as SleepInhibitor.
   // TODO: other inhibit flags since the current flag is largest (idle)
 //// TODO: hypridle config popover support
-//// TODO: change to radar block cooler?
+//// TODO: change to switch block cooler?
 function IdleInhibitor() {
-  // let button = Gtk.Togglebutton
   let guint = null
 
   return (
     <box class="IdleInhibitor">
       <togglebutton
-        // $={(self) => (button = self)}
+        $={tooltip("Idle/Sleep Inhibitor")}
         cursor={GDK_CURSOR}
-        onToggled={(button) => {
-          const willActive = button.active
-          button.set_css_classes(!willActive ? ["blockDisabled"] : [""])
+        onToggled={(self) => {
+          const willActive = self.active
+          self.set_css_classes(!willActive ? ["blockDisabled"] : [""])
           if (willActive) {
             guint = app.inhibit(
               app.get_active_window(),
@@ -301,8 +340,8 @@ function IdleInhibitor() {
             )
 
             if (guint === 0) {
-              button.active = false
-              ohno(button.get_child())
+              self.active = false
+              ohno(self.get_child())
             }
           } else if (guint > 0) {
             app.uninhibit(guint)
@@ -331,6 +370,7 @@ function PowerProfile() { // TODO: responsive
   return (
     <box class="PowerProfile" visible={createBinding(battery, "isPresent")}>
       <button
+        $={tooltip("Cycle Power Profile")}
         cursor={GDK_CURSOR}
         onClicked={() => {
           const profiles = powerprofiles.get_profiles()
@@ -366,7 +406,7 @@ function Battery({ width = 175 }) {
   )((s) => s === AstalBattery.State.CHARGING)
 
   return (
-    <overlay class="Battery" widthRequest={width}>
+    <overlay $={tooltip("Battery")} class="Battery" widthRequest={width}>
       <revealer
         transitionType={Gtk.RevealerTransitionType.CROSSFADE}
         revealChild={charging}
@@ -456,7 +496,6 @@ export default function Bar({ gdkmonitor }: { gdkmonitor: Gdk.Monitor }) {
               </box>
               <box $type="end" class="module">
                 <Tray />
-                <Memory />
                 <Wireless />
                 <IdleInhibitor />
                 <PowerProfile />
@@ -466,4 +505,5 @@ export default function Bar({ gdkmonitor }: { gdkmonitor: Gdk.Monitor }) {
       }
     </window>
   )
+  // <Memory />
 }
