@@ -87,7 +87,8 @@
       astalPackages
       ++ [
         pkgs.libadwaita
-        pkgs.libsoup_3
+        pkgs.libsoup_3 # TODO: insecure software
+        pkgs.procps
       ];
   in {
     packages.${system} = {

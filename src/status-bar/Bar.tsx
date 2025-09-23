@@ -7,13 +7,42 @@ import AstalBattery from "gi://AstalBattery"
 import AstalPowerProfiles from "gi://AstalPowerProfiles"
 import AstalWp from "gi://AstalWp"
 import AstalNetwork from "gi://AstalNetwork"
+import AstalHyprland from "gi://AstalHyprland"
 import AstalTray from "gi://AstalTray"
 import AstalMpris from "gi://AstalMpris"
 import AstalApps from "gi://AstalApps"
-import { For, With, createBinding, onCleanup } from "ags"
-import { createPoll } from "ags/time"
+import {
+  For,
+  With,
+  createBinding,
+  createComputed,
+  createState,
+  onCleanup,
+} from "ags"
+import { createPoll, timeout } from "ags/time"
 import { execAsync } from "ags/process"
 import PangoCairo from "gi://PangoCairo"
+
+const GDK_CURSOR = Gdk.Cursor.new_from_name("pointer", null)
+
+// TODO: add typehints, String | Accessible
+function BlockOne({ block }) {
+  const toFile = (b) => "../../resources/Mindustry/core/assets-raw/sprites/blocks/" + b + ".png"
+  return (
+    <image file={typeof block !== "string" ? block(toFile) : toFile(block)} pixelSize={24} />
+  )
+}
+
+function ohno(image) {
+  const prev = image.file
+  const next = "../../resources/Mindustry/core/assets/sprites/error.png"
+  if (prev === next) {
+    return;
+  }
+
+  image.set_from_file(next)
+  timeout(5000, () => image.set_from_file(prev))
+}
 
 function Mpris() {
   const mpris = AstalMpris.get_default()
@@ -89,6 +118,54 @@ function Mpris() {
         </box>
       </popover>
     </menubutton>
+  )
+}
+
+function Workspaces() {
+  const hyprland = AstalHyprland.get_default()
+
+  const workspaces = createBinding(
+    hyprland,
+    "workspaces",
+  )((w) => w.sort((a, b) => a.id > b.id))
+  const focusChanges = createBinding(
+    hyprland,
+    "focused-workspace",
+  )
+
+  return (
+    <box class="Workspaces">
+      <For each={workspaces}>
+        {(w) => (
+          <button class={focusChanges((f) => f.id === w.id ? "focused" : "")}>
+            <label label={String(w.id)} />
+          </button>
+        )}
+      </For>
+    </box>
+  )
+}
+
+function Focus() {
+  const hyprland = AstalHyprland.get_default()
+
+  const clients = createBinding(
+    hyprland,
+    "clients",
+  )
+  const focusChanges = createBinding(
+    hyprland,
+    "focused-client",
+  )
+  const focused = createComputed(
+    [clients, focusChanges],
+    (c?, f?) => String(f !== null ? f.title : ""),
+  )
+
+  return (
+    <box class="Focus">
+      <label label={focused} />
+    </box>
   )
 }
 
@@ -191,47 +268,94 @@ function AudioOutput() {
   )
 }
 
-function Battery() {
+function Memory() {
+  return (
+    <box class="Memory" widthRequest={51 /* Make dividable by 3. */ }>
+      <BlockOne block="logic/memory-bank" />
+      <label label="100%" />
+    </box>
+  )
+}
+
+/// IdleInhibitor is known as SleepInhibitor.
+  // TODO: other inhibit flags since the current flag is largest (idle)
+//// TODO: hypridle config popover support
+//// TODO: change to radar block cooler?
+function IdleInhibitor() {
+  // let button = Gtk.Togglebutton
+  let guint = null
+
+  return (
+    <box class="IdleInhibitor">
+      <togglebutton
+        // $={(self) => (button = self)}
+        cursor={GDK_CURSOR}
+        onToggled={(button) => {
+          const willActive = button.active
+          button.set_css_classes(!willActive ? ["blockDisabled"] : [""])
+          if (willActive) {
+            guint = app.inhibit(
+              app.get_active_window(),
+              Gtk.ApplicationInhibitFlags.GTK_APPLICATION_INHIBIT_IDLE,
+              "activated idle inhibitor in status bar",
+            )
+
+            if (guint === 0) {
+              button.active = false
+              ohno(button.get_child())
+            }
+          } else if (guint > 0) {
+            app.uninhibit(guint)
+          }
+        }}
+        class="blockDisabled"
+      >
+        <BlockOne block="power/illuminator" />
+      </togglebutton>
+    </box>
+  )
+}
+
+function PowerProfile() { // TODO: responsive
   const battery = AstalBattery.get_default()
   const powerprofiles = AstalPowerProfiles.get_default()
+  const hardcodedPerformance = "performance"
+  const hardcodedPowerSaver = "power-saver"
+
+  const active = createBinding(
+    powerprofiles,
+    "active-profile",
+  )
+  const icon = active((p) => p === hardcodedPerformance ? "defense/overdrive-dome" : "defense/overdrive-projector")
+
+  return (
+    <box class="PowerProfile" visible={createBinding(battery, "isPresent")}>
+      <button
+        cursor={GDK_CURSOR}
+        onClicked={() => {
+          const profiles = powerprofiles.get_profiles()
+          const index = profiles.findIndex((p) => p.profile === powerprofiles.activeProfile)
+          const nextProfile = (profiles[index + 1] || profiles[0]).profile
+          powerprofiles.set_active_profile(nextProfile)
+        }}
+        class={
+          active((p) => p === hardcodedPowerSaver ? "blockDisabled" : "")
+        }
+      >
+        <BlockOne block={icon} />
+      </button>
+    </box>
+  )
+}
+
+function Battery({ width = 175 }) {
+  const battery = AstalBattery.get_default()
 
   const percent = createBinding(
     battery,
     "percentage",
-  )((p) => `${Math.floor(p * 100)}%`)
-
-  const setProfile = (profile: string) => {
-    powerprofiles.set_active_profile(profile)
-  }
-
-  return (
-    <menubutton visible={createBinding(battery, "isPresent")}>
-      <box>
-        <image iconName={createBinding(battery, "iconName")} />
-        <label label={percent} />
-      </box>
-      <popover>
-        <box orientation={Gtk.Orientation.VERTICAL}>
-          {powerprofiles.get_profiles().map(({ profile }) => (
-            <button onClicked={() => setProfile(profile)}>
-              <label label={profile} xalign={0} />
-            </button>
-          ))}
-        </box>
-      </popover>
-    </menubutton>
-  )
-}
-
-function BatteryNew() {
-  const battery = AstalBattery.get_default()
-  const powerprofiles = AstalPowerProfiles.get_default()
-
-  const percent = createBinding(
-    battery,
-    "percentage", // TODO
   )((p) => `Stored: ${Math.floor(p * 100)}<span foreground="#7F7F7F">%</span>`)
-  const progressRatio = 200 / 100;
+  const progressRatio = width / 100
   const progress = createBinding(
     battery,
     "percentage",
@@ -239,38 +363,32 @@ function BatteryNew() {
   const charging = createBinding(
     battery,
     "state",
-  )((s) => s == AstalBattery.State.CHARGING);
-
-  // const setProfile = (profile: string) => {
-  //   powerprofiles.set_active_profile(profile)
-  // } TODO
+  )((s) => s === AstalBattery.State.CHARGING)
 
   return (
-    <menubutton visible={createBinding(battery, "isPresent")}>
-      <overlay class="BatteryNew" widthRequest={200}>
-        <revealer
-          transitionType={Gtk.RevealerTransitionType.CROSSFADE}
-          revealChild={charging}
-          transitionDuration={1000}
-        >
-          <box class="animation" />
-        </revealer>
-        <box $type="overlay">
-          <box class="fill" widthRequest={progress} />
-        </box>
-        <label $type="overlay" label={percent} useMarkup={true} />
-      </overlay>
-    </menubutton>
+    <overlay class="Battery" widthRequest={width}>
+      <revealer
+        transitionType={Gtk.RevealerTransitionType.CROSSFADE}
+        revealChild={charging}
+        transitionDuration={1000}
+      >
+        <box class="stripes animation" />
+      </revealer>
+      <box $type="overlay">
+        <box class="fill" widthRequest={progress} />
+      </box>
+      <label $type="overlay" label={percent} useMarkup={true} />
+    </overlay>
   )
 }
 
-function Clock({ format = "%H:%M" }) {
+function Clock({ format = "%H\n%M" }) {
   const time = createPoll("", 1000, () => {
     return GLib.DateTime.new_now_local().format(format)!
   })
 
   return (
-    <menubutton>
+    <menubutton class="Clock" overflow={Gtk.Overflow.Hidden}>
       <label label={time} />
       <popover>
         <Gtk.Calendar />
@@ -295,6 +413,7 @@ export default function Bar({ gdkmonitor }: { gdkmonitor: Gdk.Monitor }) {
     // TODO: nerdfonts
     "fontello",
     "Pixellari",
+    "Darktech LDR",
   ).forEach((family) => {
     let install = PangoCairo.font_map_get_default().get_family(family)
     if (install === null) {
@@ -306,7 +425,7 @@ export default function Bar({ gdkmonitor }: { gdkmonitor: Gdk.Monitor }) {
     <window
       $={(self) => (win = self)}
       visible
-      namespace="my-bar"
+      namespace="MindustRice"
       name={`bar-${gdkmonitor.connector}`}
       gdkmonitor={gdkmonitor}
       exclusivity={Astal.Exclusivity.EXCLUSIVE}
@@ -327,14 +446,21 @@ export default function Bar({ gdkmonitor }: { gdkmonitor: Gdk.Monitor }) {
               </menubutton>
             </centerbox>
           : <centerbox>
-              <box $type="start">
+              <box $type="start" class="module">
                 <AudioOutput />
                 <Clock />
+                <Workspaces />
               </box>
-              <box $type="end">
+              <box $type="center" class="module">
+                <Focus />
+              </box>
+              <box $type="end" class="module">
                 <Tray />
+                <Memory />
                 <Wireless />
-                <BatteryNew />
+                <IdleInhibitor />
+                <PowerProfile />
+                <Battery />
               </box>
             </centerbox>
       }

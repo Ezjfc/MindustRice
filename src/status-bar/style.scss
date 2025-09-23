@@ -3,14 +3,37 @@
 * {
   font-family: Symbols Nerd Fonts Mono, fontello;
   border-radius: 0px;
+  border: 0px;
+  background: transparent;
 }
+
+.module {
+  > * {
+    margin-left: 3px;
+    margin-right: 3px;
+  }
+}
+
+.blockDisabled {
+  filter: grayscale(100%) brightness(50%);
+}
+
+// image:hover {
+//   filter: drop-shadow(-2px 2px 0px white);
+// }
+
+// .tint {
+//   background: black;
+//   opacity: 50%;
+// }
 
 window {
   border-color: #454545;
-  background: #000000;
+  background: #00000088;
   border-bottom: 3px solid;
   border-bottom-left-radius: 5px; // TODO: change to corner
   border-bottom-right-radius: 5px; // TODO: change to corner
+  padding-right: 10px;
 }
 
 label {
@@ -40,36 +63,70 @@ label {
 }
 
 .Memory {
-  // background-color: #989AA4;
-  background: repeating-linear-gradient(
-    90deg,
-    #4A4B53 0px,
-    #4A4B53 7.5px,
-    #6E7080 7.5px,
-    #6E7080 15.0px,
-    #4A4B53 15.0px,
-  );
+  // background: repeating-linear-gradient(
+  //   90deg,
+  //   #4A4B53 0px,
+  //   #4A4B53 7.5px,
+  //   #6E7080 7.5px,
+  //   #6E7080 15.0px,
+  //   #4A4B53 15.0px,
+  // );
+  image {
+    filter: brightness(200%);
+  }
 }
 
-.BatteryNew {
-  --corner-radius: 8px;
+@mixin TODOTemporaryFix {
+  button {
+    margin: 0px;
+    padding: 0px;
+  }
+}
+
+.PowerProfile {
+  @include TODOTemporaryFix;
+  // button {
+  //   background: linear-gradient(
+  //     135deg,
+  //     transparent 0%,
+  //     transparent 25%, // 1/2 of the box TODO: start distance = 50% of box width (maybe use variables px fed by GJS?)
+  //     #454545 10px,
+  //     #454545 20px,
+  //     transparent 20px,
+  //   );
+  // }
+}
+
+.IdleInhibitor {
+  @include TODOTemporaryFix;
+}
+
+.Battery {
+  --corner-radius: 6px;
   --border-width: 3.5px;
   --tail-end: calc(var(--corner-radius) + 0.5px);
 
   background: linear-gradient(
-      // Head gradient:
-      135deg, transparent 0px, transparent var(--corner-radius),
-      #1D2025 var(--corner-radius),
-      // Avoid blocking tail gradient:
+    // Head gradient:
+    135deg, transparent 0px, transparent var(--corner-radius),
+    #1D2025 var(--corner-radius),
+    // Avoid blocking tail gradient:
+    #1D2025 50%, transparent 50%,
+
+  ), linear-gradient(
+      // Tail gradient:
+      -45deg, transparent 0px, transparent var(--corner-radius), #1D2025 var(--corner-radius),
+      // Avoid blocking head gradient:
       #1D2025 50%, transparent 50%,
 
-    ), linear-gradient(
-        // Tail gradient:
-        -45deg, transparent 0px, transparent var(--corner-radius), #1D2025 var(--corner-radius),
-        // Avoid blocking head gradient:
-        #1D2025 50%, transparent 50%,
+  );
+  margin-bottom: 10px;
+  margin-top: 10px;
 
-    );
+  // label {
+  //   margin-bottom: 2px;
+  //   font-size: 16px;
+  // }
 
   .fill {
     background: linear-gradient(
@@ -95,17 +152,21 @@ label {
     // margin-right: -20px;
   }
 
-  .animation {
+  .stripes {
     border-top: 2px solid;
     border-bottom: 2px solid;
+    // border-right: 2px solid;
     border-color: #FFD37F;
     background: repeating-linear-gradient(
       90deg, transparent 0px, transparent 10px,
     #FFD37F 10px, #FFD37F 20px, transparent 20px,
     );
     transform: skew(-45deg, 0);
-    margin-left: 10px;
+    margin-left: calc(var(--corner-radius) * 2);
+    margin-right: 0px;
+  }
 
+  .animation {
     // https://stackoverflow.com/questions/63787241/css-how-to-create-an-infinitely-moving-repeating-linear-gradient
     --d:100px;
     --angle:45deg;
