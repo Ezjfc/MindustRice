@@ -1,5 +1,18 @@
 // https://gitlab.gnome.org/GNOME/gtk/-/blob/gtk-3-24/gtk/theme/Adwaita/_colors-public.scss
 
+/// fit-border surrounds an element with a border of its accurate shape.
+@mixin fit-border($thickness, $colour) {
+  filter: drop-shadow(
+    $thickness $thickness $colour
+  ) drop-shadow(
+    $thickness (-$thickness) $colour
+  ) drop-shadow(
+    -$thickness $thickness $colour
+  ) drop-shadow(
+    -$thickness (-$thickness) $colour
+  );
+}
+
 * {
   font-family: Symbols Nerd Fonts Mono, fontello;
   border-radius: 0px;
@@ -18,9 +31,9 @@
   filter: grayscale(100%) brightness(50%);
 }
 
-// .blockButton:hover {
-//   filter: drop-shadow(1px 1px white) drop-shadow(1px -1px white) drop-shadow(-1px 1px white) drop-shadow(-1px -1px white);
-// }
+.blockOverlay :hover {
+    background: white;
+}
 
 window {
   border-color: #454545;
@@ -29,6 +42,12 @@ window {
   border-bottom-left-radius: 5px; // TODO: change to corner
   border-bottom-right-radius: 5px; // TODO: change to corner
   padding-right: 10px;
+}
+
+.debugInspect {
+  * :hover {
+    box-shadow: 0 0 0 1px white;
+  }
 }
 
 label {
@@ -44,8 +63,7 @@ label {
   }
 
   button {
-    border: 3px solid;
-    border-color: white;
+    border: 3px solid white;
   }
 
   .focused {
@@ -81,15 +99,15 @@ label {
 .Wireless {
   @include TODOTemporaryFix;
 
-  .radar-top {
-    filter: drop-shadow(2px 2px #4A4B53) drop-shadow(2px -2px #4A4B53) drop-shadow(-2px 2px #4A4B53) drop-shadow(-2px -2px #4A4B53);
+  .radarTop {
+    @include fit-border(2px, #4A4B53);
   }
 
   .spin {
     animation: spin 2s linear infinite;
     @keyframes spin {
       100% {
-        transform:rotate(360deg);
+        transform: rotate(360deg);
       }
     }
   }
@@ -97,23 +115,22 @@ label {
 
 .PowerProfile {
   @include TODOTemporaryFix;
-  // button {
-  //   background: linear-gradient(
-  //     135deg,
-  //     transparent 0%,
-  //     transparent 25%, // 1/2 of the box TODO: start distance = 50% of box width (maybe use variables px fed by GJS?)
-  //     #454545 10px,
-  //     #454545 20px,
-  //     transparent 20px,
-  //   );
-  // }
 
   .radiate {
-    animation: radiate 1s;
+    .radiation {
+      animation: radiate 4s infinite;
+    }
   }
 
   @keyframes radiate {
-
+    0% { // TODO: fix border thickness (refer to charging animation)
+      border: 2px solid #FEB380;
+      transform: rotate(45deg) scale(0);
+    }
+    100% {
+      border: 2px solid #FEB380;
+      transform: rotate(45deg) scale(1.7);
+    }
   }
 }
 
@@ -193,7 +210,7 @@ label {
     background-size: calc(var(--d)/sin(var(--angle))) 100%;
     animation: marquee 3s linear infinite;
 
-    @keyframes marque {
+    @keyframes marquee {
       0% {
         background-position: calc(var(--d)/sin(var(--angle))) 0;
       }

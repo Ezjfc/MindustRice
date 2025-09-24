@@ -1,3 +1,7 @@
+/// Note: for most undocumented and incomprehensible ways of structuring GJS
+/// components, they usually exist to fulfil aesthetic needs or as hacks to
+/// workaround CSS difficulties. For example, those Gtk.AspectFrame.
+
 import app from "ags/gtk4/app"
 import GLib from "gi://GLib"
 import Astal from "gi://Astal?version=4.0"
@@ -41,10 +45,23 @@ function ohno(image) {
 }
 
 // TODO: add typehints, String | Accessible
-function BlockOne({ block }) {
+function BlockIcon({ block }) {
   const toFile = (b) => "../../resources/Mindustry/core/assets-raw/sprites/blocks/" + b + ".png"
   return (
     <image file={typeof block !== "string" ? block(toFile) : toFile(block)} pixelSize={24} />
+  )
+}
+
+function BlockOverlay({ block, overlayClass }) {
+  return (
+    <overlay>
+      <BlockIcon block={block} />
+      <Gtk.AspectFrame $type="overlay">
+        <centerbox overflow={Gtk.Overflow.HIDDEN}>
+          <box $type="center" heightRequest={24} widthRequest={24} class={`blockOverlay ${overlayClass}`} />
+        </centerbox>
+      </Gtk.AspectFrame>
+    </overlay>
   )
 }
 
@@ -247,16 +264,16 @@ function Wireless() {
           return wifi && (
             <menubutton $={tooltip("Wireless Network")} cursor={GDK_CURSOR}>
               <overlay>
-                <BlockOne block="defense/radar-base" />
+                <BlockIcon block="defense/radar-base" />
                 <box
                   $type="overlay"
                   // Icon explanation:
                   // 1. transparent and still: disabled (flight mode).
                   // 2. transparent and spinning: disconnected (enabled).
                   // 3. opaque and spinning: connected.
-                  class="radar-top spin"
+                  class="radarTop spin"
                 >
-                  <BlockOne block="defense/radar" />
+                  <BlockIcon block="defense/radar" />
                 </box>
               </overlay>
               <popover>
@@ -311,13 +328,13 @@ function AudioOutput() {
 function Memory() {
   return (
     <box class="Memory" widthRequest={51 /* Make dividable by 3. */ }>
-      <BlockOne block="logic/memory-bank" />
+      <BlockIcon block="logic/memory-bank" />
       <label label="100%" />
     </box>
   )
 }
 
-let inhibitor_cookie = 0;
+var InhibitorCookie = 0;
 
 /// IdleInhibitor is known as SleepInhibitor.
   // TODO: other inhibit flags since the current flag is largest (idle)
@@ -334,23 +351,23 @@ function IdleInhibitor() {
           self.set_css_classes(!willActive ? ["blockDisabled"] : [""])
           if (willActive) {
             console.log()
-            inhibitor_cookie = app.inhibit(
+            InhibitorCookie = app.inhibit(
               app.get_active_window(),
               Gtk.ApplicationInhibitFlags.IDLE,
               "activated idle inhibitor in status bar",
             )
 
-            if (inhibitor_cookie === 0) {
+            if (InhibitorCookie === 0) {
               self.active = false
               ohno(self.get_child())
             }
-          } else if (guint > 0) {
-            app.uninhibit(inhibitor_cookie)
+          } else if (InhibitorCookie > 0) {
+            app.uninhibit(InhibitorCookie)
           }
         }}
         class="blockDisabled"
       >
-        <BlockOne block="power/illuminator" />
+        <BlockIcon block="power/illuminator" />
       </togglebutton>
     </box>
   )
@@ -383,13 +400,9 @@ function PowerProfile() { // TODO: responsive
           const nextProfile = (profiles[index + 1] || profiles[0]).profile
           powerprofiles.set_active_profile(nextProfile)
         }}
-        class={
-          active((p) => p === hardcodedPowerSaver ? "blockDisabled" : "")
-        }
+        class={active((p) => p === hardcodedPowerSaver ? "blockDisabled" : "radiate")}
       >
-        <overlay>
-          <BlockOne block={icon} />
-        </overlay>
+        <BlockOverlay block={icon} overlayClass="radiation" />
       </button>
     </box>
   )
@@ -435,7 +448,7 @@ function Clock({ format = "%H\n%M" }) {
   })
 
   return (
-    <menubutton class="Clock" overflow={Gtk.Overflow.Hidden}>
+    <menubutton class="Clock" overflow={Gtk.Overflow.HIDDEN}>
       <label label={time} />
       <popover>
         <Gtk.Calendar />
@@ -454,14 +467,13 @@ export default function Bar({ gdkmonitor }: { gdkmonitor: Gdk.Monitor }) {
     // is run from the parent <For> which allows us to destroy the window
     win.destroy()
 
-    if (inhibitor_cookie > 0) {
-      app.uninhibit(inhibitor_cookie)
+    if (InhibitorCookie > 0) {
+      app.uninhibit(InhibitorCookie)
     }
   })
 
   let hasFonts = true
   Array(
-    // TODO: nerdfonts
     "fontello",
     "Pixellari",
     "Darktech LDR",
@@ -482,6 +494,7 @@ export default function Bar({ gdkmonitor }: { gdkmonitor: Gdk.Monitor }) {
       exclusivity={Astal.Exclusivity.EXCLUSIVE}
       anchor={TOP | LEFT | RIGHT}
       application={app}
+      class={false ? "debugInspect" : ""} // TODO: debug mode toggle
     >
       {
         !hasFonts

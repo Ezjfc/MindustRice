@@ -133,12 +133,13 @@
           pkgs.typescript
 
           pkgs.entr
+          pkgs.screen
           (let
-            cmd = "find $1 | entr -r ags run $1";
+            cmd = "screen bash -c \"find $1 | entr -r ags run $1\"";
           in pkgs.writeShellScriptBin "ags-watch" ''
             #!/usr/bin/env bash
             [ "$#" != "1" ] && echo "Enter the path to watch" && exit 1
-            echo "${cmd}"
+            echo '${cmd}'
             ${cmd}
           '')
 
