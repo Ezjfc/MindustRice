@@ -18,8 +18,8 @@
   filter: grayscale(100%) brightness(50%);
 }
 
-// image:hover {
-//   filter: drop-shadow(-2px 2px 0px white);
+// .blockButton:hover {
+//   filter: drop-shadow(1px 1px white) drop-shadow(1px -1px white) drop-shadow(-1px 1px white) drop-shadow(-1px -1px white);
 // }
 
 window {
@@ -81,6 +81,10 @@ label {
 .Wireless {
   @include TODOTemporaryFix;
 
+  .radar-top {
+    filter: drop-shadow(2px 2px #4A4B53) drop-shadow(2px -2px #4A4B53) drop-shadow(-2px 2px #4A4B53) drop-shadow(-2px -2px #4A4B53);
+  }
+
   .spin {
     animation: spin 2s linear infinite;
     @keyframes spin {
@@ -103,6 +107,14 @@ label {
   //     transparent 20px,
   //   );
   // }
+
+  .radiate {
+    animation: radiate 1s;
+  }
+
+  @keyframes radiate {
+
+  }
 }
 
 .IdleInhibitor {
@@ -174,14 +186,14 @@ label {
     margin-right: 0px;
   }
 
-  .animation {
+  .marquee {
     // https://stackoverflow.com/questions/63787241/css-how-to-create-an-infinitely-moving-repeating-linear-gradient
     --d:100px;
     --angle:45deg;
     background-size: calc(var(--d)/sin(var(--angle))) 100%;
-    animation: stripes 3s linear infinite;
+    animation: marquee 3s linear infinite;
 
-    @keyframes stripes {
+    @keyframes marque {
       0% {
         background-position: calc(var(--d)/sin(var(--angle))) 0;
       }

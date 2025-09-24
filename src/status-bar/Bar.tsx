@@ -218,7 +218,7 @@ function Wireless() {
   }
 
   return (
-    <box visible={wifi(Boolean)} class="Wireless">
+    <box visible={wifi(Boolean)} class="Wireless blockButton">
       <With value={wifi}>
         {(wifi) => {
           const enabled = createBinding(
@@ -254,7 +254,7 @@ function Wireless() {
                   // 1. transparent and still: disabled (flight mode).
                   // 2. transparent and spinning: disconnected (enabled).
                   // 3. opaque and spinning: connected.
-                  // class={radarClasses}
+                  class="radar-top spin"
                 >
                   <BlockOne block="defense/radar" />
                 </box>
@@ -317,15 +317,15 @@ function Memory() {
   )
 }
 
+let inhibitor_cookie = 0;
+
 /// IdleInhibitor is known as SleepInhibitor.
   // TODO: other inhibit flags since the current flag is largest (idle)
 //// TODO: hypridle config popover support
 //// TODO: change to switch block cooler?
 function IdleInhibitor() {
-  let guint = null
-
   return (
-    <box class="IdleInhibitor">
+    <box class="IdleInhibitor blockButton">
       <togglebutton
         $={tooltip("Idle/Sleep Inhibitor")}
         cursor={GDK_CURSOR}
@@ -333,18 +333,19 @@ function IdleInhibitor() {
           const willActive = self.active
           self.set_css_classes(!willActive ? ["blockDisabled"] : [""])
           if (willActive) {
-            guint = app.inhibit(
+            console.log()
+            inhibitor_cookie = app.inhibit(
               app.get_active_window(),
-              Gtk.ApplicationInhibitFlags.GTK_APPLICATION_INHIBIT_IDLE,
+              Gtk.ApplicationInhibitFlags.IDLE,
               "activated idle inhibitor in status bar",
             )
 
-            if (guint === 0) {
+            if (inhibitor_cookie === 0) {
               self.active = false
               ohno(self.get_child())
             }
           } else if (guint > 0) {
-            app.uninhibit(guint)
+            app.uninhibit(inhibitor_cookie)
           }
         }}
         class="blockDisabled"
@@ -368,11 +369,15 @@ function PowerProfile() { // TODO: responsive
   const icon = active((p) => p === hardcodedPerformance ? "defense/overdrive-dome" : "defense/overdrive-projector")
 
   return (
-    <box class="PowerProfile" visible={createBinding(battery, "isPresent")}>
+    <box class="PowerProfile blockButton" visible={createBinding(battery, "isPresent")}>
       <button
         $={tooltip("Cycle Power Profile")}
         cursor={GDK_CURSOR}
-        onClicked={() => {
+        onClicked={(self) => {
+          // Animations:
+          self.add_css_class("radiate")
+
+          // Logics:
           const profiles = powerprofiles.get_profiles()
           const index = profiles.findIndex((p) => p.profile === powerprofiles.activeProfile)
           const nextProfile = (profiles[index + 1] || profiles[0]).profile
@@ -382,7 +387,9 @@ function PowerProfile() { // TODO: responsive
           active((p) => p === hardcodedPowerSaver ? "blockDisabled" : "")
         }
       >
-        <BlockOne block={icon} />
+        <overlay>
+          <BlockOne block={icon} />
+        </overlay>
       </button>
     </box>
   )
@@ -412,7 +419,7 @@ function Battery({ width = 175 }) {
         revealChild={charging}
         transitionDuration={1000}
       >
-        <box class="stripes animation" />
+        <box class="stripes marquee" />
       </revealer>
       <box $type="overlay">
         <box class="fill" widthRequest={progress} />
@@ -446,6 +453,10 @@ export default function Bar({ gdkmonitor }: { gdkmonitor: Gdk.Monitor }) {
     // When the monitor is disconnected from the system, this callback
     // is run from the parent <For> which allows us to destroy the window
     win.destroy()
+
+    if (inhibitor_cookie > 0) {
+      app.uninhibit(inhibitor_cookie)
+    }
   })
 
   let hasFonts = true
