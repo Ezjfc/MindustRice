@@ -129,7 +129,7 @@
     devShells.${system} = {
       default = let
         mkSelfCallCmd = name: cmd: pkgs.writeShellScriptBin name ''
-          echo -e "\e[0;30m" # They only show when you highlight because why not.
+          echo -e "\e[0;35m" # Dark purple.
           cat $0 >&2
           echo -e "\e[0m"
 
@@ -154,10 +154,10 @@
 
           pkgs.fontconfig
           (mkSelfCallCmd "reload-fonts" ''
-            DIR="/home/$(whoami)/.local/share"
-            LOC="$DIR/fonts"
-            [ -e "$LOC" ] && mv $LOC $DIR/fonts.old
-            mkdir -p $LOC
+            WHOAMI=$(whoami)
+            [ "$WHOAMI" == "" ] && echo "Empty user" && exit 1
+            LOC="/home/$WHOAMI/.local/share/fonts"
+            rm -rf $LOC && mkdir -p $LOC
 
             ln -fs ${mindustry-fonts}/share/fonts/truetype $LOC/${mindustry-fonts.pname}
             ln -fs ${animdustry-fonts}/share/fonts/truetype $LOC/${animdustry-fonts.pname}
@@ -168,13 +168,12 @@
           '')
 
           (mkSelfCallCmd "relink-resources" ''
-            [ -e "./resources" ] && mv ./resources ./resources.old
-            mkdir -p ./resources
+            rm -rf ./resources && mkdir -p ./resources
 
             ln -fs ${mindustry} ./resources/Mindustry
             ln -fs ${astalconfig} ./resources/astalconfig
 
-            ls ./resources
+            find ./resources -maxdepth 1
           '')
         ];
       };
