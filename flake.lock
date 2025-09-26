@@ -58,6 +58,23 @@
         "type": "github"
       }
     },
+    "astalconfig": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1752451618,
+        "narHash": "sha256-iCu+QnYPtZWpN2HBkFfMqvpwSDa+SZ+JGd4TW8sxuJE=",
+        "owner": "maxverbeek",
+        "repo": "astalconfig",
+        "rev": "20a5bf251c0df136945778199c87bebafcce7c59",
+        "type": "github"
+      },
+      "original": {
+        "owner": "maxverbeek",
+        "repo": "astalconfig",
+        "rev": "20a5bf251c0df136945778199c87bebafcce7c59",
+        "type": "github"
+      }
+    },
     "mindustry": {
       "flake": false,
       "locked": {
@@ -95,6 +112,7 @@
       "inputs": {
         "ags": "ags",
         "animdustry": "animdustry",
+        "astalconfig": "astalconfig",
         "mindustry": "mindustry",
         "nixpkgs": "nixpkgs"
       }

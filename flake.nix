@@ -15,6 +15,10 @@
     # Non-flake inputs:
     mindustry = { url = "github:anuken/mindustry?ref=v151.1"; flake = false; };
     animdustry = { url = "github:anuken/animdustry"; flake = false; };
+    astalconfig = {
+      url = "github:maxverbeek/astalconfig?rev=20a5bf251c0df136945778199c87bebafcce7c59";
+      flake = false;
+    };
   };
 
   outputs = {
@@ -24,6 +28,7 @@
     # Non-flake inputs:
     mindustry,
     animdustry,
+    astalconfig,
   }: let
     system = "x86_64-linux";
     pkgs = nixpkgs.legacyPackages.${system};
@@ -122,7 +127,15 @@
     };
 
     devShells.${system} = {
-      default = pkgs.mkShell {
+      default = let
+        mkSelfCallCmd = name: cmd: pkgs.writeShellScriptBin name ''
+          echo -e "\e[0;30m" # They only show when you highlight because why not.
+          cat $0 >&2
+          echo -e "\e[0m"
+
+          ${cmd}
+        '';
+      in pkgs.mkShell {
         buildInputs = [
           (ags.packages.${system}.default.override {
             inherit extraPackages;
@@ -134,26 +147,34 @@
 
           pkgs.entr
           pkgs.screen
-          (let
-            cmd = "screen bash -c \"find $1 | entr -r ags run $1\"";
-          in pkgs.writeShellScriptBin "ags-watch" ''
-            #!/usr/bin/env bash
+          (mkSelfCallCmd "ags-watch" ''
             [ "$#" != "1" ] && echo "Enter the path to watch" && exit 1
-            echo '${cmd}'
-            ${cmd}
+            screen bash -c "find $1 | entr -r ags run $1"
           '')
 
           pkgs.fontconfig
-          (pkgs.writeShellScriptBin "load-fonts" ''
-            #!/usr/bin/env bash
-            LOC="/home/$(whoami)/.local/share/fonts"
+          (mkSelfCallCmd "reload-fonts" ''
+            DIR="/home/$(whoami)/.local/share"
+            LOC="$DIR/fonts"
+            [ -e "$LOC" ] && mv $LOC $DIR/fonts.old
             mkdir -p $LOC
+
             ln -fs ${mindustry-fonts}/share/fonts/truetype $LOC/${mindustry-fonts.pname}
             ln -fs ${animdustry-fonts}/share/fonts/truetype $LOC/${animdustry-fonts.pname}
             fc-cache
 
             fc-pattern fontello
             fc-pattern Pixellari
+          '')
+
+          (mkSelfCallCmd "relink-resources" ''
+            [ -e "./resources" ] && mv ./resources ./resources.old
+            mkdir -p ./resources
+
+            ln -fs ${mindustry} ./resources/Mindustry
+            ln -fs ${astalconfig} ./resources/astalconfig
+
+            ls ./resources
           '')
         ];
       };
