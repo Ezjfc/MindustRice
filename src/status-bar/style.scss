@@ -76,16 +76,8 @@ label {
 }
 
 .Memory {
-  // background: repeating-linear-gradient(
-  //   90deg,
-  //   #4A4B53 0px,
-  //   #4A4B53 7.5px,
-  //   #6E7080 7.5px,
-  //   #6E7080 15.0px,
-  //   #4A4B53 15.0px,
-  // );
   image {
-    filter: brightness(200%);
+    // filter: brightness(200%);
   }
 }
 
@@ -118,7 +110,7 @@ label {
 
   .radiate {
     .radiation {
-      animation: radiate 4s infinite;
+      animation: radiate 2s linear infinite;
     }
   }
 

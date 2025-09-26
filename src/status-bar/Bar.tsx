@@ -33,32 +33,43 @@ function tooltip(label) {
   return (self) => self.set_tooltip_markup(`<span background="black">${label}</span>`)
 }
 
-function ohno(image) {
-  const prev = image.file
-  const next = "../../resources/Mindustry/core/assets/sprites/error.png"
-  if (prev === next) {
-    return;
+function ohno(tooltipDisplayer, image, reason) {
+  const timedSwap = (callback, prev, next) => {
+    if (prev === next) {
+      return;
+    }
+    callback(next)
+    timeout(5000, () => callback(prev))
   }
 
-  image.set_from_file(next)
-  timeout(5000, () => image.set_from_file(prev))
+  timedSwap((f) => image.set_from_file(f), image.file, "../../resources/Mindustry/core/assets/sprites/error.png")
+  timedSwap((t) => tooltip(t)(tooltipDisplayer), tooltipDisplayer.tooltipMarkup, reason)
 }
 
 // TODO: add typehints, String | Accessible
-function BlockIcon({ block }) {
+function BlockIcon({ block, pixelSize = 24 }) {
   const toFile = (b) => "../../resources/Mindustry/core/assets-raw/sprites/blocks/" + b + ".png"
   return (
-    <image file={typeof block !== "string" ? block(toFile) : toFile(block)} pixelSize={24} />
+    <image file={typeof block !== "string" ? block(toFile) : toFile(block)} pixelSize={pixelSize} />
   )
 }
 
-function BlockOverlay({ block, overlayClass }) {
+/// BlockOverlay returns a block icon along with a box child that is in exact
+/// size as the icon. This box can be applied the CSS `filter` property without
+/// affecting the margin or padding area.
+function BlockOverlay({ block, filterClass, filterCSS="", pixelSize = 24 }) {
   return (
     <overlay>
-      <BlockIcon block={block} />
+      <BlockIcon block={block} pixelSize={pixelSize} />
       <Gtk.AspectFrame $type="overlay">
         <centerbox overflow={Gtk.Overflow.HIDDEN}>
-          <box $type="center" heightRequest={24} widthRequest={24} class={`blockOverlay ${overlayClass}`} />
+          <box
+            $type="center"
+            heightRequest={pixelSize}
+            widthRequest={pixelSize}
+            class={`blockOverlay ${filterClass}`}
+            css={filterCSS}
+          />
         </centerbox>
       </Gtk.AspectFrame>
     </overlay>
@@ -326,10 +337,38 @@ function AudioOutput() {
 
 /// https://github.com/maxverbeek/astalconfig/blob/master/service/usage.ts
 function Memory() {
+  const usage = createPoll("", 20000, async () => {
+    const err = { msg: "" };
+    let details: string;
+    try {
+      details = await execAsync(`free`)
+    } catch (error) {
+      console.log("newcastle") // TODO
+      return err;
+    }
+
+    const lines = details.split("\n")
+    if (lines.length < 2) {
+      return err;
+    }
+    const fields = lines[1].split(" ").map(parseFloat).filter((f) => !isNaN(f))
+    return {
+      total: fields[0],
+      used: fields[1],
+      free: fields[2],
+    }
+  })
+
+  const brightness = usage((fields) => {
+    const r = `filter: brightness(${String(fields["used"] / fields["total"] * 100)}%);`
+    console.log(r)
+    return r
+  })
+
   return (
-    <box class="Memory" widthRequest={51 /* Make dividable by 3. */ }>
-      <BlockIcon block="logic/memory-bank" />
-      <label label="100%" />
+    <box $={tooltip("Memory Usage")} class="Memory" widthRequest={51 /* Make dividable by 3. */ }>
+      <BlockOverlay block="logic/memory-bank" filterCSS={brightness} />
+      <label label={usage} />
     </box>
   )
 }
@@ -353,13 +392,14 @@ function IdleInhibitor() {
             console.log()
             InhibitorCookie = app.inhibit(
               app.get_active_window(),
-              Gtk.ApplicationInhibitFlags.IDLE,
+              undefined,
+              // Gtk.ApplicationInhibitFlags.IDLE,
               "activated idle inhibitor in status bar",
             )
 
             if (InhibitorCookie === 0) {
               self.active = false
-              ohno(self.get_child())
+              ohno(self, self.get_child(), "Request failed or the current platform does not support it")
             }
           } else if (InhibitorCookie > 0) {
             app.uninhibit(InhibitorCookie)
@@ -515,11 +555,9 @@ export default function Bar({ gdkmonitor }: { gdkmonitor: Gdk.Monitor }) {
                 <Clock />
                 <Workspaces />
               </box>
-              <box $type="center" class="module">
-                <Focus />
-              </box>
               <box $type="end" class="module">
                 <Tray />
+                <Memory />
                 <Wireless />
                 <IdleInhibitor />
                 <PowerProfile />
@@ -529,5 +567,7 @@ export default function Bar({ gdkmonitor }: { gdkmonitor: Gdk.Monitor }) {
       }
     </window>
   )
-  // <Memory />
+              // <box $type="center" class="module">
+              //   <Focus />
+              // </box>
 }
