@@ -15,10 +15,6 @@
     # Non-flake inputs:
     mindustry = { url = "github:anuken/mindustry?ref=v151.1"; flake = false; };
     animdustry = { url = "github:anuken/animdustry"; flake = false; };
-    astalconfig = {
-      url = "github:maxverbeek/astalconfig?rev=20a5bf251c0df136945778199c87bebafcce7c59";
-      flake = false;
-    };
   };
 
   outputs = {
@@ -28,7 +24,6 @@
     # Non-flake inputs:
     mindustry,
     animdustry,
-    astalconfig,
   }: let
     system = "x86_64-linux";
     pkgs = nixpkgs.legacyPackages.${system};
@@ -171,7 +166,6 @@
             rm -rf ./resources && mkdir -p ./resources
 
             ln -fs ${mindustry} ./resources/Mindustry
-            ln -fs ${astalconfig} ./resources/astalconfig
 
             find ./resources -maxdepth 1
           '')

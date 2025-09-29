@@ -38,10 +38,9 @@
 window {
   border-color: #454545;
   background: #00000088;
-  border-bottom: 3px solid;
+  border: 3px solid;
   border-bottom-left-radius: 5px; // TODO: change to corner
   border-bottom-right-radius: 5px; // TODO: change to corner
-  padding-right: 10px;
 }
 
 .debugInspect {
@@ -75,19 +74,11 @@ label {
   color: #FFD37F;
 }
 
-.Memory {
-  // background: repeating-linear-gradient(
-  //   90deg,
-  //   #4A4B53 0px,
-  //   #4A4B53 7.5px,
-  //   #6E7080 7.5px,
-  //   #6E7080 15.0px,
-  //   #4A4B53 15.0px,
-  // );
-  image {
-    filter: brightness(200%);
-  }
-}
+// .Memory {
+//   .frame {
+//     filter: grayscale(100%) brightness(50%);
+//   }
+// }
 
 @mixin TODOTemporaryFix {
   button {
@@ -118,7 +109,7 @@ label {
 
   .radiate {
     .radiation {
-      animation: radiate 4s infinite;
+      animation: radiate 2s linear infinite;
     }
   }
 

@@ -26,42 +26,66 @@ import {
 import { createPoll, timeout } from "ags/time"
 import { execAsync } from "ags/process"
 import PangoCairo from "gi://PangoCairo"
+import restrictUnpack from "./assert"
 
 const GDK_CURSOR = Gdk.Cursor.new_from_name("pointer", null)
 
-function tooltip(label) {
-  return (self) => self.set_tooltip_markup(`<span background="black">${label}</span>`)
+function tooltip(...lines) {
+  return (self) => self.set_tooltip_markup(`<span background="black">${lines.join("\n")}</span>`)
 }
 
-function ohno(image) {
-  const prev = image.file
-  const next = "../../resources/Mindustry/core/assets/sprites/error.png"
-  if (prev === next) {
-    return;
+function ohno(tooltipDisplayer, image, reason) {
+  const timedSwap = (callback, prev, next) => {
+    if (prev === next) {
+      return;
+    }
+    callback(next)
+    timeout(5000, () => callback(prev))
   }
 
-  image.set_from_file(next)
-  timeout(5000, () => image.set_from_file(prev))
+  timedSwap((f) => image.set_from_file(f), image.file, "../../resources/Mindustry/core/assets/sprites/error.png")
+  timedSwap((t) => tooltip(t)(tooltipDisplayer), tooltipDisplayer.tooltipMarkup, reason)
 }
 
 // TODO: add typehints, String | Accessible
-function BlockIcon({ block }) {
+function BlockIcon({ block, pixelSize = 24 }) {
   const toFile = (b) => "../../resources/Mindustry/core/assets-raw/sprites/blocks/" + b + ".png"
   return (
-    <image file={typeof block !== "string" ? block(toFile) : toFile(block)} pixelSize={24} />
+    <image file={typeof block !== "string" ? block(toFile) : toFile(block)} pixelSize={pixelSize} />
   )
 }
 
-function BlockOverlay({ block, overlayClass }) {
+/// BlockOverlay returns a complex components tree alongside the block icon,
+/// which serves one main purpose: all effects stay in the block icon and do
+/// not affect the margin or padding area.
+///
+/// Example effects:
+/// - The aspect frame can have a CSS `filter` property.
+/// - The box can render textures and animations.
+function BlockOverlay({
+  block,
+  frameClass = "",
+  boxClass = "",
+  frameCSS = "",
+  boxCSS = "",
+  pixelSize = 24,
+  ...unexpected
+}) {
+  restrictUnpack(unexpected)
+
   return (
-    <overlay>
-      <BlockIcon block={block} />
-      <Gtk.AspectFrame $type="overlay">
-        <centerbox overflow={Gtk.Overflow.HIDDEN}>
-          <box $type="center" heightRequest={24} widthRequest={24} class={`blockOverlay ${overlayClass}`} />
-        </centerbox>
-      </Gtk.AspectFrame>
-    </overlay>
+    <Gtk.AspectFrame class={frameClass} css={frameCSS}>
+      <overlay overflow={Gtk.Overflow.HIDDEN}>
+        <BlockIcon block={block} pixelSize={pixelSize} />
+        <box
+          $type="overlay"
+          heightRequest={pixelSize}
+          widthRequest={pixelSize}
+          class={boxClass}
+          css={boxCSS}
+        />
+      </overlay>
+    </Gtk.AspectFrame>
   )
 }
 
@@ -326,10 +350,42 @@ function AudioOutput() {
 
 /// https://github.com/maxverbeek/astalconfig/blob/master/service/usage.ts
 function Memory() {
+  const usage = createPoll("", 20000, async () => {
+    const err = { msg: "" };
+    let details: string;
+    try {
+      details = await execAsync(`free`)
+    } catch (error) {
+      console.log(error) // TODO
+      return err;
+    }
+
+    const lines = details.split("\n")
+    if (lines.length < 2) {
+      return err;
+    }
+    const fields = lines[1].split(" ").map(parseFloat).filter((f) => !isNaN(f))
+    return {
+      total: fields[0],
+      used: fields[1],
+      free: fields[2],
+    }
+  })
+
+  const brightness = usage(({ used, total }) => {
+    let brightness = Math.floor(used / total * 100) + 100
+    if (isNaN(brightness)) {
+      brightness = 100
+    }
+    const r = `filter: brightness(${String(brightness)}%);`
+    return r
+  })
+  const giga = usage(({ used }) => `${((used / 1000 / 1000).toFixed(1))} GB`)
+
   return (
-    <box class="Memory" widthRequest={51 /* Make dividable by 3. */ }>
-      <BlockIcon block="logic/memory-bank" />
-      <label label="100%" />
+    <box $={tooltip("Memory Usage")} class="Memory">
+      <BlockOverlay block="logic/memory-bank" frameCSS={brightness} />
+      <label label={giga} />
     </box>
   )
 }
@@ -359,7 +415,7 @@ function IdleInhibitor() {
 
             if (InhibitorCookie === 0) {
               self.active = false
-              ohno(self.get_child())
+              ohno(self, self.get_child(), "Request failed or the current platform does not support it")
             }
           } else if (InhibitorCookie > 0) {
             app.uninhibit(InhibitorCookie)
@@ -402,13 +458,15 @@ function PowerProfile() { // TODO: responsive
         }}
         class={active((p) => p === hardcodedPowerSaver ? "blockDisabled" : "radiate")}
       >
-        <BlockOverlay block={icon} overlayClass="radiation" />
+        <BlockOverlay block={icon} boxClass="radiation" />
       </button>
     </box>
   )
 }
 
-function Battery({ width = 175 }) {
+function Battery({ width = 175, ...unexpected }) {
+  restrictUnpack(unexpected)
+
   const battery = AstalBattery.get_default()
 
   const percent = createBinding(
@@ -426,23 +484,27 @@ function Battery({ width = 175 }) {
   )((s) => s === AstalBattery.State.CHARGING)
 
   return (
-    <overlay $={tooltip("Battery")} class="Battery" widthRequest={width}>
-      <revealer
-        transitionType={Gtk.RevealerTransitionType.CROSSFADE}
-        revealChild={charging}
-        transitionDuration={1000}
-      >
-        <box class="stripes marquee" />
-      </revealer>
-      <box $type="overlay">
-        <box class="fill" widthRequest={progress} />
-      </box>
-      <label $type="overlay" label={percent} useMarkup={true} />
-    </overlay>
+    <box class="Battery">
+      <overlay $={tooltip("Battery")} widthRequest={width}>
+        <revealer
+          transitionType={Gtk.RevealerTransitionType.CROSSFADE}
+          revealChild={charging}
+          transitionDuration={1000}
+        >
+          <box class="stripes marquee" />
+        </revealer>
+        <box $type="overlay">
+          <box class="fill" widthRequest={progress} />
+        </box>
+        <label $type="overlay" label={percent} useMarkup={true} />
+      </overlay>
+    </box>
   )
 }
 
-function Clock({ format = "%H\n%M" }) {
+function Clock({ format = "%H\n%M", ...unexpected }) {
+  restrictUnpack(unexpected)
+
   const time = createPoll("", 1000, () => {
     return GLib.DateTime.new_now_local().format(format)!
   })
@@ -492,7 +554,7 @@ export default function Bar({ gdkmonitor }: { gdkmonitor: Gdk.Monitor }) {
       name={`bar-${gdkmonitor.connector}`}
       gdkmonitor={gdkmonitor}
       exclusivity={Astal.Exclusivity.EXCLUSIVE}
-      anchor={TOP | LEFT | RIGHT}
+      anchor={TOP}
       application={app}
       class={false ? "debugInspect" : ""} // TODO: debug mode toggle
     >
@@ -515,11 +577,9 @@ export default function Bar({ gdkmonitor }: { gdkmonitor: Gdk.Monitor }) {
                 <Clock />
                 <Workspaces />
               </box>
-              <box $type="center" class="module">
-                <Focus />
-              </box>
               <box $type="end" class="module">
                 <Tray />
+                <Memory />
                 <Wireless />
                 <IdleInhibitor />
                 <PowerProfile />
@@ -529,5 +589,7 @@ export default function Bar({ gdkmonitor }: { gdkmonitor: Gdk.Monitor }) {
       }
     </window>
   )
-  // <Memory />
+              // <box $type="center" class="module">
+              //   <Focus />
+              // </box>
 }
