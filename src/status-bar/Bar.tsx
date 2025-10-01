@@ -7,6 +7,7 @@ import GLib from "gi://GLib"
 import Astal from "gi://Astal?version=4.0"
 import Gtk from "gi://Gtk?version=4.0"
 import Gdk from "gi://Gdk?version=4.0"
+import PangoCairo from "gi://PangoCairo"
 import AstalBattery from "gi://AstalBattery"
 import AstalPowerProfiles from "gi://AstalPowerProfiles"
 import AstalWp from "gi://AstalWp"
@@ -25,7 +26,6 @@ import {
 } from "ags"
 import { createPoll, timeout } from "ags/time"
 import { execAsync } from "ags/process"
-import PangoCairo from "gi://PangoCairo"
 import restrictUnpack from "./assert"
 
 const GDK_CURSOR = Gdk.Cursor.new_from_name("pointer", null)
@@ -48,7 +48,9 @@ function ohno(tooltipDisplayer, image, reason) {
 }
 
 // TODO: add typehints, String | Accessible
-function BlockIcon({ block, pixelSize = 24 }) {
+function BlockIcon({ block, pixelSize = 24, ...unexpected }) {
+  restrictUnpack(unexpected)
+
   const toFile = (b) => "../../resources/Mindustry/core/assets-raw/sprites/blocks/" + b + ".png"
   return (
     <image file={typeof block !== "string" ? block(toFile) : toFile(block)} pixelSize={pixelSize} />
@@ -69,13 +71,19 @@ function BlockOverlay({
   frameCSS = "",
   boxCSS = "",
   pixelSize = 24,
+  extraOverlays= [],
   ...unexpected
 }) {
   restrictUnpack(unexpected)
 
   return (
     <Gtk.AspectFrame class={frameClass} css={frameCSS}>
-      <overlay overflow={Gtk.Overflow.HIDDEN}>
+      <overlay
+        $={(self) => {
+          extraOverlays.forEach((overlay) => self.add_overlay(overlay))
+        }}
+        overflow={Gtk.Overflow.HIDDEN}
+      >
         <BlockIcon block={block} pixelSize={pixelSize} />
         <box
           $type="overlay"
@@ -350,7 +358,7 @@ function AudioOutput() {
 
 /// https://github.com/maxverbeek/astalconfig/blob/master/service/usage.ts
 function Memory() {
-  const usage = createPoll("", 20000, async () => {
+  const usage = createPoll("", 10000, async () => {
     const err = { msg: "" };
     let details: string;
     try {
@@ -377,14 +385,56 @@ function Memory() {
     if (isNaN(brightness)) {
       brightness = 100
     }
-    const r = `filter: brightness(${String(brightness)}%);`
+    const r = `filter: brightness(${brightness}%);` // TODO: test out css variables
     return r
   })
-  const giga = usage(({ used }) => `${((used / 1000 / 1000).toFixed(1))} GB`)
+  const giga = usage(({ used }) => {
+    let giga =((used / 1000 / 1000).toFixed(1))
+    if (isNaN(giga)) {
+      giga = "--"
+    }
+
+    return `${giga} GB`
+  })
 
   return (
     <box $={tooltip("Memory Usage")} class="Memory">
-      <BlockOverlay block="logic/memory-bank" frameCSS={brightness} />
+      <overlay $={(self) => {
+        // Animations:
+        // const radius = 1;
+        // self.add_overlay(<box class="hotParticles" widthRequest={radius} heightRequest={radius} />)
+        // TODO: https://stackoverflow.com/questions/71011893/gtk-widgets-changing-with-css
+      }}>
+        <BlockOverlay block="logic/memory-bank" frameCSS={brightness} pixelSize={100} />
+        <Gtk.AspectFrame $type="overlay">
+          <box class="hotParticle" css={createPoll("", 1000, () => {
+            const rand = () => (Math.random() - 0.5) * 10;
+            const x = `transform: scale(0.1) translate(${rand()}rem, ${rand()}rem);`
+            console.log(x)
+return `
+  @keyframes shrink {
+    0% {
+      opacity: 0%;
+    }
+    79% {
+      opacity: 0%;
+    }
+
+    80% {
+      opacity: 100%;
+      transform: scale(0.5) translate(0px, 0px);
+    }
+    99% {
+      opacity: 50%;
+    }
+    100% {
+      opacity: 0%;
+      ${x}
+    }
+  }`
+          })} />
+        </Gtk.AspectFrame>
+      </overlay>
       <label label={giga} />
     </box>
   )
@@ -556,7 +606,7 @@ export default function Bar({ gdkmonitor }: { gdkmonitor: Gdk.Monitor }) {
       exclusivity={Astal.Exclusivity.EXCLUSIVE}
       anchor={TOP}
       application={app}
-      class={false ? "debugInspect" : ""} // TODO: debug mode toggle
+      class={true ? "debugInspect" : ""} // TODO: debug mode toggle
     >
       {
         !hasFonts
