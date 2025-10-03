@@ -407,31 +407,10 @@ function Memory() {
       }}>
         <BlockOverlay block="logic/memory-bank" frameCSS={brightness} pixelSize={100} />
         <Gtk.AspectFrame $type="overlay">
-          <box class="hotParticle" css={createPoll("", 1000, () => {
-            const rand = () => (Math.random() - 0.5) * 10;
-            const x = `transform: scale(0.1) translate(${rand()}rem, ${rand()}rem);`
+          <box class={createPoll("", 1000, () => {
+            const x = `hotParticle-${Math.floor(Math.random() * 100)}`
             console.log(x)
-return `
-  @keyframes shrink {
-    0% {
-      opacity: 0%;
-    }
-    79% {
-      opacity: 0%;
-    }
-
-    80% {
-      opacity: 100%;
-      transform: scale(0.5) translate(0px, 0px);
-    }
-    99% {
-      opacity: 50%;
-    }
-    100% {
-      opacity: 0%;
-      ${x}
-    }
-  }`
+            return x
           })} />
         </Gtk.AspectFrame>
       </overlay>

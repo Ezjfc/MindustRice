@@ -1,4 +1,5 @@
 // https://gitlab.gnome.org/GNOME/gtk/-/blob/gtk-3-24/gtk/theme/Adwaita/_colors-public.scss
+@use 'sass:math';
 
 /// fit-border surrounds an element with a border of its accurate shape.
 @mixin fit-border($thickness, $colour) {
@@ -35,9 +36,40 @@
     background: white;
 }
 
-.hotParticle {
-  background: radial-gradient(white 50%, rgba(255, 255, 255, 0.5) 50%, transparent 90%);
-  animation: shrink 1s linear infinite; // Animation is dynamically defined.
+@function quenchRand() {
+  @return math.random() * 200px;
+}
+
+@debug quenchRand();
+@debug quenchRand();
+
+// https://stackoverflow.com/a/69711070
+@for $seed from 1 through 100 {
+  .hotParticle-#{$seed} {
+    background: radial-gradient(white 50%, rgba(255, 255, 255, 0.5) 50%, transparent 90%);
+    animation: quench 1s linear infinite;
+
+    @keyframes quench {
+      0% {
+        opacity: 0%;
+      }
+      79% {
+        opacity: 0%;
+      }
+
+      80% {
+        opacity: 100%;
+        transform: scale(0.5) translate(0px, 0px);
+      }
+      99% {
+        opacity: 50%;
+      }
+      100% {
+        opacity: 0%;
+        transform: scale(0.1) translate(quenchRand(), quenchRand());
+      }
+    }
+  }
 }
 
 window {
