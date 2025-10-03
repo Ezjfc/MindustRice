@@ -35,6 +35,11 @@
     background: white;
 }
 
+.hotParticle {
+  background: radial-gradient(white 50%, rgba(255, 255, 255, 0.5) 50%, transparent 90%);
+  animation: particle 1s linear infinite; // Animation is dynamically defined.
+}
+
 window {
   border-color: #454545;
   background: #00000088;
@@ -74,12 +79,6 @@ label {
   color: #FFD37F;
 }
 
-// .Memory {
-//   .frame {
-//     filter: grayscale(100%) brightness(50%);
-//   }
-// }
-
 @mixin TODOTemporaryFix {
   button {
     margin: 0px;
@@ -114,7 +113,7 @@ label {
   }
 
   @keyframes radiate {
-    0% { // TODO: fix border thickness (refer to charging animation)
+    0% { // TODO: improve animation
       border: 2px solid #FEB380;
       transform: rotate(45deg) scale(0);
     }
@@ -150,11 +149,6 @@ label {
   );
   margin-bottom: 10px;
   margin-top: 10px;
-
-  // label {
-  //   margin-bottom: 2px;
-  //   font-size: 16px;
-  // }
 
   .fill {
     background: linear-gradient(

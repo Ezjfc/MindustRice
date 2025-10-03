@@ -7,6 +7,7 @@ import GLib from "gi://GLib"
 import Astal from "gi://Astal?version=4.0"
 import Gtk from "gi://Gtk?version=4.0"
 import Gdk from "gi://Gdk?version=4.0"
+import PangoCairo from "gi://PangoCairo"
 import AstalBattery from "gi://AstalBattery"
 import AstalPowerProfiles from "gi://AstalPowerProfiles"
 import AstalWp from "gi://AstalWp"
@@ -25,7 +26,6 @@ import {
 } from "ags"
 import { createPoll, timeout } from "ags/time"
 import { execAsync } from "ags/process"
-import PangoCairo from "gi://PangoCairo"
 import restrictUnpack from "./assert"
 
 const GDK_CURSOR = Gdk.Cursor.new_from_name("pointer", null)
@@ -37,7 +37,7 @@ function tooltip(...lines) {
 function ohno(tooltipDisplayer, image, reason) {
   const timedSwap = (callback, prev, next) => {
     if (prev === next) {
-      return;
+      return
     }
     callback(next)
     timeout(5000, () => callback(prev))
@@ -48,7 +48,9 @@ function ohno(tooltipDisplayer, image, reason) {
 }
 
 // TODO: add typehints, String | Accessible
-function BlockIcon({ block, pixelSize = 24 }) {
+function BlockIcon({ block, pixelSize = 24, ...unexpected }) {
+  restrictUnpack(unexpected)
+
   const toFile = (b) => "../../resources/Mindustry/core/assets-raw/sprites/blocks/" + b + ".png"
   return (
     <image file={typeof block !== "string" ? block(toFile) : toFile(block)} pixelSize={pixelSize} />
@@ -69,13 +71,19 @@ function BlockOverlay({
   frameCSS = "",
   boxCSS = "",
   pixelSize = 24,
+  extraOverlays= [],
   ...unexpected
 }) {
   restrictUnpack(unexpected)
 
   return (
     <Gtk.AspectFrame class={frameClass} css={frameCSS}>
-      <overlay overflow={Gtk.Overflow.HIDDEN}>
+      <overlay
+        $={(self) => {
+          extraOverlays.forEach((overlay) => self.add_overlay(overlay))
+        }}
+        overflow={Gtk.Overflow.HIDDEN}
+      >
         <BlockIcon block={block} pixelSize={pixelSize} />
         <box
           $type="overlay"
@@ -350,19 +358,19 @@ function AudioOutput() {
 
 /// https://github.com/maxverbeek/astalconfig/blob/master/service/usage.ts
 function Memory() {
-  const usage = createPoll("", 20000, async () => {
-    const err = { msg: "" };
-    let details: string;
+  const usage = createPoll("", 10000, async () => {
+    const err = { msg: "" }
+    let details: string
     try {
       details = await execAsync(`free`)
     } catch (error) {
       console.log(error) // TODO
-      return err;
+      return err
     }
 
     const lines = details.split("\n")
     if (lines.length < 2) {
-      return err;
+      return err
     }
     const fields = lines[1].split(" ").map(parseFloat).filter((f) => !isNaN(f))
     return {
@@ -377,10 +385,17 @@ function Memory() {
     if (isNaN(brightness)) {
       brightness = 100
     }
-    const r = `filter: brightness(${String(brightness)}%);`
+    const r = `filter: brightness(${brightness}%);` // TODO: test out css variables
     return r
   })
-  const giga = usage(({ used }) => `${((used / 1000 / 1000).toFixed(1))} GB`)
+  const giga = usage(({ used }) => {
+    let giga =((used / 1000 / 1000).toFixed(1))
+    if (isNaN(giga)) {
+      giga = "--"
+    }
+
+    return `${giga} GB`
+  })
 
   return (
     <box $={tooltip("Memory Usage")} class="Memory">
@@ -390,7 +405,17 @@ function Memory() {
           // `css` property does not support binding.
           return (
             <box>
-              <BlockOverlay block="logic/memory-bank" frameCSS={brightness} />
+              <overlay $={(self) => {
+                // Animations:
+                // const radius = 1;
+                // self.add_overlay(<box class="hotParticles" widthRequest={radius} heightRequest={radius} />)
+                // TODO: https://stackoverflow.com/questions/71011893/gtk-widgets-changing-with-css
+              }}>
+                <BlockOverlay block="logic/memory-bank" frameCSS={brightness} pixelSize={100} />
+                <box $type="overlay">
+                  <HotParticles pixelSize={100} />
+                </box>
+              </overlay>
               <label label={giga} />
             </box>
           )
@@ -400,7 +425,47 @@ function Memory() {
   )
 }
 
-var InhibitorCookie = 0;
+function HotParticles({ pixelSize = 24 , ...unexpected }) {
+  restrictUnpack(unexpected)
+
+  const keyframes = createPoll("", 1000, () => {
+    const rand = () => {
+      const dp = 2
+      const init = ((Math.random() - 0.5) * pixelSize)
+      const final = init
+      // const final = init + (Math.random() - 0.5) * pixelSize
+      return [init, final]
+    }
+    const [initX, finalX] = rand()
+    const [initY, finalY] = rand()
+
+    const a = `transform: scale(0.5) translate(${initX}px, ${initY}px);`
+    const x = `transform: scale(0.1) translate(${finalX}px, ${finalY}px);`
+    const b = `transform-origin: ${pixelSize / 2 + initX}px ${pixelSize / 2 + initY}px;`
+    return `
+    @keyframes particle {
+      0% {
+        opacity: 100%;
+        ${b}
+        ${a}
+      }
+      100% {
+        opacity: 50%;
+        ${x}
+        ${b}
+      }
+    }`
+  })
+  return (
+    <Gtk.AspectFrame hexpand vexpand>
+      <With value={keyframes}>
+        {(keyframes) => <box class="hotParticle" css={keyframes} />}
+      </With>
+    </Gtk.AspectFrame>
+  )
+}
+
+var InhibitorCookie = 0
 
 /// IdleInhibitor is known as SleepInhibitor.
   // TODO: other inhibit flags since the current flag is largest (idle)
@@ -566,7 +631,7 @@ export default function Bar({ gdkmonitor }: { gdkmonitor: Gdk.Monitor }) {
       exclusivity={Astal.Exclusivity.EXCLUSIVE}
       anchor={TOP}
       application={app}
-      class={false ? "debugInspect" : ""} // TODO: debug mode toggle
+      class={true ? "debugInspect" : ""} // TODO: debug mode toggle
     >
       {
         !hasFonts
