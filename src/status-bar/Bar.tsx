@@ -384,8 +384,18 @@ function Memory() {
 
   return (
     <box $={tooltip("Memory Usage")} class="Memory">
-      <BlockOverlay block="logic/memory-bank" frameCSS={brightness} />
-      <label label={giga} />
+      <With value={brightness}>
+        {(brightness) => {
+          // Dynamic rendering required:
+          // `css` property does not support binding.
+          return (
+            <box>
+              <BlockOverlay block="logic/memory-bank" frameCSS={brightness} />
+              <label label={giga} />
+            </box>
+          )
+        }}
+      </With>
     </box>
   )
 }
