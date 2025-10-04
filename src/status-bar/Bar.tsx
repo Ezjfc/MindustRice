@@ -24,7 +24,7 @@ import {
   createState,
   onCleanup,
 } from "ags"
-import { createPoll, timeout } from "ags/time"
+import { createPoll, timeout, interval } from "ags/time"
 import { execAsync } from "ags/process"
 import restrictUnpack from "./assert"
 
@@ -429,50 +429,39 @@ function HotParticles({ child, pixelSize = 24 , ...unexpected }) {
     const final = init + (Math.random() - 0.5) * 0.25 * pixelSize
     return [init, final]
   }
-  const keyframes = () => {
+  const properties = (name, x, y) => {
+    return `
+    --${name}X: ${x.toFixed(dp)}px;
+    --${name}Y: ${y.toFixed(dp)}px;
+    --${name}XOrigin: ${(pixelSize / 2 + x).toFixed(dp)}px;
+    --${name}YOrigin: ${(pixelSize / 2 + y).toFixed(dp)}px;
+    `
+  }
+
+  const genCss = () => {
     const [initX, finalX] = rand()
     const [initY, finalY] = rand()
-    const transform = (scale, x, y) => `
-    transform: scale(${scale}) translate(${x.toFixed(dp)}px, ${y.toFixed(dp)}px);
-    transform-origin: ${(pixelSize / 2 + x).toFixed(dp)}px ${(pixelSize / 2 + y).toFixed(dp)}px;
-    `;
+
     const keyframes = `
-    @keyframes particle {
-      0% {
-        opacity: 0%;
-      }
-      69% {
-        opacity: 0%;
-      }
+    .hotParticle {
+      ${properties("init", initX, initY)}
+      ${properties("final", finalX, finalY)}
+    }
+    `
 
-      70% {
-        background: radial-gradient(white 50%, rgba(255, 255, 255, 0.5) 50%, transparent 90%);
-        opacity: 100%;
-        ${transform(0.3, initX, initY)}
-
-      }
-      100% {
-        opacity: 50%;
-        ${transform(0.1, finalX, finalY)}
-      }
-    }`
     return keyframes
   }
-  const particlesGroup = createPoll("", 1000, () => {
-    return keyframes()
-  })
+
+  const [css, setCss] = createState(genCss())
+  interval(1000, () => setCss(genCss))
 
   return (
-    <With value={particlesGroup}>
-      {(keyframes) => (
-        <overlay>
-          {child()}
-          <Gtk.AspectFrame $type="overlay">
-            <box class="hotParticle" css={keyframes} />
-          </Gtk.AspectFrame>
-        </overlay>
-      )}
-    </With>
+    <overlay>
+      {child()}
+      <Gtk.AspectFrame $type="overlay">
+        <box class="hotParticle" css={css} />
+      </Gtk.AspectFrame>
+    </overlay>
   )
 }
 

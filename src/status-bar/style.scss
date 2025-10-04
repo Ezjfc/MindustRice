@@ -46,6 +46,38 @@
 .hotParticle {
   background: radial-gradient(white 50%, rgba(255, 255, 255, 0.5) 50%, transparent 90%);
   animation: particle 1s linear infinite; // Animation is dynamically defined.
+
+  // Dynamically generated properties:
+  // --initX
+  // --initY
+  // --initXOrigin
+  // --initYOrigin
+  // --finalX
+  // --finalY
+  // --finalXOrigin
+  // --finalYOrigin
+
+  @keyframes particle {
+    0% {
+      opacity: 0%;
+    }
+    69% {
+      opacity: 0%;
+    }
+
+    70% {
+      background: radial-gradient(white 50%, rgba(255, 255, 255, 0.5) 50%, transparent 90%);
+      opacity: 100%;
+      transform: scale(0.3) translate(var(--initX), var(--initY));
+      transform-origin: var(--initXOrigin) var(--initYOrigin);
+
+    }
+    100% {
+      opacity: 50%;
+      transform: scale(0.1) translate(var(--finalX), var(--finalY));
+      transform-origin: var(--finalXOrigin) var(--finalYOrigin);
+    }
+  }
 }
 
 .debugInspect {
