@@ -405,17 +405,12 @@ function Memory() {
           // `css` property does not support binding.
           return (
             <box>
-              <overlay $={(self) => {
-                // Animations:
-                // const radius = 1;
-                // self.add_overlay(<box class="hotParticles" widthRequest={radius} heightRequest={radius} />)
-                // TODO: https://stackoverflow.com/questions/71011893/gtk-widgets-changing-with-css
-              }}>
-                <BlockOverlay block="logic/memory-bank" frameCSS={brightness} pixelSize={100} />
-                <box $type="overlay">
-                  <HotParticles pixelSize={100} />
-                </box>
-              </overlay>
+              <box>
+                <HotParticles
+                  child={() => <BlockOverlay block="power/thorium-reactor" frameCSS={brightness} pixelSize={24} />}
+                  pixelSize={24}
+                />
+              </box>
               <label label={giga} />
             </box>
           )
@@ -425,43 +420,59 @@ function Memory() {
   )
 }
 
-function HotParticles({ pixelSize = 24 , ...unexpected }) {
+function HotParticles({ child, pixelSize = 24 , ...unexpected }) {
   restrictUnpack(unexpected)
 
-  const keyframes = createPoll("", 1000, () => {
-    const rand = () => {
-      const dp = 2
-      const init = ((Math.random() - 0.5) * pixelSize)
-      const final = init
-      // const final = init + (Math.random() - 0.5) * pixelSize
-      return [init, final]
-    }
+  const dp = 4
+  const rand = () => {
+    const init = ((Math.random() - 0.5) * pixelSize)
+    const final = init + (Math.random() - 0.5) * 0.25 * pixelSize
+    return [init, final]
+  }
+  const keyframes = () => {
     const [initX, finalX] = rand()
     const [initY, finalY] = rand()
-
-    const a = `transform: scale(0.5) translate(${initX}px, ${initY}px);`
-    const x = `transform: scale(0.1) translate(${finalX}px, ${finalY}px);`
-    const b = `transform-origin: ${pixelSize / 2 + initX}px ${pixelSize / 2 + initY}px;`
-    return `
+    const transform = (scale, x, y) => `
+    transform: scale(${scale}) translate(${x.toFixed(dp)}px, ${y.toFixed(dp)}px);
+    transform-origin: ${(pixelSize / 2 + x).toFixed(dp)}px ${(pixelSize / 2 + y).toFixed(dp)}px;
+    `;
+    const keyframes = `
     @keyframes particle {
       0% {
+        opacity: 0%;
+      }
+      69% {
+        opacity: 0%;
+      }
+
+      70% {
+        background: radial-gradient(white 50%, rgba(255, 255, 255, 0.5) 50%, transparent 90%);
         opacity: 100%;
-        ${b}
-        ${a}
+        ${transform(0.3, initX, initY)}
+
       }
       100% {
         opacity: 50%;
-        ${x}
-        ${b}
+        ${transform(0.1, finalX, finalY)}
       }
     }`
+    return keyframes
+  }
+  const particlesGroup = createPoll("", 1000, () => {
+    return keyframes()
   })
+
   return (
-    <Gtk.AspectFrame hexpand vexpand>
-      <With value={keyframes}>
-        {(keyframes) => <box class="hotParticle" css={keyframes} />}
-      </With>
-    </Gtk.AspectFrame>
+    <With value={particlesGroup}>
+      {(keyframes) => (
+        <overlay>
+          {child()}
+          <Gtk.AspectFrame $type="overlay">
+            <box class="hotParticle" css={keyframes} />
+          </Gtk.AspectFrame>
+        </overlay>
+      )}
+    </With>
   )
 }
 
@@ -481,7 +492,6 @@ function IdleInhibitor() {
           const willActive = self.active
           self.set_css_classes(!willActive ? ["blockDisabled"] : [""])
           if (willActive) {
-            console.log()
             InhibitorCookie = app.inhibit(
               app.get_active_window(),
               Gtk.ApplicationInhibitFlags.IDLE,
@@ -629,9 +639,9 @@ export default function Bar({ gdkmonitor }: { gdkmonitor: Gdk.Monitor }) {
       name={`bar-${gdkmonitor.connector}`}
       gdkmonitor={gdkmonitor}
       exclusivity={Astal.Exclusivity.EXCLUSIVE}
-      anchor={TOP}
+      anchor={LEFT | TOP | RIGHT}
       application={app}
-      class={true ? "debugInspect" : ""} // TODO: debug mode toggle
+      class={false ? "debugInspect" : ""} // TODO: debug mode toggle
     >
       {
         !hasFonts
@@ -642,7 +652,7 @@ export default function Bar({ gdkmonitor }: { gdkmonitor: Gdk.Monitor }) {
                 <popover>
                   <button onClicked={
                     () => app.quit()
-                  }>Close</button>
+                  }>Quit MindustRice</button>
                 </popover>
               </menubutton>
             </centerbox>

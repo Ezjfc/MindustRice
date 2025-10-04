@@ -21,6 +21,14 @@
 }
 
 .module {
+  &:nth-child(2) {
+    border-color: #454545;
+    background: #00000088;
+    border: 3px solid;
+    border-bottom-left-radius: 5px; // TODO: change to corner
+    border-bottom-right-radius: 5px; // TODO: change to corner
+  }
+
   > * {
     margin-left: 3px;
     margin-right: 3px;
@@ -38,14 +46,6 @@
 .hotParticle {
   background: radial-gradient(white 50%, rgba(255, 255, 255, 0.5) 50%, transparent 90%);
   animation: particle 1s linear infinite; // Animation is dynamically defined.
-}
-
-window {
-  border-color: #454545;
-  background: #00000088;
-  border: 3px solid;
-  border-bottom-left-radius: 5px; // TODO: change to corner
-  border-bottom-right-radius: 5px; // TODO: change to corner
 }
 
 .debugInspect {
