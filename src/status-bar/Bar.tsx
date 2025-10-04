@@ -358,7 +358,7 @@ function AudioOutput() {
 
 /// https://github.com/maxverbeek/astalconfig/blob/master/service/usage.ts
 function Memory() {
-  const usage = createPoll("", 10000, async () => {
+  const usage = createPoll({ msg: "", used: NaN }, 10000, async () => {
     const err = { msg: "" }
     let details: string
     try {
@@ -420,48 +420,71 @@ function Memory() {
   )
 }
 
-function HotParticles({ child, pixelSize = 24 , ...unexpected }) {
+function HotParticles({ child, pixelSize = 24, decimalPoints = 4, ...unexpected }) {
   restrictUnpack(unexpected)
 
-  const dp = 4
-  const rand = () => {
-    const init = ((Math.random() - 0.5) * pixelSize)
-    const final = init + (Math.random() - 0.5) * 0.25 * pixelSize
+  // Reserve spawning spaces for adjacent particles by preventing the base
+  // particle from the top left edges:
+  const adjacentReserved = 0.2
+  const baseParticle = () => {
+    // Note: final is greater than init for the base particle to make it move
+    // towards bottom right.
+    const init = (Math.random() - 0.5)
+      * (1-adjacentReserved) * pixelSize
+      // Shift the spawning area bottom right since we do not need to reserve
+      // for adjacent particles there:
+      + adjacentReserved * pixelSize / 2
+    const final = init + (Math.random()) * 0.25 * pixelSize
     return [init, final]
   }
   const properties = (name, x, y) => {
     return `
-    --${name}X: ${x.toFixed(dp)}px;
-    --${name}Y: ${y.toFixed(dp)}px;
-    --${name}XOrigin: ${(pixelSize / 2 + x).toFixed(dp)}px;
-    --${name}YOrigin: ${(pixelSize / 2 + y).toFixed(dp)}px;
+    --${name}X: ${x.toFixed(decimalPoints)}px;
+    --${name}Y: ${y.toFixed(decimalPoints)}px;
+    --${name}XOrigin: ${(pixelSize / 2 + x).toFixed(decimalPoints)}px;
+    --${name}YOrigin: ${(pixelSize / 2 + y).toFixed(decimalPoints)}px;
     `
   }
+  const cssClass = (initX, initY, finalX, finalY) => `
+  .hotParticle {
+    ${properties("init", initX, initY)}
+    ${properties("final", finalX, finalY)}
+  }
+  `
 
   const genCss = () => {
-    const [initX, finalX] = rand()
-    const [initY, finalY] = rand()
+    const [initX, finalX] = baseParticle()
+    const [initY, finalY] = baseParticle()
 
-    const keyframes = `
-    .hotParticle {
-      ${properties("init", initX, initY)}
-      ${properties("final", finalX, finalY)}
-    }
-    `
+    const base = cssClass(initX, initY, finalX, finalY)
+    const adjacents = Array([
+      [-1, 1],
+      [1, -1],
+      [-1, -1],
+    ]).map(([[xMod, yMod]]) => {
+      const adjX = initX + Math.random() * adjacentReserved * pixelSize * xMod
+      const adjY = initY + Math.random() * adjacentReserved * pixelSize * yMod
+      return cssClass(adjX, adjY, finalX * xMod, finalY * yMod)
+    })
 
-    return keyframes
+    return [base, ...adjacents]
   }
 
-  const [css, setCss] = createState(genCss())
-  interval(1000, () => setCss(genCss))
+  const classes = createPoll(genCss(), 1000, genCss)
 
   return (
-    <overlay>
-      {child()}
-      <Gtk.AspectFrame $type="overlay">
-        <box class="hotParticle" css={css} />
-      </Gtk.AspectFrame>
-    </overlay>
+    <With value={classes}>
+      {(classes) => (
+        <overlay>
+          {child()}
+          {classes.map((css) => (
+            <Gtk.AspectFrame $type="overlay">
+              <box class="hotParticle" css={css} />
+            </Gtk.AspectFrame>
+          ))}
+        </overlay>
+      )}
+    </With>
   )
 }
 
