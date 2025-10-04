@@ -68,8 +68,8 @@ function BlockOverlay({
   block,
   frameClass = "",
   boxClass = "",
-  frameCSS = "",
-  boxCSS = "",
+  frameCss = "",
+  boxCss = "",
   pixelSize = 24,
   extraOverlays= [],
   ...unexpected
@@ -77,7 +77,7 @@ function BlockOverlay({
   restrictUnpack(unexpected)
 
   return (
-    <Gtk.AspectFrame class={frameClass} css={frameCSS}>
+    <Gtk.AspectFrame class={frameClass} css={frameCss}>
       <overlay
         $={(self) => {
           extraOverlays.forEach((overlay) => self.add_overlay(overlay))
@@ -90,7 +90,7 @@ function BlockOverlay({
           heightRequest={pixelSize}
           widthRequest={pixelSize}
           class={boxClass}
-          css={boxCSS}
+          css={boxCss}
         />
       </overlay>
     </Gtk.AspectFrame>
@@ -357,8 +357,8 @@ function AudioOutput() {
 }
 
 /// https://github.com/maxverbeek/astalconfig/blob/master/service/usage.ts
-function Memory() {
-  const usage = createPoll("", 10000, async () => {
+function Memory({ highUsage = 0.5 }) {
+  const usage = createPoll({ msg: "", usage: NaN }, 10000, async () => {
     const err = { msg: "" }
     let details: string
     try {
@@ -380,14 +380,6 @@ function Memory() {
     }
   })
 
-  const brightness = usage(({ used, total }) => {
-    let brightness = Math.floor(used / total * 100) + 100
-    if (isNaN(brightness)) {
-      brightness = 100
-    }
-    const r = `filter: brightness(${brightness}%);` // TODO: test out css variables
-    return r
-  })
   const giga = usage(({ used }) => {
     let giga =((used / 1000 / 1000).toFixed(1))
     if (isNaN(giga)) {
@@ -397,20 +389,39 @@ function Memory() {
     return `${giga} GB`
   })
 
+  const safePercentage = ({ used, total }) => {
+    const percentage = Math.floor(used / total * 100)
+    if (isNaN(percentage)) {
+      return 0
+    }
+
+    return percentage
+  }
+  const brightness = usage((usage) => {
+    let brightness = safePercentage(usage, 0) * 0.5 + 100
+    const css = `filter: brightness(${brightness}%);`
+    return css
+  })
+  const opacity = usage((usage) => `opacity: ${safePercentage(usage)}%;`)
+  const hot = usage(({ used, total }) => used / total > highUsage)
+
   return (
     <box $={tooltip("Memory Usage")} class="Memory">
-      <With value={brightness}>
-        {(brightness) => {
-          // Dynamic rendering required:
-          // `css` property does not support binding.
+      <With value={opacity}>
+        {(opacity) => {
           return (
             <box>
-              <box>
-                <HotParticles
-                  child={() => <BlockOverlay block="power/thorium-reactor" frameCSS={brightness} pixelSize={24} />}
-                  pixelSize={24}
+              <overlay>
+                <BlockOverlay
+                  block="power/thorium-reactor"
+                  frameCss={brightness}
+                  boxClass="heat"
+                  boxCss={opacity}
                 />
-              </box>
+                <box $type="overlay">
+                  <HotParticles visible={hot} />
+                </box>
+              </overlay>
               <label label={giga} />
             </box>
           )
@@ -420,13 +431,13 @@ function Memory() {
   )
 }
 
-function HotParticles({ child, pixelSize = 24 , ...unexpected }) {
+function HotParticles({ visible, pixelSize = 24 , ...unexpected }) {
   restrictUnpack(unexpected)
 
   const dp = 4
   const rand = () => {
     const init = ((Math.random() - 0.5) * pixelSize)
-    const final = init + (Math.random() - 0.5) * 0.25 * pixelSize
+    const final = init + (Math.random() - 0.5) * 0.3 * pixelSize
     return [init, final]
   }
   const properties = (name, x, y) => {
@@ -451,17 +462,19 @@ function HotParticles({ child, pixelSize = 24 , ...unexpected }) {
 
     return keyframes
   }
+  const css = createPoll("", 300, genCss)
 
-  const [css, setCss] = createState(genCss())
-  interval(1000, () => setCss(genCss))
-
+  // Expand required for either the frame or the box:
+  // The boxes are displayers of CSS rendered shapes only and have no actual
+  // children.
   return (
-    <overlay>
-      {child()}
-      <Gtk.AspectFrame $type="overlay">
-        <box class="hotParticle" css={css} />
-      </Gtk.AspectFrame>
-    </overlay>
+    <With value={visible}>
+      {(visible) => visible && (
+        <Gtk.AspectFrame>
+          <box class="hotParticle" css={css} vexpand hexpand />
+        </Gtk.AspectFrame>
+      )}
+    </With>
   )
 }
 

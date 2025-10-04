@@ -45,9 +45,9 @@
 
 .hotParticle {
   background: radial-gradient(white 50%, rgba(255, 255, 255, 0.5) 50%, transparent 90%);
-  animation: particle 1s linear infinite; // Animation is dynamically defined.
+  animation: particle 0.3s linear infinite; // Animation is dynamically defined.
 
-  // Dynamically generated properties:
+  // Dynamically set properties:
   // --initX
   // --initY
   // --initXOrigin
@@ -61,14 +61,14 @@
     0% {
       opacity: 0%;
     }
-    69% {
+    19% {
       opacity: 0%;
     }
 
-    70% {
+    20% {
       background: radial-gradient(white 50%, rgba(255, 255, 255, 0.5) 50%, transparent 90%);
       opacity: 100%;
-      transform: scale(0.3) translate(var(--initX), var(--initY));
+      transform: scale(0.4) translate(var(--initX), var(--initY));
       transform-origin: var(--initXOrigin) var(--initYOrigin);
 
     }
@@ -115,6 +115,20 @@ label {
   button {
     margin: 0px;
     padding: 0px;
+  }
+}
+
+.Memory {
+  // Dynamically set property:
+  // Gtk.AspectFrame {
+  //   filter
+  // }
+
+  .heat {
+    // Dynamically set property:
+    // opacity
+
+    background: rgba(255, 0, 0, 0.2);
   }
 }
 
@@ -179,8 +193,8 @@ label {
       #1D2025 50%, transparent 50%,
 
   );
-  margin-bottom: 10px;
-  margin-top: 10px;
+  margin-bottom: 8px;
+  margin-top: 8px;
 
   .fill {
     background: linear-gradient(
