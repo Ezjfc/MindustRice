@@ -28,6 +28,7 @@ import { createPoll, timeout } from "ags/time"
 import { execAsync } from "ags/process"
 import restrictUnpack from "./assert"
 
+const UNIT_GRAY = "foreground=\"#7F7F7F\""
 const GDK_CURSOR = Gdk.Cursor.new_from_name("pointer", null)
 
 function tooltip(...lines) {
@@ -296,16 +297,19 @@ function Wireless() {
           return wifi && (
             <menubutton $={tooltip("Wireless Network")} cursor={GDK_CURSOR}>
               <overlay>
-                <BlockIcon block="defense/radar-base" />
+                <BlockIcon block="drills/water-extractor" />
                 <box
                   $type="overlay"
                   // Icon explanation:
                   // 1. transparent and still: disabled (flight mode).
                   // 2. transparent and spinning: disconnected (enabled).
                   // 3. opaque and spinning: connected.
-                  class="radarTop spin"
+                  class="rotator spin"
                 >
-                  <BlockIcon block="defense/radar" />
+                  <BlockIcon block="drills/water-extractor-rotator" />
+                </box>
+                <box $type="overlay">
+                  <BlockIcon block="drills/water-extractor-top" />
                 </box>
               </overlay>
               <popover>
@@ -356,9 +360,30 @@ function AudioOutput() {
   )
 }
 
-/// https://github.com/maxverbeek/astalconfig/blob/master/service/usage.ts
-function Memory({ highUsage = 0.5 }) {
-  const usage = createPoll({ err: "not ready" }, 10000, async () => {
+function Cpu({ pollInterval = 10000, highUsage = 0.5 }) {
+  return (
+    <box $={tooltip("CPU Usage")} class="Cpu">
+      <overlay>
+        <BlockOverlay
+          block="production/vent-condenser-bottom"
+          frameCss=""
+          boxClass=""
+          boxCss=""
+        />
+        <box $type="overlay">
+          <BlockIcon block="production/vent-condenser-rotator" />
+        </box>
+        <box $type="overlay">
+          <BlockIcon block="production/vent-condenser" />
+        </box>
+      </overlay>
+      <label label={"-- %"} />
+    </box>
+  )
+}
+
+function Memory({ pollInterval = 10000, highUsage = 0.5 }) {
+  const usage = createPoll({ err: "not ready" }, pollInterval, async () => {
     let details: string
     try {
       details = await execAsync(`free`)
@@ -406,20 +431,18 @@ function Memory({ highUsage = 0.5 }) {
 
   return (
     <box $={tooltip("Memory Usage")} class="Memory">
-      <box>
-        <overlay>
-          <BlockOverlay
-            block="power/thorium-reactor"
-            frameCss={brightness}
-            boxClass="heat"
-            boxCss={opacity}
-          />
-          <box $type="overlay">
-            <HotParticles visible={hot} />
-          </box>
-        </overlay>
-        <label label={giga} />
-      </box>
+      <overlay>
+        <BlockOverlay
+          block="power/thorium-reactor"
+          frameCss={brightness}
+          boxClass="heat"
+          boxCss={opacity}
+        />
+        <box $type="overlay">
+          <HotParticles visible={hot} />
+        </box>
+      </overlay>
+      <label label={giga} useMarkup={true} />
     </box>
   )
 }
@@ -478,6 +501,8 @@ var InhibitorCookie = 0
 //// TODO: hypridle config popover support
 //// TODO: change to switch block cooler?
 function IdleInhibitor() {
+  let radarTop = Gtk.Box
+
   return (
     <box class="IdleInhibitor blockButton">
       <togglebutton
@@ -485,7 +510,9 @@ function IdleInhibitor() {
         cursor={GDK_CURSOR}
         onToggled={(self) => {
           const willActive = self.active
-          self.set_css_classes(!willActive ? ["blockDisabled"] : [""])
+          self.set_css_classes(willActive ? [] : ["blockDisabled"])
+          radarTop.set_css_classes(willActive ? ["radarTop", "spin"] : ["radarTop"])
+
           if (willActive) {
             InhibitorCookie = app.inhibit(
               app.get_active_window(),
@@ -503,7 +530,12 @@ function IdleInhibitor() {
         }}
         class="blockDisabled"
       >
-        <BlockIcon block="power/illuminator" />
+        <overlay>
+          <BlockIcon block="defense/radar-base" />
+          <box $={(self) => radarTop = self} $type="overlay" class="radarTop">
+            <BlockIcon block="defense/radar" />
+          </box>
+        </overlay>
       </togglebutton>
     </box>
   )
@@ -552,7 +584,7 @@ function Battery({ width = 175, ...unexpected }) {
   const percent = createBinding(
     battery,
     "percentage",
-  )((p) => `Stored: ${Math.floor(p * 100)}<span foreground="#7F7F7F">%</span>`)
+  )((p) => `Stored: ${Math.floor(p * 100)}%`)
   const progressRatio = width / 100
   const progress = createBinding(
     battery,
@@ -563,21 +595,24 @@ function Battery({ width = 175, ...unexpected }) {
     "state",
   )((s) => s === AstalBattery.State.CHARGING)
 
+      // <BlockIcon block="power/power-node-large" />
   return (
-    <box class="Battery">
-      <overlay $={tooltip("Battery")} widthRequest={width}>
-        <revealer
-          transitionType={Gtk.RevealerTransitionType.CROSSFADE}
-          revealChild={charging}
-          transitionDuration={1000}
-        >
-          <box class="stripes marquee" />
-        </revealer>
-        <box $type="overlay">
-          <box class="fill" widthRequest={progress} />
-        </box>
-        <label $type="overlay" label={percent} useMarkup={true} />
-      </overlay>
+    <box class="Battery" spacing={4}>
+      <box class="progressBar">
+        <overlay $={tooltip("Battery")} widthRequest={width}>
+          <revealer // TODO: try CSS transition
+            transitionType={Gtk.RevealerTransitionType.CROSSFADE}
+            revealChild={charging}
+            transitionDuration={1000}
+          >
+            <box class="stripes marquee" />
+          </revealer>
+          <box $type="overlay">
+            <box class="fill" widthRequest={progress} />
+          </box>
+          <label $type="overlay" label={percent} useMarkup={true} />
+        </overlay>
+      </box>
     </box>
   )
 }
@@ -659,10 +694,12 @@ export default function Bar({ gdkmonitor }: { gdkmonitor: Gdk.Monitor }) {
               </box>
               <box $type="end" class="module">
                 <Tray />
-                <Memory />
-                <Wireless />
                 <IdleInhibitor />
                 <PowerProfile />
+
+                <Wireless />
+                <Cpu />
+                <Memory />
                 <Battery />
               </box>
             </centerbox>
