@@ -137,7 +137,7 @@ label {
 
   .radarTop {
     @include fit-border(2px, #4A4B53);
-    animation: spin 3s linear forwards;
+    animation: spin 3s linear infinite;
     // Lmao good luck OCD people (this is in-game mechanism tho):
     animation-play-state: paused;
 
