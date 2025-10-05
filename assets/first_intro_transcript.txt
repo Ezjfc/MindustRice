@@ -1,0 +1,42 @@
+Hi,
+my name is Endermanbugzjfc.
+
+I am currently working on this Mindustry RICE
+(Race Inspired Cosmetic Enhancement) of Linux.
+
+At this moment,
+I have animated the
+- battery display
+- memory display
+- power profiles switcher
+- idle inhibitor
+
+These animations were implemented in GTK JavaScript
+and GTK CSS.
+
+Although they are not identical to those in-game,
+I have made every effort to mimic them.
+
+I hope you will love this project
+and I will appreciate your suggestions.
+
+See you.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
