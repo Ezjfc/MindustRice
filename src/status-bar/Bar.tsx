@@ -24,7 +24,7 @@ import {
   createState,
   onCleanup,
 } from "ags"
-import { createPoll, timeout, interval } from "ags/time"
+import { createPoll, timeout } from "ags/time"
 import { execAsync } from "ags/process"
 import restrictUnpack from "./assert"
 
@@ -358,14 +358,13 @@ function AudioOutput() {
 
 /// https://github.com/maxverbeek/astalconfig/blob/master/service/usage.ts
 function Memory({ highUsage = 0.5 }) {
-  const usage = createPoll({ msg: "", usage: NaN }, 10000, async () => {
-    const err = { msg: "" }
+  const usage = createPoll({ err: "not ready" }, 10000, async () => {
     let details: string
     try {
       details = await execAsync(`free`)
     } catch (error) {
-      console.log(error) // TODO
-      return err
+      console.log(error)
+      return { err: error }
     }
 
     const lines = details.split("\n")
@@ -407,26 +406,20 @@ function Memory({ highUsage = 0.5 }) {
 
   return (
     <box $={tooltip("Memory Usage")} class="Memory">
-      <With value={opacity}>
-        {(opacity) => {
-          return (
-            <box>
-              <overlay>
-                <BlockOverlay
-                  block="power/thorium-reactor"
-                  frameCss={brightness}
-                  boxClass="heat"
-                  boxCss={opacity}
-                />
-                <box $type="overlay">
-                  <HotParticles visible={hot} />
-                </box>
-              </overlay>
-              <label label={giga} />
-            </box>
-          )
-        }}
-      </With>
+      <box>
+        <overlay>
+          <BlockOverlay
+            block="power/thorium-reactor"
+            frameCss={brightness}
+            boxClass="heat"
+            boxCss={opacity}
+          />
+          <box $type="overlay">
+            <HotParticles visible={hot} />
+          </box>
+        </overlay>
+        <label label={giga} />
+      </box>
     </box>
   )
 }
