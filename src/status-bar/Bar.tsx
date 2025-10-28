@@ -28,6 +28,8 @@ import { createPoll, timeout } from "ags/time"
 import { execAsync } from "ags/process"
 import restrictUnpack from "./assert"
 
+const RESOURCES_PATH = `${import.meta.pkgDataDir}/resources`;
+console.log(RESOURCES_PATH);
 const UNIT_GRAY = "foreground=\"#7F7F7F\""
 const GDK_CURSOR = Gdk.Cursor.new_from_name("pointer", null)
 
@@ -44,7 +46,7 @@ function ohno(tooltipDisplayer, image, reason) {
     timeout(5000, () => callback(prev))
   }
 
-  timedSwap((f) => image.set_from_file(f), image.file, "../../resources/Mindustry/core/assets/sprites/error.png")
+  timedSwap((f) => image.set_from_file(f), image.file, `${RESOURCES_PATH}/Mindustry/core/assets/sprites/error.png`)
   timedSwap((t) => tooltip(t)(tooltipDisplayer), tooltipDisplayer.tooltipMarkup, reason)
 }
 
@@ -52,7 +54,7 @@ function ohno(tooltipDisplayer, image, reason) {
 function BlockIcon({ block, pixelSize = 24, ...unexpected }) {
   restrictUnpack(unexpected)
 
-  const toFile = (b) => "../../resources/Mindustry/core/assets-raw/sprites/blocks/" + b + ".png"
+  const toFile = (b) => `${RESOURCES_PATH}/Mindustry/core/assets-raw/sprites/blocks/${b}.png`
   return (
     <image file={typeof block !== "string" ? block(toFile) : toFile(block)} pixelSize={pixelSize} />
   )
@@ -360,9 +362,9 @@ function AudioOutput() {
   )
 }
 
-function Cpu({ pollInterval = 10000, highUsage = 0.5 }) {
+function Processor({ pollInterval = 10000, highUsage = 0.5 }) {
   return (
-    <box $={tooltip("CPU Usage")} class="Cpu">
+    <box $={tooltip("Processor Usage")} class="Processor">
       <overlay>
         <BlockOverlay
           block="production/vent-condenser-bottom"
@@ -649,17 +651,22 @@ export default function Bar({ gdkmonitor }: { gdkmonitor: Gdk.Monitor }) {
     }
   })
 
-  let hasFonts = true
-  Array(
+  let errs = [];
+  const missFont = Array(
     "fontello",
     "Pixellari",
-    "Darktech LDR",
-  ).forEach((family) => {
+    // "Darktech LDR",
+  ).some((family) => {
     let install = PangoCairo.font_map_get_default().get_family(family)
-    if (install === null) {
-      hasFonts = false
-    }
+    return install === null;
   })
+  if (missFont) {
+    errs.push("font error")
+  }
+  if (typeof import.meta.pkgDataDir === "undefined") {
+    errs.push("resources error")
+  }
+  const formattedErrs = errs.map((err, index) => `${index + 1}. ${err}.`).join("\n");
 
   return (
     <window
@@ -674,9 +681,12 @@ export default function Bar({ gdkmonitor }: { gdkmonitor: Gdk.Monitor }) {
       class={false ? "debugInspect" : ""} // TODO: debug mode toggle
     >
       {
-        !hasFonts
+        (errs.length !== 0)
           ? <centerbox class="FatalError">
-              <label $type="start" label="MindustRice Status Bar cannot start: font error." />
+              <label
+                $type="start"
+                label={`MindustRice Status Bar cannot start:\n${formattedErrs}`}
+              />
               <menubutton $type="end">
                 X
                 <popover>
@@ -698,7 +708,7 @@ export default function Bar({ gdkmonitor }: { gdkmonitor: Gdk.Monitor }) {
                 <PowerProfile />
 
                 <Wireless />
-                <Cpu />
+                <Processor />
                 <Memory />
                 <Battery />
               </box>

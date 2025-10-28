@@ -24,11 +24,11 @@
     "animdustry": {
       "flake": false,
       "locked": {
-        "lastModified": 1722274529,
-        "narHash": "sha256-BG0U5hk+g74JEMTKFX/3szibUg1Ap/fYNQdVIAQp7HQ=",
+        "lastModified": 1761404561,
+        "narHash": "sha256-KZS14UkORs4d9bfGVyQu5aZ+4/9dcYcdB9i2v5Owj2E=",
         "owner": "anuken",
         "repo": "animdustry",
-        "rev": "f408e632872929964a9b3f8888f1c7a18e6c1ead",
+        "rev": "55e43ca76690396f80c2e600c47eaf580a47471f",
         "type": "github"
       },
       "original": {
@@ -55,6 +55,24 @@
       "original": {
         "owner": "aylur",
         "repo": "astal",
+        "type": "github"
+      }
+    },
+    "flake-utils": {
+      "inputs": {
+        "systems": "systems"
+      },
+      "locked": {
+        "lastModified": 1731533236,
+        "narHash": "sha256-l0KFg5HjrsfsO/JpG+r7fRrqm12kzFHyUHqHCVpMMbI=",
+        "owner": "numtide",
+        "repo": "flake-utils",
+        "rev": "11707dc2f618dd54ca8739b309ec4fc024de578b",
+        "type": "github"
+      },
+      "original": {
+        "owner": "numtide",
+        "repo": "flake-utils",
         "type": "github"
       }
     },
@@ -91,12 +109,48 @@
         "type": "github"
       }
     },
+    "resources": {
+      "inputs": {
+        "animdustry": "animdustry",
+        "flake-utils": [
+          "flake-utils"
+        ],
+        "mindustry": "mindustry",
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "path": "resources",
+        "type": "path"
+      },
+      "original": {
+        "path": "resources",
+        "type": "path"
+      },
+      "parent": []
+    },
     "root": {
       "inputs": {
         "ags": "ags",
-        "animdustry": "animdustry",
-        "mindustry": "mindustry",
-        "nixpkgs": "nixpkgs"
+        "flake-utils": "flake-utils",
+        "nixpkgs": "nixpkgs",
+        "resources": "resources"
+      }
+    },
+    "systems": {
+      "locked": {
+        "lastModified": 1681028828,
+        "narHash": "sha256-Vy1rq5AaRuLzOxct8nz4T6wlgyUR7zLU309k9mBC768=",
+        "owner": "nix-systems",
+        "repo": "default",
+        "rev": "da67096a3b9bf56a91d16901293e51ba5b49a27e",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-systems",
+        "repo": "default",
+        "type": "github"
       }
     }
   },

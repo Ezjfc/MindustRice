@@ -1,75 +1,44 @@
 {
   description = ''
     The Mindustry Race Inspired Cosmetic Enhancement of Linux, based on AGS/Astal.
-
     https://github.com/Ezjfc/MindustRice | Apache-2 License
+
+    Others flakes in this repository:
+    - resources/flake.nix
   '';
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";
+    flake-utils.url = "github:numtide/flake-utils";
     ags = {
       url = "github:aylur/ags";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-
-    # Non-flake inputs:
-    mindustry = { url = "github:anuken/mindustry?ref=v151.1"; flake = false; };
-    animdustry = { url = "github:anuken/animdustry"; flake = false; };
+    resources = {
+      url = ./resources;
+      inputs = {
+        nixpkgs.follows = "nixpkgs";
+        flake-utils.follows = "flake-utils";
+      };
+    };
   };
 
   outputs = {
     self,
     nixpkgs,
+    flake-utils,
     ags,
-    # Non-flake inputs:
-    mindustry,
-    animdustry,
-  }: let
-    system = "x86_64-linux";
+    resources,
+  }: flake-utils.lib.eachDefaultSystem(system: let
     pkgs = nixpkgs.legacyPackages.${system};
     pname = "MindustRice";
+    entry = "src/status-bar/app.tsx";
 
-    mindustry-fonts = with pkgs; stdenvNoCC.mkDerivation (finalAttrs: {
-      pname = "mindustryFonts";
-      version = "151.1";
-      src = mindustry;
-
-      nativeBuildInputs = [
-        fontforge
-        util-linux # "rename" command.
-      ];
-      LOC = "./core/assets/fonts";
-      buildPhase = ''
-        runHook preBuild
-
-        dewoff $LOC/*.woff
-        mv ./*.ttf $LOC
-        rename "" ${finalAttrs.pname}_ $LOC/*
-        install -Dm444 $LOC/*.ttf -t $out/share/fonts/truetype
-
-        runHook postBuild
-      '';
-    });
-    animdustry-fonts = with pkgs; stdenvNoCC.mkDerivation (finalAttrs: {
-      pname = "animdustryFonts";
-      version = "1.2-unstable-2024-07-30";
-      src = animdustry;
-
-      nativeBuildInputs = [
-        util-linux # "rename" command.
-      ];
-      LOC = "./assets";
-      buildPhase = ''
-        runHook preBuild
-
-        rename "" ${finalAttrs.pname}_ $LOC/*
-        install -Dm444 $LOC/*.ttf -t $out/share/fonts/truetype
-
-        runHook postBuild
-      '';
-    });
-
-    entry = "app.ts";
+    inherit (resources.packages.${system}) mindustry mindustry-fonts animdustry-fonts;
+    relinkResources = ''
+        mkdir -p resources
+      ln -fs ${mindustry} ./resources/Mindustry
+    '';
     astalPackages = with ags.packages.${system}; [
       io
       astal4
@@ -91,86 +60,86 @@
         pkgs.procps
       ];
   in {
-    packages.${system} = {
-      inherit mindustry-fonts;
+    packages.default = pkgs.stdenv.mkDerivation {
+      name = pname;
+      src = ./.;
 
-      default = pkgs.stdenv.mkDerivation {
-        name = pname;
-        src = ./.;
+      nativeBuildInputs = with pkgs; [
+        wrapGAppsHook
+        gobject-introspection
+        ags.packages.${system}.default
+      ];
 
-        nativeBuildInputs = with pkgs; [
-          wrapGAppsHook
-          gobject-introspection
-          ags.packages.${system}.default
-        ];
+      buildInputs = extraPackages ++ [
+        pkgs.gjs
+      ];
 
-        buildInputs = extraPackages ++ [
-          pkgs.gjs
-        ];
+      preBuild = relinkResources;
 
-        installPhase = ''
-          runHook preInstall
+      installPhase = ''
+        runHook preInstall
 
-          mkdir -p $out/bin
-          mkdir -p $out/share
-          cp -r * $out/share
-          ags bundle ${entry} $out/bin/${pname} -d "SRC='$out/share'"
+        mkdir -p $out/bin
+        mkdir -p $out/share
+        cp -r * $out/share
+        ags bundle ${entry} $out/bin/${pname} -d "SRC='$out/share'" -d "import.meta.pkgDataDir='$out/share'"
 
-          runHook postInstall
-        '';
-      };
+        runHook postInstall
+      '';
     };
 
-    devShells.${system} = {
-      default = let
-        mkSelfCallCmd = name: cmd: pkgs.writeShellScriptBin name ''
-          echo -e "\e[0;35m" # Dark purple.
-          cat $0 >&2
-          echo -e "\e[0m"
+    devShells.default = let
+      mkSelfCallCmd = name: cmd: pkgs.writeShellScriptBin name ''
+        echo -e "\e[0;35m" # Dark purple.
+        cat $0 >&2
+        echo -e "\e[0m"
 
-          ${cmd}
-        '';
-      in pkgs.mkShell {
-        buildInputs = [
-          (ags.packages.${system}.default.override {
-            inherit extraPackages;
-          })
-          # Note: GJS is not NodeJS and AGS is not React!
-          # NodeJS was added for development purposes.
-          pkgs.nodejs_24
-          pkgs.typescript
+        ${cmd}
+      '';
+    in pkgs.mkShell {
+      packages = [
+        (ags.packages.${system}.default.override {
+          inherit extraPackages;
+        })
+        # Note: GJS is not NodeJS and AGS is not React!
+        # NodeJS was added for development purposes.
+        pkgs.nodejs_24
+        pkgs.typescript
 
-          pkgs.entr
-          pkgs.screen
-          (mkSelfCallCmd "ags-watch" ''
-            [ "$#" != "1" ] && echo "Enter the path to watch" && exit 1
-            screen bash -c "find $1 | entr -r ags run $1"
-          '')
+        (mkSelfCallCmd "ags-watch" ''
+          echo "Project root is set to $INIT_WD (if this is incorrect, please alter the env INIT_WD)"
+          AGS_RUN="ags run \"$INIT_WD/${entry}\" --define \"import.meta.pkgDataDir='$INIT_WD'\""
+          ${pkgs.screen}/bin/screen -dmS ags-watch bash -c \
+            "find $1 | ${pkgs.entr}/bin/entr -r $AGS_RUN; exit"
+        '')
+        (mkSelfCallCmd "ags-kill" ''
+          ${pkgs.toybox}/bin/pkill entr
+        '')
 
-          pkgs.fontconfig
-          (mkSelfCallCmd "reload-fonts" ''
-            WHOAMI=$(whoami)
-            [ "$WHOAMI" == "" ] && echo "Empty user" && exit 1
-            LOC="/home/$WHOAMI/.local/share/fonts"
-            rm -rf $LOC && mkdir -p $LOC
+        pkgs.fontconfig
+        (mkSelfCallCmd "reload-fonts" ''
+          WHOAMI=$(whoami)
+          [ "$WHOAMI" == "" ] && echo "Empty user" && exit 1
+          LOC="/home/$WHOAMI/.local/share/fonts"
+          rm -rf $LOC && mkdir -p $LOC
 
-            ln -fs ${mindustry-fonts}/share/fonts/truetype $LOC/${mindustry-fonts.pname}
-            ln -fs ${animdustry-fonts}/share/fonts/truetype $LOC/${animdustry-fonts.pname}
-            fc-cache
+          ln -fs ${mindustry-fonts}/share/fonts/truetype $LOC/${mindustry-fonts.pname}
+          ln -fs ${animdustry-fonts}/share/fonts/truetype $LOC/${animdustry-fonts.pname}
+          fc-cache
 
-            fc-pattern fontello
-            fc-pattern Pixellari
-          '')
+          fc-pattern fontello
+          fc-pattern Pixellari
+        '')
 
-          (mkSelfCallCmd "relink-resources" ''
-            rm -rf ./resources && mkdir -p ./resources
+        (mkSelfCallCmd "relink-resources" ''
+          ${relinkResources}
+          find ./resources -maxdepth 1
+        '')
+      ];
 
-            ln -fs ${mindustry} ./resources/Mindustry
-
-            find ./resources -maxdepth 1
-          '')
-        ];
-      };
+      shellHook = ''
+        export INIT_WD="$(pwd)"
+      '';
     };
-  };
+  });
 }
