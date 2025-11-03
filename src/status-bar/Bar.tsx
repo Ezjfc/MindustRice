@@ -661,12 +661,18 @@ export default function Bar({ gdkmonitor }: { gdkmonitor: Gdk.Monitor }) {
     return install === null;
   })
   if (missFont) {
-    errs.push("font error")
+    const cmd = "nix develop -c reload-font"
+    errs.push(["font error", cmd])
   }
-  if (typeof import.meta.pkgDataDir === "undefined") {
-    errs.push("resources error")
+  if (typeof import.meta.pkgDataDir === "undefined" || Array(
+    "Mindustry",
+  ).some((resource) => {
+    const path = `${import.meta.pkgDataDir}/resources/${resource}`
+    return !GLib.file_test(path, GLib.FileTest.EXISTS)
+  })) {
+    const cmd = "nix develop -c relink-resources"
+    errs.push(["resources error", cmd])
   }
-  const formattedErrs = errs.map((err, index) => `${index + 1}. ${err}.`).join("\n");
 
   return (
     <window
@@ -683,10 +689,23 @@ export default function Bar({ gdkmonitor }: { gdkmonitor: Gdk.Monitor }) {
       {
         (errs.length !== 0)
           ? <centerbox class="FatalError">
-              <label
-                $type="start"
-                label={`MindustRice Status Bar cannot start:\n${formattedErrs}`}
-              />
+              <box $type="start" orientation={Gtk.Orientation.VERTICAL}>
+                <box><label label="MindustRice Status Bar cannot start:" /></box>
+                {errs.map((line, index) => {
+                  return (
+                    <box>
+                      <label label={`${index + 1}. ${line[0]}`} />
+                      {line.length > 1 && <box>
+                        <label label={`try  <span color="lime">${line[1]}</span>`} useMarkup={true} />
+                        <button class="copy" onClicked={(self) => {
+                          self.get_clipboard().set(line[1])
+                        }} ><label label={`<span color="aqua">COPY</span>`} useMarkup={true} /></button>
+                        <label label="and restart MindustRice" />
+                      </box>}
+                    </box>
+                  )
+                })}
+              </box>
               <menubutton $type="end">
                 X
                 <popover>

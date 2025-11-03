@@ -121,7 +121,6 @@
           WHOAMI=$(whoami)
           [ "$WHOAMI" == "" ] && echo "Empty user" && exit 1
           LOC="/home/$WHOAMI/.local/share/fonts"
-          rm -rf $LOC && mkdir -p $LOC
 
           ln -fs ${mindustry-fonts}/share/fonts/truetype $LOC/${mindustry-fonts.pname}
           ln -fs ${animdustry-fonts}/share/fonts/truetype $LOC/${animdustry-fonts.pname}
