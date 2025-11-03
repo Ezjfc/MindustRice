@@ -661,7 +661,7 @@ export default function Bar({ gdkmonitor }: { gdkmonitor: Gdk.Monitor }) {
     return install === null;
   })
   if (missFont) {
-    const cmd = "nix develop -c reload-font"
+    const cmd = "nix develop -c reload-fonts"
     errs.push(["font error", cmd])
   }
   if (typeof import.meta.pkgDataDir === "undefined" || Array(

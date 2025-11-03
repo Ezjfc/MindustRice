@@ -36,7 +36,8 @@
 
     inherit (resources.packages.${system}) mindustry mindustry-fonts animdustry-fonts;
     relinkResources = ''
-        mkdir -p resources
+      mkdir -p resources
+      rm -rf ./resources/Mindustry
       ln -fs ${mindustry} ./resources/Mindustry
     '';
     astalPackages = with ags.packages.${system}; [
@@ -120,9 +121,14 @@
         (mkSelfCallCmd "reload-fonts" ''
           WHOAMI=$(whoami)
           [ "$WHOAMI" == "" ] && echo "Empty user" && exit 1
+          [ "$WHOAMI" == "" ] && echo "Empty user" && exit 1
           LOC="/home/$WHOAMI/.local/share/fonts"
+          mkdir -p $LOC
 
+          rm -rf $LOC/${mindustry-fonts.pname}
           ln -fs ${mindustry-fonts}/share/fonts/truetype $LOC/${mindustry-fonts.pname}
+
+          rm -rf $LOC/${animdustry-fonts.pname}
           ln -fs ${animdustry-fonts}/share/fonts/truetype $LOC/${animdustry-fonts.pname}
           fc-cache
 
