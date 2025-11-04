@@ -61,6 +61,10 @@
         pkgs.procps
       ];
   in {
+    nixosModules.default = import ./nix/nixos-module.nix self;
+
+    packages.mindustry-fonts = mindustry-fonts;
+    packages.animdustry-fonts = animdustry-fonts;
     packages.default = pkgs.stdenv.mkDerivation {
       name = pname;
       src = ./.;
@@ -107,20 +111,28 @@
         pkgs.nodejs_24
         pkgs.typescript
 
-        (mkSelfCallCmd "ags-watch" ''
+        (mkSelfCallCmd "mindustrice-watch" ''
           echo "Project root is set to $INIT_WD (if this is incorrect, please alter the env INIT_WD)"
-          AGS_RUN="ags run \"$INIT_WD/${entry}\" --define \"import.meta.pkgDataDir='$INIT_WD'\""
-          ${pkgs.screen}/bin/screen -dmS ags-watch bash -c \
-            "find $1 | ${pkgs.entr}/bin/entr -r $AGS_RUN; exit"
+          ${pkgs.toybox}/bin/pkill waybar
+
+          COMPONENTS="status-bar"
+          # https://stackoverflow.com/a/35894538
+          for component in ''${COMPONENTS//,/ }; do
+            ${pkgs.screen}/bin/screen -dmS "MindustRice" bash -c \
+              "find $INIT_WD/src | \
+              ${pkgs.entr}/bin/entr -r ags run \"$INIT_WD/src/$component/app.tsx\"\
+              --define \"import.meta.pkgDataDir='$INIT_WD'\"
+              ; exit"
+          done
         '')
-        (mkSelfCallCmd "ags-kill" ''
-          ${pkgs.toybox}/bin/pkill entr
+        (mkSelfCallCmd "mindustrice-kill" ''
+          ags quit --instance MindustRice
+          ${pkgs.screen}/bin/screen -XS MindustRice quit
         '')
 
         pkgs.fontconfig
         (mkSelfCallCmd "reload-fonts" ''
           WHOAMI=$(whoami)
-          [ "$WHOAMI" == "" ] && echo "Empty user" && exit 1
           [ "$WHOAMI" == "" ] && echo "Empty user" && exit 1
           LOC="/home/$WHOAMI/.local/share/fonts"
           mkdir -p $LOC

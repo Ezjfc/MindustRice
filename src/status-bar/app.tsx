@@ -4,6 +4,7 @@ import style from "./style.scss"
 import Bar from "./Bar"
 
 app.start({
+  instanceName: "MindustRice",
   css: style,
   // It's usually best to go with the default Adwaita theme
   // and built off of it, instead of allowing the system theme
