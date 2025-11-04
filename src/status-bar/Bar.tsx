@@ -29,7 +29,6 @@ import { execAsync } from "ags/process"
 import restrictUnpack from "./assert"
 
 const RESOURCES_PATH = `${import.meta.pkgDataDir}/resources`;
-console.log(RESOURCES_PATH);
 const UNIT_GRAY = "foreground=\"#7F7F7F\""
 const GDK_CURSOR = Gdk.Cursor.new_from_name("pointer", null)
 
@@ -390,7 +389,7 @@ function Memory({ pollInterval = 10000, highUsage = 0.5 }) {
     try {
       details = await execAsync(`free`)
     } catch (error) {
-      console.log(error)
+      console.error(error)
       return { err: error }
     }
 
@@ -555,31 +554,33 @@ function PowerProfile() { // TODO: responsive
   )
   const icon = active((p) => p === hardcodedPerformance ? "defense/overdrive-dome" : "defense/overdrive-projector")
   const cssClass = active((p) => p === hardcodedPowerSaver ? "blockDisabled" : "radiate")
-  const cycleWithDirection = (backwards) => {
-      const profiles = powerprofiles.get_profiles()
-      const index = profiles.findIndex((p) => p.profile === powerprofiles.activeProfile)
-
-      const nextProfile = !backwards
-        ? (profiles[index + 1] || profiles[0]).profile
-        : (profiles[index - 1] || profiles[profiles.length - 1]).profile
-      powerprofiles.set_active_profile(nextProfile)
-  }
 
   return (
     <box class="PowerProfile blockButton" visible={createBinding(battery, "isPresent")}>
-      <button
-        // $={tooltip("Cycle Power Profile\nHold shift or use right click to cycle backwards")}
-        $={(self) => {
-tooltip("Cycle Power Profile\nHold shift or use right click to cycle backwards")(self)
-self.grab_focus()
-        }}
+      <box
+        $={(self) => tooltip("Cycle Power Profile\nHold shift or use right click to cycle backwards")}
         cursor={GDK_CURSOR}
         class={cssClass}
-        onClicked={() => cycleWithDirection(false)}
       >
         <BlockOverlay block={icon} boxClass="radiation" />
-      </button>
-      <Gtk.GestureClick button={Gdk.BUTTON_SECONDARY} onPressed={(self) => cycleWithDirection(true)} />
+        <Gtk.GestureClick
+          // $={(self) => gesture = self}
+          button={0}
+          onPressed={(self) => {
+            const profiles = powerprofiles.get_profiles()
+            const index = profiles.findIndex((p) => p.profile === powerprofiles.activeProfile)
+            const has_right_click = self.get_current_button() == Gdk.BUTTON_SECONDARY
+            // https://discourse.gnome.org/t/gtk-4-and-gtkgestureclick-and-shift-ctrl/12998/6
+            const mask = Gdk.ModifierType.SHIFT_MASK
+            const has_shift = self.get_current_event_state() & mask == mask
+
+            const nextProfile = !has_right_click && !has_shift
+              ? (profiles[index + 1] || profiles[0]).profile
+              : (profiles[index - 1] || profiles[profiles.length - 1]).profile
+            powerprofiles.set_active_profile(nextProfile)
+          }}
+        />
+      </box>
     </box>
   )
 }
@@ -682,7 +683,12 @@ export default function Bar({ gdkmonitor }: { gdkmonitor: Gdk.Monitor }) {
 
   return (
     <window
-      $={(self) => (win = self)}
+      $={(self) => {
+        win = self
+        // Prevents stealing of window focus, works on my machine:
+        timeout(100, () => self.keymode = Astal.Keymode.ON_DEMAND)
+        // TODO: make optional
+      }}
       visible
       namespace="MindustRice"
       name={`bar-${gdkmonitor.connector}`}
