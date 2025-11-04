@@ -554,26 +554,32 @@ function PowerProfile() { // TODO: responsive
     "active-profile",
   )
   const icon = active((p) => p === hardcodedPerformance ? "defense/overdrive-dome" : "defense/overdrive-projector")
+  const cssClass = active((p) => p === hardcodedPowerSaver ? "blockDisabled" : "radiate")
+  const cycleWithDirection = (backwards) => {
+      const profiles = powerprofiles.get_profiles()
+      const index = profiles.findIndex((p) => p.profile === powerprofiles.activeProfile)
 
-  const ANY_CLICK = 0
+      const nextProfile = !backwards
+        ? (profiles[index + 1] || profiles[0]).profile
+        : (profiles[index - 1] || profiles[profiles.length - 1]).profile
+      powerprofiles.set_active_profile(nextProfile)
+  }
+
   return (
     <box class="PowerProfile blockButton" visible={createBinding(battery, "isPresent")}>
       <button
-        $={tooltip("Cycle Power Profile")}
+        // $={tooltip("Cycle Power Profile\nHold shift or use right click to cycle backwards")}
+        $={(self) => {
+tooltip("Cycle Power Profile\nHold shift or use right click to cycle backwards")(self)
+self.grab_focus()
+        }}
         cursor={GDK_CURSOR}
-        class={active((p) => p === hardcodedPowerSaver ? "blockDisabled" : "radiate")}
+        class={cssClass}
+        onClicked={() => cycleWithDirection(false)}
       >
         <BlockOverlay block={icon} boxClass="radiation" />
       </button>
-      <Gtk.GestureClick $={(self) => self.set_button(ANY_CLICK)} onPressed={(self) => {
-        const profiles = powerprofiles.get_profiles()
-        const index = profiles.findIndex((p) => p.profile === powerprofiles.activeProfile)
-
-        const RIGHT_CLICK = 3
-        const nextIndex = self.get_current_button() == RIGHT_CLICK ? index - 1 : index + 1
-        const nextProfile = (profiles[nextIndex] || profiles[0]).profile
-        powerprofiles.set_active_profile(nextProfile)
-      }}/>
+      <Gtk.GestureClick button={Gdk.BUTTON_SECONDARY} onPressed={(self) => cycleWithDirection(true)} />
     </box>
   )
 }
