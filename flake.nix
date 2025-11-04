@@ -58,7 +58,6 @@
       ++ [
         pkgs.libadwaita
         pkgs.libsoup_3 # TODO: insecure software
-        pkgs.procps
       ];
   in {
     nixosModules.default = import ./nix/nixos-module.nix self;
@@ -121,7 +120,9 @@
             ${pkgs.screen}/bin/screen -dmS "MindustRice" bash -c \
               "find $INIT_WD/src | \
               ${pkgs.entr}/bin/entr -r ags run \"$INIT_WD/src/$component/app.tsx\"\
-              --define \"import.meta.pkgDataDir='$INIT_WD'\"
+              --define \"import.meta.pkgDataDir='$INIT_WD'\"\
+              --define \"import.meta.executableFree='${pkgs.procps}/bin/free'\"\
+              --define \"import.meta.executableMpstat='${pkgs.sysstat}/bin/mpstat'\"\
               ; exit"
           done
         '')
@@ -131,7 +132,7 @@
         '')
 
         pkgs.fontconfig
-        (mkSelfCallCmd "reload-fonts" ''
+        (mkSelfCallCmd "reload-tmp-fonts" ''
           WHOAMI=$(whoami)
           [ "$WHOAMI" == "" ] && echo "Empty user" && exit 1
           LOC="/home/$WHOAMI/.local/share/fonts"

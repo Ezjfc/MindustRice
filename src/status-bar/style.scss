@@ -20,7 +20,7 @@
   background: transparent;
 }
 
-button:focus {
+.copyButton:focus {
     background-color: rgba(0, 0, 0, 0.1);
 }
 
@@ -267,8 +267,5 @@ label {
 
 .FatalError {
   background: red;
-
-  label {
-    margin: 10px;
-  }
+  padding: 10px;
 }

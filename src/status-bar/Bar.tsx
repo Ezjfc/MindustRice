@@ -297,22 +297,9 @@ function Wireless() {
 
           return wifi && (
             <menubutton $={tooltip("Wireless Network")} cursor={GDK_CURSOR}>
-              <overlay>
-                <BlockIcon block="drills/water-extractor" />
-                <box
-                  $type="overlay"
-                  // Icon explanation:
-                  // 1. transparent and still: disabled (flight mode).
-                  // 2. transparent and spinning: disconnected (enabled).
-                  // 3. opaque and spinning: connected.
-                  class="rotator spin"
-                >
-                  <BlockIcon block="drills/water-extractor-rotator" />
-                </box>
-                <box $type="overlay">
-                  <BlockIcon block="drills/water-extractor-top" />
-                </box>
-              </overlay>
+              <BlockOverlay
+                block="distribution/phase-conveyor"
+              />
               <popover>
                 <box orientation={Gtk.Orientation.VERTICAL}>
                   <For each={createBinding(wifi, "accessPoints")(sorted)}>
@@ -341,6 +328,32 @@ function Wireless() {
     </box>
   )
 }
+              // <overlay>
+              //   <BlockIcon block="drills/water-extractor" />
+              //   <box
+              //     $type="overlay"
+              //     // Icon explanation:
+              //     // 1. transparent and still: disabled (flight mode).
+              //     // 2. transparent and spinning: disconnected (enabled).
+              //     // 3. opaque and spinning: connected.
+              //     class="rotator spin"
+              //   >
+              //     <BlockIcon block="drills/water-extractor-rotator" />
+              //   </box>
+              //   <box $type="overlay">
+              //     <BlockIcon block="drills/water-extractor-top" />
+              //   </box>
+              // </overlay>
+
+function Bluetooth() {
+  return (
+    <box visible={true} class="Bluetooth blockButton">
+      <BlockIcon
+        block="liquid/phase-conduit"
+      />
+    </box>
+  )
+}
 
 function AudioOutput() {
   const { defaultSpeaker: speaker } = AstalWp.get_default()!
@@ -361,7 +374,44 @@ function AudioOutput() {
   )
 }
 
-function Processor({ pollInterval = 10000, highUsage = 0.5 }) {
+function Processor({ pollInterval = 10000, highUsage = 0.5, dataPointsPerInterval = 2 }) {
+  const usage = createPoll({ err: "not ready" }, pollInterval, async () => {
+    const mpstat = import.meta.executableMpstat || "mpstat"
+    const dataInterval = Math.floor(pollInterval / 1000 / dataPointsPerInterval)
+    let details: string
+    try {
+      details = await execAsync(`${mpstat} -P ALL ${dataInterval} ${dataPointsPerInterval}`)
+    } catch (error) {
+      console.error(error)
+      return { err: error }
+    }
+
+    const snapshots = details.split("\n\n")
+    if (snapshots.length < 1) {
+      return { err: `expected \`mpstat\` command to output ${dataPointsPerInterval + 1} snapshots of data but got ${snapshots.length}` }
+    }
+    const average = snapshots[snapshots.length - 1]
+    const lines = average.split("\n")
+    if (lines.length < 2) {
+      return { err: `expected \`mpstat\` command to output a header and data for at least one cpu (2 lines) but got ${lines.length}` }
+    }
+    const fields = lines[1].split(" ").map(parseFloat).filter((f) => !isNaN(f))
+    if (fields.length < 1) {
+      return { err: `expected \`mpstat\` command to output 10 float values but got ${fields.length}` }
+    }
+
+    const idleAll = fields[fields.length - 1]
+    return { all: 100 - idleAll }
+  })
+
+  const usageAll = usage(({ all }) => {
+    if (typeof all === "undefined") {
+      return "--"
+    }
+
+    return all.toFixed(1)
+  })
+
   return (
     <box $={tooltip("Processor Usage")} class="Processor">
       <overlay>
@@ -378,16 +428,18 @@ function Processor({ pollInterval = 10000, highUsage = 0.5 }) {
           <BlockIcon block="production/vent-condenser" />
         </box>
       </overlay>
-      <label label={"-- %"} />
+      <label label={usageAll((percentage) => `${percentage}%`)} />
     </box>
   )
 }
-
-function Memory({ pollInterval = 10000, highUsage = 0.5 }) {
+      // <BlockOverlay
+      //   block="logic/world-processor"
+      // />
+function Memory({ pollInterval = 10000, highUsage = 0.5, useGiB = false }) {
   const usage = createPoll({ err: "not ready" }, pollInterval, async () => {
     let details: string
     try {
-      details = await execAsync(`free`)
+      details = await execAsync(import.meta.executableFree || "free")
     } catch (error) {
       console.error(error)
       return { err: error }
@@ -395,9 +447,12 @@ function Memory({ pollInterval = 10000, highUsage = 0.5 }) {
 
     const lines = details.split("\n")
     if (lines.length < 2) {
-      return err
+      return { err: `expected \`free\` command to output 3 lines but got ${lines.length}` }
     }
     const fields = lines[1].split(" ").map(parseFloat).filter((f) => !isNaN(f))
+    if (fields.length < 2) {
+      return { err: `expected \`free\` command to output 6 fields of data but got ${fields.length}` }
+    }
     return {
       total: fields[0],
       used: fields[1],
@@ -406,12 +461,21 @@ function Memory({ pollInterval = 10000, highUsage = 0.5 }) {
   })
 
   const giga = usage(({ used }) => {
-    let giga =((used / 1000 / 1000).toFixed(1))
-    if (isNaN(giga)) {
-      giga = "--"
-    }
+    if (useGiB) {
+      let giga =((used / 1024/ 1024).toFixed(1))
+      if (isNaN(giga)) {
+        giga = "--"
+      }
 
-    return `${giga} GB`
+      return `${giga} GiB`
+    } else {
+      let giga =((used / 1000 / 1000).toFixed(1))
+      if (isNaN(giga)) {
+        giga = "--"
+      }
+
+      return `${giga} GB`
+    }
   })
 
   const safePercentage = ({ used, total }) => {
@@ -609,7 +673,7 @@ function Battery({ width = 175, ...unexpected }) {
     <box class="Battery" spacing={4}>
       <box class="progressBar">
         <overlay $={tooltip("Battery")} widthRequest={width}>
-          <revealer // TODO: try CSS transition
+          <revealer // TODO: try CSS transition for less lag
             transitionType={Gtk.RevealerTransitionType.CROSSFADE}
             revealChild={charging}
             transitionDuration={1000}
@@ -668,9 +732,10 @@ export default function Bar({ gdkmonitor }: { gdkmonitor: Gdk.Monitor }) {
     return install === null;
   })
   if (missFont) {
-    const cmd = "nix develop -c reload-fonts"
+    const cmd = "nix develop -c reload-tmp-fonts"
     errs.push(["font error", cmd])
   }
+
   if (typeof import.meta.pkgDataDir === "undefined" || Array(
     "Mindustry",
   ).some((resource) => {
@@ -680,6 +745,16 @@ export default function Bar({ gdkmonitor }: { gdkmonitor: Gdk.Monitor }) {
     const cmd = "nix develop -c relink-resources"
     errs.push(["resources error", cmd])
   }
+  const restartCmd = "mindustrice-watch";
+  const copyField = (content) => (
+    <box>
+      <label label={`<span color="lime">${content}</span>`} useMarkup={true} />
+      <button class="copyButton" onClicked={(self) => {
+        self.get_clipboard().set(content)
+      }} ><label label={`<span color="aqua">COPY</span>`} useMarkup={true} /></button>
+    </box>
+  )
+
 
   return (
     <window
@@ -708,11 +783,10 @@ export default function Bar({ gdkmonitor }: { gdkmonitor: Gdk.Monitor }) {
                     <box>
                       <label label={`${index + 1}. ${line[0]}`} />
                       {line.length > 1 && <box>
-                        <label label={`try  <span color="lime">${line[1]}</span>`} useMarkup={true} />
-                        <button class="copy" onClicked={(self) => {
-                          self.get_clipboard().set(line[1])
-                        }} ><label label={`<span color="aqua">COPY</span>`} useMarkup={true} /></button>
-                        <label label="and restart MindustRice" />
+                        <label label=", try  " />
+                        {copyField(line[1])}
+                        <label label="and restart MindustRice by  " useMarkup={true} />
+                        {copyField("mindustrice-kill; mindustrice-watch")}
                       </box>}
                     </box>
                   )
@@ -737,8 +811,8 @@ export default function Bar({ gdkmonitor }: { gdkmonitor: Gdk.Monitor }) {
                 <Tray />
                 <IdleInhibitor />
                 <PowerProfile />
-
                 <Wireless />
+                <Bluetooth />
                 <Processor />
                 <Memory />
                 <Battery />
