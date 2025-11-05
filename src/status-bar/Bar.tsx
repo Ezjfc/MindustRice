@@ -755,7 +755,6 @@ export default function Bar({ gdkmonitor }: { gdkmonitor: Gdk.Monitor }) {
     </box>
   )
 
-
   return (
     <window
       $={(self) => {
@@ -791,13 +790,22 @@ export default function Bar({ gdkmonitor }: { gdkmonitor: Gdk.Monitor }) {
                     </box>
                   )
                 })}
+                <box>
+                  <label label="If you are installing MindustRice on NixOS, please use the NixOS module  " />
+                  {copyField("inputs.mindustrice.nixosModules.default")}
+                  <label label="instead of the package." />
+                </box>
               </box>
               <menubutton $type="end">
                 X
                 <popover>
-                  <button onClicked={
-                    () => app.quit()
-                  }>Quit MindustRice</button>
+                  <button onClicked={() => app.quit()}>
+                  {
+                    "Click here to quit MindustRice\n" +
+                    "REMINDER: Wayland will clear clipboard content copied from MindustRice once it quits\n" +
+                    "unless you have external tools like wl-clip-persist"
+                  }
+                  </button>
                 </popover>
               </menubutton>
             </centerbox>
