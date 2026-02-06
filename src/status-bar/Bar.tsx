@@ -192,7 +192,10 @@ function Workspaces() {
     <box class="Workspaces">
       <For each={workspaces}>
         {(w) => (
-          <button class={focusChanges((f) => f.id === w.id ? "focused" : "")}>
+          <button
+            class={focusChanges((f) => f.id === w.id ? "focused" : "")}
+            onClicked={() => hyprland.dispatch("workspace", String(w.id))}
+          >
             <label label={String(w.id)} />
           </button>
         )}
