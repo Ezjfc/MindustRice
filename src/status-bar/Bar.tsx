@@ -625,7 +625,7 @@ function PowerProfile() { // TODO: responsive
   return (
     <box class="PowerProfile blockButton" visible={createBinding(battery, "isPresent")}>
       <box
-        $={(self) => tooltip("Cycle Power Profile\nHold shift or use right click to cycle backwards")}
+        $={tooltip("Cycle Power Profile\nHold shift or use right click to cycle backwards")}
         cursor={GDK_CURSOR}
         class={cssClass}
       >

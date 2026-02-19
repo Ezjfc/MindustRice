@@ -10,23 +10,22 @@
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";
     flake-utils.url = "github:numtide/flake-utils";
+    nixche = {
+      url = "github:ezjfc/nixche";
+      flake = false;
+    };
     ags = {
       url = "github:aylur/ags";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    resources = {
-      url = ./resources;
-      inputs = {
-        nixpkgs.follows = "nixpkgs";
-        flake-utils.follows = "flake-utils";
-      };
-    };
+    resources.url = ./resources;
   };
 
   outputs = {
     self,
     nixpkgs,
     flake-utils,
+    nixche,
     ags,
     resources,
   }: flake-utils.lib.eachDefaultSystem(system: let
@@ -69,7 +68,7 @@
       src = ./.;
 
       nativeBuildInputs = with pkgs; [
-        wrapGAppsHook
+        wrapGAppsHook3
         gobject-introspection
         ags.packages.${system}.default
       ];
@@ -93,46 +92,53 @@
     };
 
     devShells.default = let
-      mkSelfCallCmd = name: cmd: pkgs.writeShellScriptBin name ''
-        echo -e "\e[0;35m" # Dark purple.
-        cat $0 >&2
-        echo -e "\e[0m"
-
-        ${cmd}
-      '';
+      writeCatScriptBin = (pkgs.callPackage "${nixche}/sh/write-cat-script" {}).writeCatScriptBin;
     in pkgs.mkShell {
-      packages = [
+      packages = ([
         (ags.packages.${system}.default.override {
           inherit extraPackages;
         })
         # Note: GJS is not NodeJS and AGS is not React!
         # NodeJS was added for development purposes.
-        pkgs.nodejs_24
+        pkgs.nodejs
         pkgs.typescript
+        pkgs.typescript-language-server
 
-        (mkSelfCallCmd "mindustrice-watch" ''
-          echo "Project root is set to $INIT_WD (if this is incorrect, please alter the env INIT_WD)"
-          ${pkgs.toybox}/bin/pkill waybar
+        pkgs.xdg-utils # xdg-open
+        (writeCatScriptBin "doc" "xdg-open https://aylur.github.io/ags/guide/intrinsics.html")
+      ]) ++ (let
+        watch = ''
+          echo "${pname}: project root is set to $INIT_WD \
+          (if this is incorrect, please alter the env INIT_WD)"
 
           COMPONENTS="status-bar"
           # https://stackoverflow.com/a/35894538
           for component in ''${COMPONENTS//,/ }; do
-            ${pkgs.screen}/bin/screen -dmS "MindustRice" bash -c \
+            screen -dmS "${pname}" bash -c \
               "find $INIT_WD/src | \
-              ${pkgs.entr}/bin/entr -r ags run \"$INIT_WD/src/$component/app.tsx\"\
+              entr -r ags run \"$INIT_WD/src/$component/app.tsx\"\
               --define \"import.meta.pkgDataDir='$INIT_WD'\"\
               --define \"import.meta.executableFree='${pkgs.procps}/bin/free'\"\
               --define \"import.meta.executableMpstat='${pkgs.sysstat}/bin/mpstat'\"\
               ; exit"
           done
+        ''; # TODO: change to libtop
+      in [
+        pkgs.toybox # pkill
+        pkgs.screen
+        pkgs.entr
+        (writeCatScriptBin "mindustrice-watch" ''
+          pkill waybar
+          ${watch}
         '')
-        (mkSelfCallCmd "mindustrice-kill" ''
-          ags quit --instance MindustRice
-          ${pkgs.screen}/bin/screen -XS MindustRice quit
+        (writeCatScriptBin "mindustrice-watch-keep-waybar" watch)
+        (writeCatScriptBin "mindustrice-kill" ''
+          ags quit --instance "${pname}"
+          screen -XS "${pname}" quit
         '')
 
         pkgs.fontconfig
-        (mkSelfCallCmd "reload-tmp-fonts" ''
+        (writeCatScriptBin "reload-tmp-fonts" ''
           WHOAMI=$(whoami)
           [ "$WHOAMI" == "" ] && echo "Empty user" && exit 1
           LOC="/home/$WHOAMI/.local/share/fonts"
@@ -149,11 +155,11 @@
           fc-pattern Pixellari
         '')
 
-        (mkSelfCallCmd "relink-resources" ''
+        (writeCatScriptBin "relink-resources" ''
           ${relinkResources}
           find ./resources -maxdepth 1
         '')
-      ];
+      ]);
 
       shellHook = ''
         export INIT_WD="$(pwd)"
