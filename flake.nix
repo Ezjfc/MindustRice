@@ -10,10 +10,7 @@
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";
     flake-utils.url = "github:numtide/flake-utils";
-    nixche = {
-      url = "github:ezjfc/nixche";
-      flake = false;
-    };
+    nixche.url = "github:ezjfc/nixche";
     ags = {
       url = "github:aylur/ags";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -29,7 +26,7 @@
     ags,
     resources,
   }: flake-utils.lib.eachDefaultSystem(system: let
-    pkgs = nixpkgs.legacyPackages.${system};
+    pkgs = nixpkgs.legacyPackages.${system}.extend nixche.overlays.neovim-with-lsps;
     pname = "MindustRice";
     entry = "src/status-bar/app.tsx";
 
@@ -92,7 +89,7 @@
     };
 
     devShells.default = let
-      writeCatScriptBin = (pkgs.callPackage "${nixche}/sh/write-cat-script" {}).writeCatScriptBin;
+      writeCatScriptBin = (pkgs.callPackage nixche.packages.${system}.write-cat-script {}).writeCatScriptBin;
     in pkgs.mkShell {
       packages = ([
         (ags.packages.${system}.default.override {
@@ -101,8 +98,9 @@
         # Note: GJS is not NodeJS and AGS is not React!
         # NodeJS was added for development purposes.
         pkgs.nodejs
-        pkgs.typescript
-        pkgs.typescript-language-server
+        (pkgs.neovim.withLsps {
+          ts_ls = pkgs.typescript-language-server;
+        })
 
         pkgs.xdg-utils # xdg-open
         (writeCatScriptBin "doc" "xdg-open https://aylur.github.io/ags/guide/intrinsics.html")
