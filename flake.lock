@@ -206,11 +206,11 @@
       "locked": {
         "lastModified": 1,
         "narHash": "sha256-JW0JwOVw64TbXBPIX/weXYHFzTzlL5wPCUYtYQXeZm0=",
-        "path": "/nix/store/jxklkfyprmcxnkxwbx76f2i4pyayljq9-source/resources",
+        "path": "/nix/store/rqmfbh6pi269qhs9wwbnihhv2kxsmp83-source/resources",
         "type": "path"
       },
       "original": {
-        "path": "/nix/store/jxklkfyprmcxnkxwbx76f2i4pyayljq9-source/resources",
+        "path": "/nix/store/rqmfbh6pi269qhs9wwbnihhv2kxsmp83-source/resources",
         "type": "path"
       }
     },

@@ -98,8 +98,10 @@
         # Note: GJS is not NodeJS and AGS is not React!
         # NodeJS was added for development purposes.
         pkgs.nodejs
+        pkgs.esbuild
         (pkgs.neovim.withLsps {
           ts_ls = pkgs.typescript-language-server;
+          # To generate types, run `ags types -u -d <where tsconfig.json is>`
         })
 
         pkgs.xdg-utils # xdg-open
@@ -125,10 +127,7 @@
         pkgs.toybox # pkill
         pkgs.screen
         pkgs.entr
-        (writeCatScriptBin "mindustrice-watch" ''
-          pkill waybar
-          ${watch}
-        '')
+        (writeCatScriptBin "mindustrice-watch" watch)
         (writeCatScriptBin "mindustrice-watch-keep-waybar" watch)
         (writeCatScriptBin "mindustrice-kill" ''
           ags quit --instance "${pname}"
