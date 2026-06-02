@@ -1,4 +1,5 @@
 .progressBar {
+  // TODO: might want to use SCSS or other ways to namespace the variables
   --background: #1D2025;
   --fill: #EC7B4C;
   --fill-shade: #B35F3E;
@@ -46,32 +47,48 @@
     filter: drop-shadow(0px var(--border-width) 0px var(--fill-shade));
     margin-bottom: var(--border-width);
   }
-
-  .stripes {
-    border-top: 2px solid;
-    border-bottom: 2px solid;
-    // border-right: 2px solid;
-    border-color: #FFD37F;
-    background: repeating-linear-gradient(
-      90deg, transparent 0px, transparent 10px,
-    #FFD37F 10px, #FFD37F 20px, transparent 20px,
-    );
-    transform: skew(-45deg, 0);
-    margin-left: calc(var(--corner-radius) * 2);
-    margin-right: 0px;
-  }
-
-  .marquee {
-    // https://stackoverflow.com/questions/63787241/css-how-to-create-an-infinitely-moving-repeating-linear-gradient
-    --d:100px;
-    --angle:45deg;
-    background-size: calc(var(--d)/sin(var(--angle))) 100%;
-    animation: marquee 3s linear infinite;
-
-    @keyframes marquee {
-      0% {
-        background-position: calc(var(--d)/sin(var(--angle))) 0;
-      }
-    }
-  }
 }
+
+// Drop support until futher notice:
+// (   // This rendering will fail on certain devices:   )
+
+//   .stripes {
+//     border-top: 2px solid;
+//     border-bottom: 2px solid;
+//     // border-right: 2px solid;
+//     border-color: #FFD37F;
+//
+//
+//     // This rendering will fail on certain devices:
+//     // background: repeating-linear-gradient(
+//     //   90deg, transparent 0px, transparent 10px,
+//     // #FFD37F 10px, #FFD37F 20px, transparent 20px,
+//     // );
+//     transform: skew(-45deg, 0);
+//
+//     background: repeating-linear-gradient(
+//       135deg,                        // <- the slant lives here now
+//       transparent      0px,
+//       transparent     10px,
+//       #FFD37F         10px,
+//       #FFD37F         20px,
+//       transparent     20px
+//     );
+//     margin-left: calc(var(--corner-radius) * 2);
+//     margin-right: 0px;
+//   }
+//
+//   .marquee {
+//     // https://stackoverflow.com/questions/63787241/css-how-to-create-an-infinitely-moving-repeating-linear-gradient
+//     --d:100px;
+//     --angle:45deg;
+//     background-size: calc(var(--d)/sin(var(--angle))) 100%;
+//     animation: marquee 3s linear infinite;
+//
+//     @keyframes marquee {
+//       0% {
+//         background-position: calc(var(--d)/sin(var(--angle))) 0;
+//       }
+//     }
+//   }
+// }

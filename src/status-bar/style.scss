@@ -237,7 +237,7 @@ label {
         90deg, transparent 0px, transparent 10px,
       #FFD37F 10px, #FFD37F 20px, transparent 20px,
       );
-      transform: skew(-45deg, 0);
+      transform: skewX(10deg) skewY(10deg);
       margin-left: calc(var(--corner-radius) * 2);
       margin-right: 0px;
     }

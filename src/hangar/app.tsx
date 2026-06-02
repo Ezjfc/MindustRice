@@ -9,8 +9,8 @@ import { register } from "gnim/gobject"
 import { createRoot } from "gnim"
 import { programInvocationName, programArgs } from "system"
 
-import style from "../components/progress_bar.scss"
-import { ProgressBar } from "../components/progress_bar"
+import style from "style.scss"
+import { ProgressBarPreview } from "./progress_bar"
 
 function loadCss(css: string) {
   const provider = new Gtk.CssProvider()
@@ -33,8 +33,8 @@ class MyApp extends Gtk.Application {
 
     loadCss(style)
 
-    createRoot((dispose) => {
-      this.connect("shutdown", dispose)
+    createRoot((unload) => {
+      this.connect("shutdown", unload)
 
       return (
         <Gtk.ApplicationWindow
@@ -44,13 +44,7 @@ class MyApp extends Gtk.Application {
           defaultHeight={150}
           $={(self) => (this.window = self).present()}
         >
-        <box orientation={Gtk.Orientation.VERTICAL}>
-          <box heightRequest={40}>
-          <ProgressBar />
-          </box>
-          <box vexpand={true}>
-          </box>
-        </box>
+          <ProgressBarPreview />
         </Gtk.ApplicationWindow>
       )
     })

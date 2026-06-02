@@ -28,7 +28,7 @@ import { createPoll, timeout } from "ags/time"
 import { execAsync } from "ags/process"
 import restrictUnpack from "./assert"
 
-const RESOURCES_PATH = `${import.meta.pkgDataDir}/resources`;
+const RESOURCES_PATH = `${import.meta.pkgDataDir}/resources`
 const UNIT_GRAY = "foreground=\"#7F7F7F\""
 const GDK_CURSOR = Gdk.Cursor.new_from_name("pointer", null)
 
@@ -177,6 +177,8 @@ function Mpris() {
 }
 
 function Workspaces() {
+  return <box />
+
   const hyprland = AstalHyprland.get_default()
 
   const workspaces = createBinding(
@@ -325,7 +327,8 @@ function Wireless() {
                 </box>
               </popover>
             </menubutton>
-          )}
+          )
+}
         }
       </With>
     </box>
@@ -490,7 +493,7 @@ function Memory({ pollInterval = 10000, highUsage = 0.5, useGiB = false }) {
     return percentage
   }
   const brightness = usage((usage) => {
-    let brightness = safePercentage(usage, 0) * 0.5 + 100
+    const brightness = safePercentage(usage, 0) * 0.5 + 100
     const css = `filter: brightness(${brightness}%);`
     return css
   })
@@ -562,7 +565,7 @@ function HotParticles({ visible, pixelSize = 24 , ...unexpected }) {
   )
 }
 
-var InhibitorCookie = 0
+let InhibitorCookie = 0
 
 /// IdleInhibitor is known as SleepInhibitor.
   // TODO: other inhibit flags since the current flag is largest (idle)
@@ -678,7 +681,7 @@ function Battery({ width = 175, ...unexpected }) {
         <overlay $={tooltip("Battery")} widthRequest={width}>
           <revealer // TODO: try CSS transition for less lag
             transitionType={Gtk.RevealerTransitionType.CROSSFADE}
-            revealChild={charging}
+            revealChild={true}
             transitionDuration={1000}
           >
             <box class="stripes marquee" />
@@ -725,14 +728,14 @@ export default function Bar({ gdkmonitor }: { gdkmonitor: Gdk.Monitor }) {
     }
   })
 
-  let errs = [];
-  const missFont = Array(
+  const errs = []
+  const missFont = [
     "fontello",
     "Pixellari",
     // "Darktech LDR",
-  ).some((family) => {
-    let install = PangoCairo.font_map_get_default().get_family(family)
-    return install === null;
+  ].some((family) => {
+    const install = PangoCairo.font_map_get_default().get_family(family)
+    return install === null
   })
   if (missFont) {
     const cmd = "nix develop -c reload-tmp-fonts"
@@ -748,7 +751,7 @@ export default function Bar({ gdkmonitor }: { gdkmonitor: Gdk.Monitor }) {
     const cmd = "nix develop -c relink-resources"
     errs.push(["resources error", cmd])
   }
-  const restartCmd = "mindustrice-watch";
+  const restartCmd = "mindustrice-watch"
   const copyField = (content) => (
     <box>
       <label label={`<span color="lime">${content}</span>`} useMarkup={true} />

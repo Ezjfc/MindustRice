@@ -15,7 +15,7 @@
       url = "github:aylur/ags";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    resources.url = "./resources";
+    resources.url = "path:./resources";
   };
 
   outputs = {
