@@ -1,4 +1,8 @@
 .progressBar {
+  --background: #1D2025;
+  --fill: #EC7B4C;
+  --fill-shade: #B35F3E;
+
   --corner-radius: 6px;
   --border-width: 3.5px;
   --tail-end: calc(var(--corner-radius) + 0.5px);
@@ -6,15 +10,15 @@
   background: linear-gradient(
     // Head gradient:
     135deg, transparent 0px, transparent var(--corner-radius),
-    #1D2025 var(--corner-radius),
+    var(--background) var(--corner-radius),
     // Avoid blocking tail gradient:
-    #1D2025 50%, transparent 50%,
+    var(--background) 50%, transparent 50%,
 
   ), linear-gradient(
       // Tail gradient:
-      -45deg, transparent 0px, transparent var(--corner-radius), #1D2025 var(--corner-radius),
+      -45deg, transparent 0px, transparent var(--corner-radius), var(--background) var(--corner-radius),
       // Avoid blocking head gradient:
-      #1D2025 50%, transparent 50%,
+      var(--background) 50%, transparent 50%,
 
   );
   margin-bottom: 8px;
@@ -24,22 +28,22 @@
     background: linear-gradient(
       // Head gradient:
       135deg, transparent 0px, transparent var(--corner-radius),
-      #EC7B4C var(--corner-radius),
+      var(--fill) var(--corner-radius),
       // Avoid blocking tail gradient:
-      #EC7B4C 50%, transparent 50%,
+      var(--fill) 50%, transparent 50%,
 
     ), linear-gradient(
       // Tail gradient:
       -45deg, transparent 0px, transparent var(--corner-radius),
       // Thicken the tail "drop shadow":
-      #B35F3E var(--corner-radius),
-      #B35F3E var(--tail-end),
-      #EC7B4C var(--tail-end),
+      var(--fill-shade) var(--corner-radius),
+      var(--fill-shade) var(--tail-end),
+      var(--fill) var(--tail-end),
       // Avoid blocking head gradient:
-      #EC7B4C 50%, transparent 50%,
+      var(--fill) 50%, transparent 50%,
 
     );
-    filter: drop-shadow(0px var(--border-width) 0px #B35F3E);
+    filter: drop-shadow(0px var(--border-width) 0px var(--fill-shade));
     margin-bottom: var(--border-width);
   }
 
