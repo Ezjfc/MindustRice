@@ -19,6 +19,8 @@ export function createAnimation(
 ) : Adw.TimedAnimation {
   const onTick = (f: number) => setFill(f)
 
+  // suspect seg fault due this object prematurely goes out of scope
+  // will use custom impl since dont want to risk any seg fault
   return new Adw.TimedAnimation({
     widget,
     value_from: fromProgress,
