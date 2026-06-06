@@ -1,13 +1,13 @@
 /**
- * progress_bar implements the "chamfer-styled" bar in Mindustry.
+ * progress_bar mimics the "chamfer-styled" bar in the original game.
  *
  * Visual documentation: TODO
  */
 
 import GObject from "gi://GObject?version=2.0"
 import Gtk from "gi://Gtk?version=4.0"
-import { Accessor, createBinding, createComputed, createEffect, createState } from "gnim"
-import { appearenceToCss, bindWidth } from "./component"
+import { Accessor, createBinding, createEffect } from "gnim"
+import { appearenceToCss } from "./component"
 
 /**
  * Parameters holds parameters for a progress bar component.
@@ -26,7 +26,7 @@ export interface Parameters {
 }
 
 /**
- * Appearence holds CSS appearence parameters for progress bar component.
+ * Appearence holds CSS appearence parameters for a progress bar component.
  */
 export interface Appearence {
   /**
@@ -47,60 +47,76 @@ export interface Appearence {
 }
 
 /**
- * ProgressBar initialises a progress bar component.
+ * ProgressBar initialises an instance of the component.
  */
-export function ProgressBar({ appearence, progress }: Parameters) : GObject.Object {
-  // const width = 175
+export default function ProgressBar({ appearence, progress }: Parameters) : GObject.Object {
   progress = progress || 1.0
-
-  const initConstraint = (self: Gtk.Widget) => self.set_layout_manager(new Gtk.ConstraintLayout())
-  const applyConstraint = (self: Gtk.Widget) => {
-    if (!(progress instanceof Accessor)) {
-      return
-    }
-    // const getParent = createBinding(self, "parent")
-    createEffect(() => {
-      let prevConstraint
-      const parent = self.parent
-      if (parent?.layout_manager instanceof Gtk.ConstraintLayout) {
-        parent.layout_manager.remove_all_constraints()
-        console.log(progress())
-        prevConstraint = progressToConstraint(self, progress())
-        parent.layout_manager.add_constraint(prevConstraint)
-
-        for (const attr of [
-          Gtk.ConstraintAttribute.START,
-        Gtk.ConstraintAttribute.TOP,
-        Gtk.ConstraintAttribute.BOTTOM,
-        ]) {
-          parent.layout_manager.add_constraint(new Gtk.Constraint({
-            target: self,
-            targetAttribute: attr,
-            relation: Gtk.ConstraintRelation.EQ,
-            source: null,
-            sourceAttribute: attr,
-            multiplier: 1,
-            constant: 0,
-            strength: Gtk.ConstraintStrength.REQUIRED,
-          }))
-        }
-      }
-    })
-  }
+  const fillInit = handleProgress(progress)
 
   return (
     <box
-      $={initConstraint}
       hexpand={true}
       class="progressBar"
       css={appearenceToCss(appearence)}
     >
-      <box $={applyConstraint} class="fill" hexpand={true} />
+      <box $={fillInit} class="fill" />
     </box>
   )
 }
 
-function progressToConstraint(widget: Gtk.Widget, progress: number) : Gtk.Constraint {
+/**
+ * handleProgress creates an initialisation callback for the fill box.
+ *
+ * A layout manager with constraints from {@link createDefaultConstraints} will the box is assigned
+ * a new parent.
+ *
+ * Another constraint depends on the progress and is from {@link progressToConstraint}.
+ */
+function handleProgress(progress: number|Accessor<number>) {
+  const getOrInitParentLayout = (self: Gtk.Widget, parent: Gtk.Widget) => {
+    let layout: Gtk.ConstraintLayout
+    const parent_layout = parent.layout_manager
+    if (!(parent_layout instanceof Gtk.ConstraintLayout)) {
+      layout = new Gtk.ConstraintLayout()
+      for (const constraint of createPermanentConstraints(self)) {
+        layout.add_constraint(constraint)
+      }
+
+      parent.set_layout_manager(layout)
+      return layout
+    } else {
+      return parent_layout
+    }
+  }
+  const fillInit = (self: Gtk.Widget) => {
+    let lastConstraint: Gtk.Constraint|null = null;
+    const getParent = createBinding(self, "parent")
+    createEffect(() => {
+      const parent = getParent()
+      if (parent === null) return
+
+      const layout = getOrInitParentLayout(self, parent)
+      if (lastConstraint !== null) {
+        layout.remove_constraint(lastConstraint)
+      }
+
+      const newConstraint = progressToConstraint(self, progress)
+      layout.add_constraint(newConstraint)
+      lastConstraint = newConstraint
+    })
+  }
+
+  return fillInit
+}
+
+/**
+ * progressToConstraint returns a constraint of the width attribute based on the progress.
+ */
+function progressToConstraint(widget: Gtk.Widget, progress: number|Accessor<number>) : Gtk.Constraint {
+  if (progress instanceof Accessor) {
+    progress = progress()
+  }
+
   return new Gtk.Constraint({
     target: widget,
     targetAttribute: Gtk.ConstraintAttribute.WIDTH,
@@ -112,3 +128,25 @@ function progressToConstraint(widget: Gtk.Widget, progress: number) : Gtk.Constr
     strength: Gtk.ConstraintStrength.REQUIRED
   })
 }
+
+/**
+ * createPermanentConstraints returns constraints of non-changing attributes that are required to
+ * render the component.
+ */
+function createPermanentConstraints(widget: Gtk.Widget) : Gtk.Constraint[] {
+  return [
+    Gtk.ConstraintAttribute.START,
+    Gtk.ConstraintAttribute.TOP,
+    Gtk.ConstraintAttribute.BOTTOM,
+  ].map((attr) => new Gtk.Constraint({
+    target: widget,
+    targetAttribute: attr,
+    relation: Gtk.ConstraintRelation.EQ,
+    source: null,
+    sourceAttribute: attr,
+    multiplier: 1.0,
+    constant: 0,
+    strength: Gtk.ConstraintStrength.REQUIRED
+  }))
+}
+
