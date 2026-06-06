@@ -2,7 +2,7 @@
  * components are used in MindustRice widgets. They can be used in separate Gnim-based applications
  *            as well.
  *
- * This module contains helper symbols for other modules in components.
+ * This file contains helper symbols for other modules in components.
  * @see ../hangar
  */
 

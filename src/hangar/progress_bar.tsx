@@ -6,6 +6,7 @@ import GObject from "gi://GObject?version=2.0"
 import { createBinding, createEffect, createState } from "gnim"
 import ProgressBar from "../components/progress_bar"
 import Gtk from "gi://Gtk?version=4.0"
+import { createAnimation } from "../components/progress_bar_smooth_fill"
 
 export function ProgressBarPreview() : GObject.Object {
   const defaultProgress = 1.0
@@ -25,7 +26,9 @@ export function ProgressBarPreview() : GObject.Object {
             setAppearence({ fill: rgba().to_string() })
           })
         }} />
-        <slider value={defaultProgress} min={0} max={1} onChangeValue={({ value }) => setProgress(value)} hexpand={true} />
+        <slider value={defaultProgress} min={0} max={1} onChangeValue={(self) => {
+          createAnimation(self, setProgress, 0, self.value).play()
+        }} hexpand={true} />
       </box>
     </box>
   )

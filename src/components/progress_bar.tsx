@@ -125,7 +125,7 @@ function progressToConstraint(widget: Gtk.Widget, progress: number|Accessor<numb
     sourceAttribute: Gtk.ConstraintAttribute.WIDTH,
     multiplier: progress,
     constant: 0,
-    strength: Gtk.ConstraintStrength.REQUIRED
+    strength: Gtk.ConstraintStrength.REQUIRED,
   })
 }
 
@@ -146,7 +146,7 @@ function createPermanentConstraints(widget: Gtk.Widget) : Gtk.Constraint[] {
     sourceAttribute: attr,
     multiplier: 1.0,
     constant: 0,
-    strength: Gtk.ConstraintStrength.REQUIRED
+    strength: Gtk.ConstraintStrength.REQUIRED,
   }))
 }
 
