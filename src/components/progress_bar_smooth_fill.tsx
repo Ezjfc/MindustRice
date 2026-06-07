@@ -11,22 +11,21 @@ import Adw from "gi://Adw?version=1";
 import Gtk from "gi://Gtk?version=4.0";
 import { Setter } from "gnim";
 
+/**
+ * WARNING: invalid arguments could cause a segmentation fault.
+ */
 export function createAnimation(
   widget: Gtk.Widget,
   setFill: Setter<number>,
   fromProgress: number,
   toProgress: number,
 ) : Adw.TimedAnimation {
-  const onTick = (f: number) => setFill(f)
-
-  // suspect seg fault due this object prematurely goes out of scope
-  // will use custom impl since dont want to risk any seg fault
   return new Adw.TimedAnimation({
     widget,
     value_from: fromProgress,
     value_to: toProgress,
-    duration: 250,
-    easing: Adw.Easing.EASE_OUT_EXPO,
-    target: new Adw.AnimationTarget(onTick),
+    duration: 1000,
+    easing: Adw.Easing.EASE_OUT_CUBIC,
+    target: Adw.CallbackAnimationTarget.new((f: number) => setFill(f)),
   })
 }

@@ -44,7 +44,10 @@ class MyApp extends Gtk.Application {
           defaultHeight={150}
           $={(self) => (this.window = self).present()}
         >
-          <ProgressBarPreview />
+        <box orientation={Gtk.Orientation.VERTICAL}>
+          <ProgressBarPreview a/>
+          <ProgressBarPreview a={false}/>
+        </box>
         </Gtk.ApplicationWindow>
       )
     })
