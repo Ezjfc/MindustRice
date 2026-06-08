@@ -45,8 +45,7 @@ class MyApp extends Gtk.Application {
           $={(self) => (this.window = self).present()}
         >
         <box orientation={Gtk.Orientation.VERTICAL}>
-          <ProgressBarPreview a/>
-          <ProgressBarPreview a={false}/>
+          <ProgressBarPreview />
         </box>
         </Gtk.ApplicationWindow>
       )

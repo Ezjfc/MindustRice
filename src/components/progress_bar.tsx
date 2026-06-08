@@ -93,10 +93,10 @@ function handleProgress(progress: number|Accessor<number>) {
     const getParent = createBinding(self, "parent")
     createEffect(() => {
       const parent = getParent()
-      if (parent === null) return
+      if (!parent) return
 
       const layout = getOrInitParentLayout(self, parent)
-      if (lastConstraint !== null) {
+      if (lastConstraint) {
         layout.remove_constraint(lastConstraint)
       }
 
