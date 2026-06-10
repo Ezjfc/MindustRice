@@ -4,7 +4,7 @@
 
 import GObject from "gi://GObject?version=2.0"
 import { createBinding, createEffect, createState } from "gnim"
-import ProgressBar from "../components/progress_bar_smooth_fill"
+import ProgressBar from "../components/ProgressBar"
 import Gtk from "gi://Gtk?version=4.0"
 
 
