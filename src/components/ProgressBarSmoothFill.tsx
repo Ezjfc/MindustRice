@@ -1,5 +1,6 @@
 /**
- * progress_bar_smooth_fill mimics the filling animation of progress bar in the original game.
+ * ProgressBarSmoothFill mimics the filling animation of progress bar shown in the HUD of the
+ *                       original game.
  *
  * TODO: or require adw for the entire file?? :
  * libadwaita is required for certain functions in this file, please refer to their doc comment.

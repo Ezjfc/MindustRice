@@ -1,5 +1,5 @@
 /**
- * progress_bar mimics the "chamfer-styled" bar in the original game.
+ * ProgressBar mimics the "chamfer-styled" progress bar in the HUD of the original game.
  *
  * Visual documentation: TODO
  */
