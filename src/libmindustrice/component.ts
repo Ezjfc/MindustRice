@@ -3,7 +3,7 @@
  *            as well.
  *
  * This file contains helper symbols for other modules in components.
- * @see ../hangar
+ * @see ../lab
  */
 
 import { Accessor } from "gnim"

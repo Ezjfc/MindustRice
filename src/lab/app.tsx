@@ -1,6 +1,6 @@
 /**
- * Welcome to Alpha's hangar in MindustRice. This is a Gnim application to facilitate easy
- * customisation and preview for widget components.
+ * Welcome to Alpha's lab of MindustRice components. This is a Gnim application to facilitate easy
+ * customisation and preview for widget components located in {@link ../libmindustrice}.
  **/
 
 import Gtk from "gi://Gtk?version=4.0"
@@ -39,7 +39,7 @@ class MyApp extends Gtk.Application {
       return (
         <Gtk.ApplicationWindow
           application={this}
-          title="Alpha's Hangar"
+          title="Alpha's Components Lab"
           defaultWidth={300}
           defaultHeight={150}
           $={(self) => (this.window = self).present()}

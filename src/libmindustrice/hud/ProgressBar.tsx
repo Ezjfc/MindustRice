@@ -7,7 +7,7 @@
 import GObject from "gi://GObject?version=2.0"
 import Gtk from "gi://Gtk?version=4.0"
 import { Accessor, createBinding, createEffect } from "gnim"
-import { appearenceToCss } from "./component"
+import { appearenceToCss } from "../component"
 
 /**
  * Parameters holds parameters for a progress bar component.
