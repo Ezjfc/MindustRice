@@ -107,9 +107,12 @@
         pkgs.xdg-utils # xdg-open
         (writeCatScriptBin "doc" "xdg-open https://aylur.github.io/ags/guide/intrinsics.html")
       ]) ++ (let
-        watch = ''
+        echoRoot = ''
           echo "${pname}: project root is set to $INIT_WD \
           (if this is incorrect, please alter the env INIT_WD)"
+        '';
+        watch = ''
+          ${echoRoot}
 
           COMPONENTS="status-bar"
           # https://stackoverflow.com/a/35894538
@@ -123,16 +126,27 @@
               ; exit"
           done
         ''; # TODO: change to libtop
+        lab = ''
+          ${echoRoot}
+          ags run "$INIT_WD/src/lab/app.tsx" \
+              --define "import.meta.pkgDataDir='$INIT_WD'"
+        '';
+        yazi = ''
+          ${echoRoot}
+          yazi "$INIT_WD/resources/Mindustry/core/assets-raw/"
+        '';
       in [
         pkgs.toybox # pkill
         pkgs.screen
         pkgs.entr
-        (writeCatScriptBin "mindustrice-watch" watch)
-        (writeCatScriptBin "mindustrice-watch-keep-waybar" watch)
-        (writeCatScriptBin "mindustrice-kill" ''
+        (writeCatScriptBin "mr-watch" watch)
+        (writeCatScriptBin "mr-watch-keep-waybar" watch)
+        (writeCatScriptBin "mr-kill" ''
           ags quit --instance "${pname}"
           screen -XS "${pname}" quit
         '')
+        (writeCatScriptBin "mr-lab" lab)
+        (writeCatScriptBin "mr-yazi" yazi)
 
         pkgs.fontconfig
         (writeCatScriptBin "reload-tmp-fonts" ''
