@@ -1,6 +1,11 @@
 @use '../libmindustrice/menu/theme.scss';
 @use '../libmindustrice/hud/ProgressBar.scss';
 
+button {
+  background: #00000000;
+  border: 0px solid;
+}
+
 .Toolbar {
   entry, label {
     font-family: theme.$font;
@@ -34,9 +39,10 @@
 }
 
 window {
-  background-color: rgba(0, 0, 0, 0.75)
+  background-color: rgba(0, 0, 0, 0.75);
+  padding: 20px;
 }
 
-.Preview {
-  margin: 20px;
-}
+// .Preview {
+  // margin: 20px;
+// }

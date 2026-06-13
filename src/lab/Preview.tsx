@@ -7,6 +7,9 @@ import Gtk from "gi://Gtk?version=4.0";
 import { Accessor, createEffect, createState, Setter } from "gnim";
 import GObject from "gnim/gobject";
 import { ENTRY_PADDING_PIXELS, getTextWidth } from "./utils";
+import PixelImageDA from "../libmindustrice/PixelImageDA";
+import { BUTTON_PIXEL_SCALE } from "./app";
+import getExtMindustryIcon from "../libmindustrice/extMindustryIcon";
 
 /**
  * Parameters holds parameters for a preview component.
@@ -35,17 +38,33 @@ export default function Preview({ component, defaultName }: Parameters) : GObjec
         setName={setName}
         generateName={name}
       />
-      <box heightRequest={40}>
-        {component}
-      </box>
+      <Resizer component={component} />
     </box>
+  )
+}
+
+/**
+ * Resizer initialises vertical and horizontal resizing panes that wraps the component.
+ */
+function Resizer({ component }: { component: GObject.Object }) : GObject.Object {
+  const defaultHeight = 40
+  const defaultWidth = 200
+
+  return (
+    <Gtk.Paned orientation={Gtk.Orientation.VERTICAL} position={defaultHeight} >
+      <Gtk.Paned orientation={Gtk.Orientation.HORIZONTAL} position={defaultWidth} >
+          {component}
+          <box hexpand={true} />
+      </Gtk.Paned>
+      <box vexpand={true} />
+    </Gtk.Paned>
   )
 }
 
 /**
  * Toolbar initialises the toolbar in a preview component.
  */
-export function Toolbar({ name, setName, generateName }: {
+function Toolbar({ name, setName, generateName }: {
   name: Accessor<string>,
   setName: Setter<string>,
   generateName: Accessor<string>,
@@ -67,6 +86,29 @@ export function Toolbar({ name, setName, generateName }: {
         }}
       />
       <label label="(press Enter to use default name, Esc to cancel edit)" visible={placeholderShowing} />
+      <box halign={Gtk.Align.END}>
+        <DuplicatePreviewButton />
+      </box>
     </box>
   )
 }
+
+/**
+ * DuplicatePreviewButton initialises a button that when being clicked, will duplicate the current
+ *                        preview to a space directly below, including its component and settings.
+ */
+function DuplicatePreviewButton() : GObject.Object {
+  return (
+    <button>
+      <PixelImageDA file={getExtMindustryIcon("copy")} scale={BUTTON_PIXEL_SCALE} />
+    </button>
+  )
+}
+
+/**
+ * AddBaseComponentButton initialises a button that when being clicked, will add a new preview
+ *                        with the same component as the current preview to a space directly below.
+ *                        The new preview will have all default settings.
+ */
+// function DuplicatePreviewButton() : GObject.Object {
+// }

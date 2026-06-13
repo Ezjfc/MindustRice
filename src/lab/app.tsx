@@ -11,6 +11,9 @@ import { programInvocationName, programArgs } from "system"
 
 import style from "style.scss"
 import ProgressBarPreview from "./ProgresBarPreview"
+import Ribbon from "./Ribbon"
+
+export const BUTTON_PIXEL_SCALE = 2.0
 
 function loadCss(css: string) {
   const provider = new Gtk.CssProvider()
@@ -46,6 +49,7 @@ class MyApp extends Gtk.Application {
           opacity={50}
         >
           <box orientation={Gtk.Orientation.VERTICAL}>
+            <Ribbon />
             <ProgressBarPreview />
           </box>
         </Gtk.ApplicationWindow>
