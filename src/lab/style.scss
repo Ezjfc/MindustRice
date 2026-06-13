@@ -1,5 +1,42 @@
+@use '../libmindustrice/menu/theme.scss';
 @use '../libmindustrice/hud/ProgressBar.scss';
 
-.progressBarPreview {
+.Toolbar {
+  entry, label {
+    font-family: theme.$font;
+  }
+
+  entry {
+    text-shadow: 0px 3px 0px theme.$placeholder-colour;
+    background-color: #00000000;
+    border: 0px solid;
+    color: white;
+    font-size: 28px;
+    selection {
+      background-color: rgba(255, 255, 255, 0.5);
+      color: white;
+    }
+    placeholder {
+      opacity: 1;
+      color: theme.$placeholder-colour;
+    }
+    box-shadow: none;
+    outline: none;
+  }
+
+  label {
+    color: theme.$placeholder-colour;
+    font-size: 18px;
+  }
+
+  padding-bottom: 10px;
+  border-bottom: 3px solid theme.$entry-line-colour;
+}
+
+window {
+  background-color: rgba(0, 0, 0, 0.75)
+}
+
+.Preview {
   margin: 20px;
 }

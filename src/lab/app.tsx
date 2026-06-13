@@ -10,7 +10,7 @@ import { createRoot } from "gnim"
 import { programInvocationName, programArgs } from "system"
 
 import style from "style.scss"
-import { ProgressBarPreview } from "./ProgresBar"
+import ProgressBarPreview from "./ProgresBarPreview"
 
 function loadCss(css: string) {
   const provider = new Gtk.CssProvider()
@@ -43,10 +43,11 @@ class MyApp extends Gtk.Application {
           defaultWidth={300}
           defaultHeight={150}
           $={(self) => (this.window = self).present()}
+          opacity={50}
         >
-        <box orientation={Gtk.Orientation.VERTICAL}>
-          <ProgressBarPreview />
-        </box>
+          <box orientation={Gtk.Orientation.VERTICAL}>
+            <ProgressBarPreview />
+          </box>
         </Gtk.ApplicationWindow>
       )
     })
