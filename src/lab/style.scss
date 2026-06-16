@@ -22,6 +22,7 @@ button {
       color: white;
     }
     placeholder {
+      text-shadow: none;
       opacity: 1;
       color: theme.$placeholder-colour;
     }

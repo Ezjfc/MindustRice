@@ -43,3 +43,15 @@ function AddcomponentButton() : GObject.Object {
     </button>
   )
 }
+
+/**
+ * BulkSelectButton initialises that when being clicked, will toggle bulk select mode.
+ *
+ * In bulk select mode, a select button will be added to each preview.
+ */
+function BulkSelectButton() : GObject.Object {
+  return (
+    <button>
+    </button>
+  )
+}

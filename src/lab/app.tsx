@@ -50,8 +50,16 @@ class MyApp extends Gtk.Application {
         >
           <box orientation={Gtk.Orientation.VERTICAL}>
             <Ribbon />
+            <ProgressBarPreview defaultAppearence={{
+              fill: "#FF341C",
+              fillShade: "#C12817",
+            }} />
             <ProgressBarPreview />
-          </box>
+            <ProgressBarPreview defaultAppearence={{
+              fill: "#596AB8",
+              fillShade: "#435195",
+            }} />
+          </box >
         </Gtk.ApplicationWindow>
       )
     })

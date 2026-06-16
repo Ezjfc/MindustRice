@@ -48,7 +48,7 @@ export default function Preview({ component, defaultName }: Parameters) : GObjec
  */
 function Resizer({ component }: { component: GObject.Object }) : GObject.Object {
   const defaultHeight = 40
-  const defaultWidth = 200
+  const defaultWidth = 500
 
   return (
     <Gtk.Paned orientation={Gtk.Orientation.VERTICAL} position={defaultHeight} >
@@ -85,11 +85,26 @@ function Toolbar({ name, setName, generateName }: {
           setPlaceholderShowing(text == "")
         }}
       />
-      <label label="(press Enter to use default name, Esc to cancel edit)" visible={placeholderShowing} />
+      <box visible={placeholderShowing} hexpand={true} >
+        <label label="(press Enter to use default name, Esc to cancel edit)" />
+      </box>
       <box halign={Gtk.Align.END}>
         <DuplicatePreviewButton />
+        <RemovePreviewButton />
       </box>
     </box>
+  )
+}
+
+/**
+ * RemovePreviewButton initialises a button that when being clicked, will show a confirmation popup
+ *                     asking whether or not to remove the preview.
+ */
+function RemovePreviewButton() : GObject.Object {
+  return (
+    <button>
+      <PixelImageDA file={getExtMindustryIcon("trash")} scale={BUTTON_PIXEL_SCALE} />
+    </button>
   )
 }
 

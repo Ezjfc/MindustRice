@@ -3,16 +3,19 @@
  */
 
 import GObject from "gi://GObject?version=2.0"
-import { createBinding, createEffect, createState } from "gnim"
-import ProgressBar from "../libmindustrice/hud/ProgressBar"
-import Gtk from "gi://Gtk?version=4.0"
+import { createState } from "gnim"
+import ProgressBar, { Appearence } from "../libmindustrice/hud/ProgressBar"
 import Preview from "./Preview"
 
+export interface Parameters {
+  defaultAppearence?: Appearence
+}
 
-export default function ProgressBarPreview() : GObject.Object {
+
+export default function ProgressBarPreview({ defaultAppearence }: Parameters) : GObject.Object {
   const defaultProgress = 1.0
 
-  const [appearence, setAppearence] = createState({})
+  const [appearence, setAppearence] = createState(defaultAppearence || {})
   const [progress, setProgress] = createState(defaultProgress)
 
   return <Preview
