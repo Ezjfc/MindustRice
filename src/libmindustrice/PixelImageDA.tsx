@@ -1,9 +1,5 @@
 /**
- * PixelImageDA prototypes {@link PixelImage} with GTK Drawing Area.
- *
- * This file is retained for easiesr testing and traceability. The implementation follows
- * - https://www.reddit.com/r/GTK/comments/i3eupl/help_with_rendering_pixel_buffer_data/
- * - https://stackoverflow.com/questions/36439504/cairo-image-blurred-when-scaled/36463685#36463685
+ * @see PixelImageDA
  */
 
 import giCairo from "cairo";
@@ -14,7 +10,7 @@ import GObject from "gnim/gobject";
 
 
 /**
- * Parameters holds parameters for a pixel image (drawing area) component.
+ * Parameters of a pixel image (drawing area) component.
  */
 interface Parameters {
   /**
@@ -29,10 +25,13 @@ interface Parameters {
 }
 
 /**
- * PixelImageDA initialises the component.
+ * PixelImageDA prototypes {@link PixelImage} with GTK Drawing Area.
+ *
+ * This component is retained for easiesr testing and traceability. The implementation follows
+ * - https://www.reddit.com/r/GTK/comments/i3eupl/help_with_rendering_pixel_buffer_data/
+ * - https://stackoverflow.com/questions/36439504/cairo-image-blurred-when-scaled/36463685#36463685
  *
  * @deprecated Please use {@link PixelImage}, which is based on GTK Snapshot instead of Drawing
- *             Area.
  */
 export default function PixelImageDA({ file, scale }: Parameters) : GObject.Object {
   if (file instanceof Accessor) {

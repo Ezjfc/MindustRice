@@ -1,16 +1,14 @@
 /**
- * Ribbon is the title ribbon of the program.
+ * @see Ribbon
  */
 
 import GObject from "gnim/gobject"
 import getExtMindustryIcon from "../libmindustrice/extMindustryIcon"
-import Gtk from "gi://Gtk?version=4.0"
 import PixelImageDA from "../libmindustrice/PixelImageDA"
 import { BUTTON_PIXEL_SCALE } from "./app"
 
-
 /**
- * Ribbon initialises the component.
+ * Ribbon is the title ribbon of the program.
  */
 export default function Ribbon() : GObject.Object {
   return (

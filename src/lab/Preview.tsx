@@ -1,8 +1,6 @@
 /**
- * Preview is a wrapper to display a component for preview alongside allowing users to tweaks the
- *         settings for that component.
+ * @see Preview
  */
-
 import Gtk from "gi://Gtk?version=4.0";
 import { Accessor, createEffect, createState, Setter } from "gnim";
 import GObject from "gnim/gobject";
@@ -12,7 +10,7 @@ import { BUTTON_PIXEL_SCALE } from "./app";
 import getExtMindustryIcon from "../libmindustrice/extMindustryIcon";
 
 /**
- * Parameters holds parameters for a preview component.
+ * Parameters of a preview component.
  */
 export interface Parameters {
   /**
@@ -26,7 +24,8 @@ export interface Parameters {
 }
 
 /**
- * Preview initialises the component.
+ * Preview is a wrapper to display a component for preview alongside allowing users to tweaks the
+ *         settings for that component.
  */
 export default function Preview({ component, defaultName }: Parameters) : GObject.Object {
   const [name, setName] = createState(defaultName)

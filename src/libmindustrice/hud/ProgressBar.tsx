@@ -1,7 +1,5 @@
 /**
- * ProgressBar mimics the "chamfer-styled" progress bar in the HUD of the original game.
- *
- * Visual documentation: TODO
+ * @see ProgressBar
  */
 
 import GObject from "gi://GObject?version=2.0"
@@ -10,7 +8,7 @@ import { Accessor, createBinding, createEffect } from "gnim"
 import { appearenceToCss } from "../component"
 
 /**
- * Parameters holds parameters for a progress bar component.
+ * Parameters of a progress bar component.
  */
 export interface Parameters {
   /**
@@ -47,7 +45,9 @@ export interface Appearence {
 }
 
 /**
- * ProgressBar initialises an instance of the component.
+ * ProgressBar mimics the "chamfer-styled" progress bar in the HUD of the original game.
+ *
+ * Visual documentation: TODO
  */
 export default function ProgressBar({ appearence, progress }: Parameters) : GObject.Object {
   progress = progress || 1.0
@@ -100,6 +100,9 @@ function handleProgress(progress: number|Accessor<number>) {
         layout.remove_constraint(lastConstraint)
       }
 
+      if (progress instanceof Accessor) {
+        progress = progress()
+      }
       const newConstraint = progressToConstraint(self, progress)
       layout.add_constraint(newConstraint)
       lastConstraint = newConstraint
@@ -112,11 +115,7 @@ function handleProgress(progress: number|Accessor<number>) {
 /**
  * progressToConstraint returns a constraint of the width attribute based on the progress.
  */
-function progressToConstraint(widget: Gtk.Widget, progress: number|Accessor<number>) : Gtk.Constraint {
-  if (progress instanceof Accessor) {
-    progress = progress()
-  }
-
+function progressToConstraint(widget: Gtk.Widget, progress: number) : Gtk.Constraint {
   return new Gtk.Constraint({
     target: widget,
     targetAttribute: Gtk.ConstraintAttribute.WIDTH,
@@ -131,7 +130,7 @@ function progressToConstraint(widget: Gtk.Widget, progress: number|Accessor<numb
 
 /**
  * createPermanentConstraints returns constraints of non-changing attributes that are required to
- * render the component.
+ *                            render the component.
  */
 function createPermanentConstraints(widget: Gtk.Widget) : Gtk.Constraint[] {
   return [

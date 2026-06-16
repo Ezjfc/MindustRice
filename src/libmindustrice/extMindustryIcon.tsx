@@ -6,9 +6,15 @@
 
 // Future impl example:
 // import iconMap from "../../resources/Mindustry/core/assets-raw/icons/map.png"
-//
+
+/**
+ * The absolute path to the resources folder.
+ */
 const RESOURCES_PATH = `${import.meta.pkgDataDir}/resources`
 
+/**
+ * getExtMindustryIcon returns the absolute path to a Mindustry icon.
+ */
 export default function getExtMindustryIcon(iconName: string) : string {
   return `${RESOURCES_PATH}/Mindustry/core/assets-raw/icons/${iconName}.png`
 }

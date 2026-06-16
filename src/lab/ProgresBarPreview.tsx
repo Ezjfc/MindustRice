@@ -1,5 +1,5 @@
 /**
- * progress_bar implements the space preview for {@link ../components/progress_bar.tsx}.
+ * @see ProgressBarPreview
  */
 
 import GObject from "gi://GObject?version=2.0"
@@ -11,7 +11,9 @@ export interface Parameters {
   defaultAppearence?: Appearence
 }
 
-
+/**
+ * ProgressBarPreview implements the space preview for {@link ../components/progress_bar.tsx}.
+ */
 export default function ProgressBarPreview({ defaultAppearence }: Parameters) : GObject.Object {
   const defaultProgress = 1.0
 
@@ -24,6 +26,9 @@ export default function ProgressBarPreview({ defaultAppearence }: Parameters) : 
   />
 }
 
+/**
+ * PreviewSettings of the progress bar preview.
+ */
 export interface PreviewSettings {
   invert_chamfers: boolean
   invert_fill_and_shade: boolean
