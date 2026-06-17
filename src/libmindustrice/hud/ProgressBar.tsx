@@ -57,7 +57,7 @@ export default function ProgressBar({ appearence, progress }: Parameters) : GObj
     <box
       hexpand={true}
       class="progressBar"
-      css={appearenceToCss(appearence)}
+      css={appearenceToCss("progressBar", appearence)}
     >
       <box $={fillInit} class="fill" />
     </box>

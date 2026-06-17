@@ -8,10 +8,10 @@ For code formats, please refer to .editorconfig and eslint.config.js
 
 ### Text documentation
 
-1. Documentation should be placed on top of all symbols except for function overloads. *However, it
-   can be as simple as a few words*.
-1. Documentation should be placed at the beginning of all .ts or .tsx files. *However, it can be
-   as simple as a few words*. For a file that holds components, it should simply be a `@see` field
+1. Documentation should be placed on top of all symbols in .ts or .tsx files except for function
+   overloads. *However, it can be as simple as a few words*.
+2. Documentation should be placed at the beginning of .ts or .tsx files. *However, it can be as
+   simple as a few words*. For a file that holds components, it should simply be a `@see` field
    referring to function that initialises the main/only component.
 3. For the first paragraph of a documentation, it should start with the symbol name. If it has
    multiple lines, all following lines should be indented to the length of the symbol name.

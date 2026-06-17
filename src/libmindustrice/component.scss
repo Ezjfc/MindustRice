@@ -1,0 +1,6 @@
+/// component style sheet contains helper SCSS code for other components.
+
+/// v prefixes a CSS variable before accessing it or fallback to the given default value.
+@function v($prefix, $name, $default) {
+  @return var(--#{$prefix}-#{$name}, #{$default});
+}

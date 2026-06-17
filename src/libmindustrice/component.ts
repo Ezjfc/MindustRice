@@ -2,7 +2,7 @@
  * components are used in MindustRice widgets. They can be used in separate Gnim-based applications
  *            as well.
  *
- * This file contains helper code for other modules in components.
+ * This file contains helper code for other components.
  * @see ../lab
  */
 
@@ -13,19 +13,26 @@ import { Accessor, createEffect } from "gnim"
  */
 type Appearence = object
 
-export function appearenceToCss(appearence?: Appearence): string
-export function appearenceToCss(appearence?: Accessor<Appearence>): Accessor<string>
+export function appearenceToCss(prefix: string, appearence?: Appearence): string
+export function appearenceToCss(
+  prefix: string,
+  appearence?: Accessor<Appearence>,
+): Accessor<string>
 
 /**
- * appearenceToCss converts appearence parameters of a component to CSS variable codes.
+ * appearenceToCss converts appearence parameters of a component to CSS variable codes alongside
+ * prefixing them.
  */
-export function appearenceToCss(appearence?: Appearence|Accessor<Appearence>) : string|Accessor<string> {
+export function appearenceToCss(
+  prefix: string,
+  appearence?: Appearence|Accessor<Appearence>,
+) : string|Accessor<string> {
   if (appearence instanceof Accessor) {
-    return appearence.as(a => appearenceToCss(a))
+    return appearence.as(a => appearenceToCss(prefix, a))
   }
 
   const convertCase = (k: string) => k.replace(/([A-Z])/g, '-$1').toLowerCase()
-  return Object.entries(appearence || {}).map(([k, v]) => `--${convertCase(k)}: ${v};`).join(" ")
+  return Object.entries(appearence || {}).map(([k, v]) => `--${prefix}-${convertCase(k)}: ${v};`).join(" ")
 }
 
 /**

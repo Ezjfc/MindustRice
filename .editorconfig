@@ -5,5 +5,5 @@ end_of_line = lf
 indent_style = space
 indent_size = 2
 
-[{*.ts, *.tsx, *.scss}]
+[{*.ts,*.tsx,*.scss}]
 max_line_length = 99

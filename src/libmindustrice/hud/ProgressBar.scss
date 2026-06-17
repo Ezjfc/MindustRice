@@ -1,25 +1,44 @@
+@use "../component.scss" as c;
+
+$prefix: "progressBar";
+
+@function background() {
+  @return c.v($prefix, "background", #1D2025)
+}
+
+@function fill() {
+  @return c.v($prefix, "fill", #EC7B4C);
+}
+
+@function fill-shade() {
+  @return c.v($prefix, "fill-shade", #B35F3E);
+}
+
+@function corner-radius() {
+  @return c.v($prefix, "corner-radius", 6px);
+}
+
+@function border-width() {
+  @return c.v($prefix, "border-width", 3.5px);
+}
+
+@function tail-end() {
+  @return calc(#{corner-radius()} + 0.5px);
+}
+
 .progressBar {
-  // TODO: might want to use SCSS or other ways to namespace the variables
-  --background: #1D2025;
-  --fill: #EC7B4C;
-  --fill-shade: #B35F3E;
-
-  --corner-radius: 6px;
-  --border-width: 3.5px;
-  --tail-end: calc(var(--corner-radius) + 0.5px);
-
   background: linear-gradient(
     // Head gradient:
-    135deg, transparent 0px, transparent var(--corner-radius),
-    var(--background) var(--corner-radius),
+    135deg, transparent 0px, transparent corner-radius(),
+    background() corner-radius(),
     // Avoid blocking tail gradient:
-    var(--background) 50%, transparent 50%,
+    background() 50%, transparent 50%,
 
   ), linear-gradient(
       // Tail gradient:
-      -45deg, transparent 0px, transparent var(--corner-radius), var(--background) var(--corner-radius),
+      -45deg, transparent 0px, transparent corner-radius(), background() corner-radius(),
       // Avoid blocking head gradient:
-      var(--background) 50%, transparent 50%,
+      background() 50%, transparent 50%,
 
   );
   margin-bottom: 8px;
@@ -28,24 +47,24 @@
   .fill {
     background: linear-gradient(
       // Head gradient:
-      135deg, transparent 0px, transparent var(--corner-radius),
-      var(--fill) var(--corner-radius),
+      135deg, transparent 0px, transparent corner-radius(),
+      fill() corner-radius(),
       // Avoid blocking tail gradient:
-      var(--fill) 50%, transparent 50%,
+      fill() 50%, transparent 50%,
 
     ), linear-gradient(
       // Tail gradient:
-      -45deg, transparent 0px, transparent var(--corner-radius),
+      -45deg, transparent 0px, transparent corner-radius(),
       // Thicken the tail "drop shadow":
-      var(--fill-shade) var(--corner-radius),
-      var(--fill-shade) var(--tail-end),
-      var(--fill) var(--tail-end),
+      fill-shade() corner-radius(),
+      fill-shade() tail-end(),
+      fill() tail-end(),
       // Avoid blocking head gradient:
-      var(--fill) 50%, transparent 50%,
+      fill() 50%, transparent 50%,
 
     );
-    filter: drop-shadow(0px var(--border-width) 0px var(--fill-shade));
-    margin-bottom: var(--border-width);
+    filter: drop-shadow(0px border-width() 0px fill-shade());
+    margin-bottom: border-width();
   }
 }
 

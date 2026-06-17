@@ -101,6 +101,7 @@
         pkgs.esbuild
         (pkgs.neovim.withLsps {
           ts_ls = pkgs.typescript-language-server;
+          cssls = pkgs.vscode-css-languageserver;
           # To generate types, run `ags types -u -d <where tsconfig.json is>`
         })
 
