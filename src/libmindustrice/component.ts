@@ -29,18 +29,29 @@ export function appearenceToCss(appearence?: Appearence|Accessor<Appearence>) : 
 }
 
 /**
- * trackOrCallOnce checks if the given object to handle is an accessor. For an accessor, it returns
- *                 another callback an effect that tracks value updates and pass it to the given
- *                 callback. Otherwise, it will curry the given callback.
+ * condAccessorAs checks if the given value is an accessor. For an accessor, it will pass the given
+ *                callback to `.as()` and return the transformed accessor. Otherwise, it will
+ *                simply run the callback and return the transformed value.
  */
-export function trackOrCallOnce<T>(toHandle: Accessor<T>|T, callback: (handled: T) => void) {
+export function condAccessorAs<T, U>(
+  toHandle: T|Accessor<T>,
+  callback: (handled: T) => U,
+) : U|Accessor<U> {
   if (toHandle instanceof Accessor) {
-    return () => {
-      createEffect(() => {
-        callback(toHandle())
-      })
-    }
+    return toHandle.as(callback)
+  } else {
+    return callback(toHandle)
   }
+}
 
-  () => callback(toHandle)
+/**
+ * condAccessorAs checks if the given value is an accessor. For an accessor, it will call `.peek()`
+ *                and return the result. Otherwise, it will simply return the given value.
+ */
+export function condAccessorPeek<T>(toHandle: T|Accessor<T>) : T {
+  if (toHandle instanceof Accessor) {
+    return toHandle.peek()
+  } else {
+    return toHandle
+  }
 }

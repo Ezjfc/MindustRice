@@ -6,6 +6,7 @@ import GObject from "gnim/gobject"
 import getExtMindustryIcon from "../libmindustrice/extMindustryIcon"
 import PixelImageDA from "../libmindustrice/PixelImageDA"
 import { BUTTON_PIXEL_SCALE } from "./app"
+import PixelImage from "../libmindustrice/PixelImage"
 
 /**
  * Ribbon is the title ribbon of the program.
@@ -26,7 +27,7 @@ export default function Ribbon() : GObject.Object {
 function FreeCanvasButton() : GObject.Object {
   return (
     <button>
-      <PixelImageDA file={getExtMindustryIcon("map")} scale={BUTTON_PIXEL_SCALE} />
+      <PixelImage file={getExtMindustryIcon("map")} scale={BUTTON_PIXEL_SCALE} />
     </button>
   )
 }
@@ -37,7 +38,7 @@ function FreeCanvasButton() : GObject.Object {
 function AddcomponentButton() : GObject.Object {
   return (
     <button>
-      <PixelImageDA file={getExtMindustryIcon("add")} scale={BUTTON_PIXEL_SCALE} />
+      <PixelImage file={getExtMindustryIcon("add")} scale={BUTTON_PIXEL_SCALE} />
     </button>
   )
 }

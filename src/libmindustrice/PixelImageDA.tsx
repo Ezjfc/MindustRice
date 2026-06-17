@@ -35,7 +35,7 @@ interface Parameters {
  */
 export default function PixelImageDA({ file, scale }: Parameters) : GObject.Object {
   if (file instanceof Accessor) {
-    return <With value={file}>{f => PixelImageDA({ file: f, scale })}</With>
+    return <With value={file}>{f => <PixelImageDA file={f} scale={scale} />}</With>
   }
 
   scale = scale || 1.0

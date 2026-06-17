@@ -44,3 +44,4 @@ export default tseslint.defineConfig(
 // Add if not exists:
 // - trailing comma for multi line args / objects / lists
 // - Extra empty line at the end of file
+// - Ban on ==

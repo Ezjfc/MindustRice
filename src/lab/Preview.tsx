@@ -8,6 +8,7 @@ import { ENTRY_PADDING_PIXELS, getTextWidth } from "./utils";
 import PixelImageDA from "../libmindustrice/PixelImageDA";
 import { BUTTON_PIXEL_SCALE } from "./app";
 import getExtMindustryIcon from "../libmindustrice/extMindustryIcon";
+import PixelImage from "../libmindustrice/PixelImage";
 
 /**
  * Parameters of a preview component.
@@ -102,7 +103,7 @@ function Toolbar({ name, setName, generateName }: {
 function RemovePreviewButton() : GObject.Object {
   return (
     <button>
-      <PixelImageDA file={getExtMindustryIcon("trash")} scale={BUTTON_PIXEL_SCALE} />
+      <PixelImage file={getExtMindustryIcon("trash")} scale={BUTTON_PIXEL_SCALE} />
     </button>
   )
 }
@@ -114,7 +115,7 @@ function RemovePreviewButton() : GObject.Object {
 function DuplicatePreviewButton() : GObject.Object {
   return (
     <button>
-      <PixelImageDA file={getExtMindustryIcon("copy")} scale={BUTTON_PIXEL_SCALE} />
+      <PixelImage file={getExtMindustryIcon("copy")} scale={BUTTON_PIXEL_SCALE} />
     </button>
   )
 }

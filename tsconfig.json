@@ -5,6 +5,7 @@
     "module": "ES2022",
     "moduleResolution": "Bundler",
     "strict": true,
+    "experimentalDecorators": false,
     "target": "ES2020"
   }
 }
