@@ -2,13 +2,12 @@
  * @see Preview
  */
 import Gtk from "gi://Gtk?version=4.0";
-import { Accessor, createEffect, createState, Setter } from "gnim";
+import { Accessor, createState, Setter } from "gnim";
 import GObject from "gnim/gobject";
-import { ENTRY_PADDING_PIXELS, getTextWidth } from "./utils";
-import PixelImageDA from "../libmindustrice/PixelImageDA";
 import { BUTTON_PIXEL_SCALE } from "./app";
 import getExtMindustryIcon from "../libmindustrice/extMindustryIcon";
 import PixelImage from "../libmindustrice/PixelImage";
+import FitEntry from "../libmindustrice/menu/FitEntry";
 
 /**
  * Parameters of a preview component.
@@ -73,17 +72,11 @@ function Toolbar({ name, setName, generateName }: {
 
   return (
     <box class="Toolbar" valign={Gtk.Align.START} >
-      <entry
-        $={(self) => createEffect(() => {
-          self.widthRequest = getTextWidth(self, generateName()) + ENTRY_PADDING_PIXELS
-        })}
+      <FitEntry
+        fitToPlaceholder={false}
         placeholderText={generateName}
-        hexpand={placeholderShowing.as(s => !s)}
-
         text={name}
-        onNotifyText={({ text }) => {
-          setPlaceholderShowing(text == "")
-        }}
+        onNotifyText={({text}) => setPlaceholderShowing(text === "")}
       />
       <box visible={placeholderShowing} hexpand={true} >
         <label label="(press Enter to use default name, Esc to cancel edit)" />

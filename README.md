@@ -12,3 +12,5 @@ https://github.com/user-attachments/assets/da9a3ea0-d473-4d64-844d-fb146d60ad14
 - It currently favours laptops but support for desktop will be added.
 - It currently favours NixOS but it should work for other distros when the Nix package manager is setup correctly and preferably with Home Manager installed.
 - It currently does not support operating systems outside of Linux but I wish it could.
+
+Components in libmindustrice are strictly encapsulated (a very limited number of options are allowed) until the development process stabilises.
