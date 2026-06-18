@@ -22,6 +22,29 @@ export interface Parameters extends PostInitHookParameters<Gtk.Entry> {
 }
 
 /**
+ * Underline controls how the underline looks.
+ */
+export type Underline = {
+  /**
+   * noUnderline when not set or set to false, allows underline parameters to co-exist. When set to
+   *             true, will hide the underline alongside disabling its padding.
+   *
+   * The same effects may be achieved by managing those options manually. However, using this
+   * option can ensure safety and convenience.
+   */
+  noUnderline: true
+}|{
+  /**
+   * noUnderline when not set or set to false, allows underline parameters to co-exist. When set to
+   *             true, will hide the underline alongside disabling its padding.
+   *
+   * The same effects may be achieved by managing those options manually. However, using this
+   * option can ensure safety and convenience.
+   */
+  noUnderline?: false
+}
+
+/**
  * Entry mimics the text entry in common menus of the original game.
  *
  * Visual documentation: TODO

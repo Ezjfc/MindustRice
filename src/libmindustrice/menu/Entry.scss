@@ -11,8 +11,16 @@ $prefix: "entry";
   @return c.v($prefix, "background", transparent);
 }
 
-@function border-bottom() {
-  @return c.v($prefix, "border-bottom", 0px solid theme.$entry-line-colour);
+@function underline-thickness() {
+  @return c.v($prefix, "border-thickness", 3px)
+}
+
+@function underline-colour() {
+  @return c.v($prefix, "border-colour", #454545);
+}
+
+@function underline-padding() {
+  @return c.v($prefix, "underline-padding", 10px);
 }
 
 .entry {
@@ -21,9 +29,9 @@ $prefix: "entry";
   background-color: background();
 
   border: 0px solid;
-  border-bottom: border-bottom();
+  border-bottom: border-colour() solid border-thickness();
   border-radius: 0px;
-  padding-bottom: 10px;
+  padding-bottom: underline-padding();
 
   color: white;
   font-size: 28px;
