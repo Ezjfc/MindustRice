@@ -35,6 +35,7 @@ export default tseslint.defineConfig(
           },
         },
       ],
+      '@typescript-eslint/prefer-nullish-coalescing': 'warn',
     },
   },
 )
@@ -44,4 +45,4 @@ export default tseslint.defineConfig(
 // Add if not exists:
 // - trailing comma for multi line args / objects / lists
 // - Extra empty line at the end of file
-// - Ban on ==
+// - Warn on ==

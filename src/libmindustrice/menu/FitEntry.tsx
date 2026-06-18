@@ -2,7 +2,7 @@
  * @see FitEntry
  */
 
-import { Accessor, createBinding, createEffect } from "gnim";
+import { createBinding, createEffect } from "gnim";
 import GObject from "gnim/gobject";
 import Entry, { Parameters as EntryParameters } from "./Entry";
 import Gtk from "gi://Gtk?version=4.0";
@@ -32,24 +32,47 @@ export interface Parameters extends EntryParameters {
  *
  * Visual documentation: TODO
  */
-export default function FitEntry(params: Parameters) : GObject.Object {
-    const { fitToText, fitToPlaceholder } = params
+export default function FitEntry({
+  fitToText,
+  fitToPlaceholder,
+  $: postInitHook,
+  ...passthrus
+}: Parameters) : GObject.Object {
+  fitToText = fitToText ?? true
+  fitToPlaceholder = fitToPlaceholder ?? true
 
-    const entry = <Entry /> as Gtk.Entry
-    const getText = createBinding(entry, "text")
-    const getPlaceholder = createBinding(entry, "placeholderText").as(p => p || "")
+  return (
+    <Entry
+      $={(self) => {
+        initFitEntry(fitToText, fitToPlaceholder)(self)
+        if (postInitHook) postInitHook(self)
+      }}
+      {...passthrus}
+    />
+  )
+
+}
+
+/**
+ * initFitEntry returns an initialiser that converts an entry to fit entry.
+ */
+export function initFitEntry(fitToText: $<boolean>, fitToPlaceholder: $<boolean>) {
+  return (self: Gtk.Entry) => {
+    const getText = createBinding(self, "text")
+    const getPlaceholder = createBinding(self, "placeholderText").as(p => p ?? "")
     const getFitToText = $(fitToText)
     const getFitToPlaceholder = $(fitToPlaceholder)
-    const init = ({}) => createEffect(() => {
+
+    createEffect(() => {
       const text = getText()
       if (text !== "") {
-        handleFitOption(entry, getFitToText() || true, text)
+        handleFitOption(self, getFitToText(), text)
       } else {
-        handleFitOption(entry, getFitToPlaceholder() || true, getPlaceholder())
+        handleFitOption(self, getFitToPlaceholder(), getPlaceholder())
       }
-    })
 
-    return <box $={init}>{entry}</box>
+    })
+  }
 }
 
 /**
@@ -60,6 +83,7 @@ export default function FitEntry(params: Parameters) : GObject.Object {
 function handleFitOption(widget: Gtk.Widget, enabled: boolean, content: string) {
   if (!enabled) {
     widget.hexpand = true
+    return
   }
 
   widget.hexpand = false

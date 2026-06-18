@@ -17,7 +17,7 @@ export interface Parameters {
 export default function ProgressBarPreview({ defaultAppearence }: Parameters) : GObject.Object {
   const defaultProgress = 1.0
 
-  const [appearence, setAppearence] = createState(defaultAppearence || {})
+  const [appearence, setAppearence] = createState(defaultAppearence ?? {})
   const [progress, setProgress] = createState(defaultProgress)
 
   return <Preview

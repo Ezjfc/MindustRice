@@ -204,15 +204,14 @@
         "nixpkgs": "nixpkgs_3"
       },
       "locked": {
-        "lastModified": 1,
-        "narHash": "sha256-JW0JwOVw64TbXBPIX/weXYHFzTzlL5wPCUYtYQXeZm0=",
         "path": "./resources",
         "type": "path"
       },
       "original": {
         "path": "./resources",
         "type": "path"
-      }
+      },
+      "parent": []
     },
     "root": {
       "inputs": {

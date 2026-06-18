@@ -9,6 +9,7 @@ import { register } from "gnim/gobject"
 import Graphene from "gi://Graphene?version=1.0"
 import Gsk from "gi://Gsk?version=4.0"
 import { $ } from "gnim-hooks"
+import { PostInitHookParameters } from "./component"
 
 /**
  * Parameters of a pixel image (drawing area) component, which includes a set of mutually exlusive
@@ -19,7 +20,7 @@ export type Parameters = ParametersOfFile|ParametersOfTexture
 /**
  * BaseParameters of a pixel image component.
  */
-export interface BaseParameters {
+export interface BaseParameters extends PostInitHookParameters<PixelImage> {
   /**
    * scale controls the rendering size of the pixel image.
    * @default 1.0
@@ -75,7 +76,7 @@ export default class PixelImage extends Gtk.Widget {
     super()
     const file = (params as ParametersOfFile).file
     const texture = (params as ParametersOfTexture).texture
-    const { scale } = params
+    const { scale, $: postInitHook } = params
 
     const getFile = $(file)
     const fileToTexture = () => Gdk.Texture.new_from_filename(getFile())
@@ -83,14 +84,16 @@ export default class PixelImage extends Gtk.Widget {
     const getScale = $(scale)
 
     this.texture = getTexture.peek()
-    this.scale = getScale.peek() || this.scale
+    this.scale = getScale.peek() ?? this.scale
 
     createEffect(() => {
       this.texture = getTexture()
-      this.scale = getScale() || this.scale
+      this.scale = getScale() ?? this.scale
 
       this.queue_resize()
     })
+
+    if (postInitHook) postInitHook(this)
   }
 
   /**

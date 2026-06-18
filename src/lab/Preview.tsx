@@ -2,12 +2,13 @@
  * @see Preview
  */
 import Gtk from "gi://Gtk?version=4.0";
-import { Accessor, createState, Setter } from "gnim";
+import { Accessor, createBinding, createComputed, createEffect, createState, Setter } from "gnim";
 import GObject from "gnim/gobject";
 import { BUTTON_PIXEL_SCALE } from "./app";
 import getExtMindustryIcon from "../libmindustrice/extMindustryIcon";
 import PixelImage from "../libmindustrice/PixelImage";
 import FitEntry from "../libmindustrice/menu/FitEntry";
+import { $ } from "gnim-hooks";
 
 /**
  * Parameters of a preview component.
@@ -68,17 +69,21 @@ function Toolbar({ name, setName, generateName }: {
   setName: Setter<string>,
   generateName: Accessor<string>,
 }) : GObject.Object {
-  const [placeholderShowing, setPlaceholderShowing] = createState(false)
+  let getText: $<string>|undefined
+  const placeholderVisible = createComputed(() => {
+    if (getText) return $(getText)() === ""
+    return false
+  })
 
   return (
     <box class="Toolbar" valign={Gtk.Align.START} >
       <FitEntry
-        fitToPlaceholder={false}
+        $={(self) => getText = createBinding(self, "text")}
+        fitToText={false}
         placeholderText={generateName}
         text={name}
-        onNotifyText={({text}) => setPlaceholderShowing(text === "")}
       />
-      <box visible={placeholderShowing} hexpand={true} >
+      <box visible={placeholderVisible} hexpand={true} >
         <label label="(press Enter to use default name, Esc to cancel edit)" />
       </box>
       <box halign={Gtk.Align.END}>

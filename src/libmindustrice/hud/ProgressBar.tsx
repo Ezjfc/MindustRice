@@ -5,19 +5,18 @@
 import GObject from "gi://GObject?version=2.0"
 import Gtk from "gi://Gtk?version=4.0"
 import { createBinding, createEffect } from "gnim"
-import { appearenceToCss } from "../component"
+import { appearenceToCss, PostInitHookParameters } from "../component"
 import { $ } from "gnim-hooks"
 
 /**
  * Parameters of a progress bar component.
  */
-export interface Parameters {
+export interface Parameters extends PostInitHookParameters<Gtk.Box> {
   /**
    * progress controls how much the bar is filled. The value should be within 0..=1.
    * @default 1.0
    */
   progress?: $<number>
-
   /**
    * appearence controls the generation of dynamic CSS.
    */
@@ -50,23 +49,28 @@ export interface Appearence {
  *
  * Visual documentation: TODO
  */
-export default function ProgressBar({ appearence, progress }: Parameters) : GObject.Object {
-  progress = progress || 1.0
+export default function ProgressBar({
+  appearence,
+  progress,
+  $: postInitHook,
+}: Parameters) : GObject.Object {
+  progress = progress ?? 1.0
   const fillInit = handleProgress(progress)
 
   return (
-    <box
+    <Gtk.Box
+      $={postInitHook}
       hexpand={true}
       class="progressBar"
-      css={appearenceToCss("progressBar", appearence || {})}
+      css={appearenceToCss("progressBar", appearence ?? {})}
     >
-      <box $={fillInit} class="fill" />
-    </box>
+      <Gtk.Box $={fillInit} class="fill" />
+    </Gtk.Box>
   )
 }
 
 /**
- * handleProgress creates an initialisation callback for the fill box.
+ * handleProgress creates an initialiser for the fill box.
  *
  * A layout manager with constraints from {@link createDefaultConstraints} will the box is assigned
  * a new parent.
@@ -92,7 +96,7 @@ function handleProgress(progress: $<number>) {
     }
   }
   const fillInit = (self: Gtk.Widget) => {
-    let lastConstraint: Gtk.Constraint|null = null;
+    let lastConstraint: Gtk.Constraint|undefined
     const getParent = createBinding(self, "parent")
     createEffect(() => {
       const parent = getParent()

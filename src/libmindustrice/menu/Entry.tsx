@@ -4,25 +4,21 @@
 
 import { $ } from "gnim-hooks";
 import GObject from "gnim/gobject";
+import { PostInitHookParameters } from "../component";
+import Gtk from "gi://Gtk?version=4.0";
 
 /**
  * Parameters of an entry component.
  */
-export interface Parameters {
+export interface Parameters extends PostInitHookParameters<Gtk.Entry> {
   /**
    * text is the editable content.
-   * @efault ""
    */
   text?: $<string>
   /**
    * placeholderText is the non-editable content when text is empty.
-   * @default ""
    */
   placeholderText?: $<string>
-  /**
-   * onNotifyText is called when text updates.
-   */
-  onNotifyText?: (data: { text: string }) => void
 }
 
 /**
@@ -31,14 +27,14 @@ export interface Parameters {
  * Visual documentation: TODO
  */
 export default function Entry({
-  text,
-  placeholderText,
-  onNotifyText
+  $: postInitHook,
+  ...pasthrus
 }: Parameters) : GObject.Object {
-    return <entry
-      class="entry"
-      text={text || ""}
-      placeholderText={placeholderText || ""}
-      onNotifyText={onNotifyText}
+    return (
+      <Gtk.Entry
+        $={postInitHook}
+        class="entry"
+        {...pasthrus}
       />
+    )
 }

@@ -8,12 +8,13 @@ import Gtk from "gi://Gtk?version=4.0";
 import { Accessor, With } from "gnim";
 import { $ } from "gnim-hooks";
 import GObject from "gnim/gobject";
+import { PostInitHookParameters } from "./component";
 
 
 /**
  * Parameters of a pixel image (drawing area) component.
  */
-interface Parameters {
+interface Parameters extends PostInitHookParameters<Gtk.DrawingArea> {
   /**
    * file is the file path to the PNG pixel image to render.
    *
@@ -37,30 +38,45 @@ interface Parameters {
  *
  * @deprecated Please use {@link PixelImage}, which is based on GTK Snapshot instead of Drawing
  */
-export default function PixelImageDA({ file, scale }: Parameters) : GObject.Object {
+export default function PixelImageDA(params: Parameters) : GObject.Object {
+  const { file, scale, $: postInitHook } = params
+
   if (file instanceof Accessor) {
-    return <With value={file}>{f => <PixelImageDA file={f} scale={scale} />}</With>
+    return (
+      <With value={file}>
+      {f => {
+        params.file = f
+        return <PixelImageDA {...params} />
+      }}
+      </With>
+    )
   }
 
-  scale = scale || 1.0
   const texture = Gdk.Texture.new_from_filename(file)
-  const [width, height] = scaleDA(texture, scale)
+  const [width, height] = scaleDA(texture, scale ?? 1.0)
+  const onDraw: Gtk.DrawingAreaDrawFunc = (_area, cr, w, h) => {
+    const surface = giCairo.ImageSurface.createFromPNG(file)
+    const imageWidth = surface.getWidth()
+    const imageHeight = surface.getHeight()
+    const pattern = new giCairo.SurfacePattern(surface)
+    pattern.setFilter(giCairo.Filter.NEAREST)
 
-  return <Gtk.DrawingArea
-    widthRequest={width}
-    heightRequest={height}
-    $={(self) => self.set_draw_func((area, cr, w, h) => {
-      const surface = giCairo.ImageSurface.createFromPNG(file)
-      const imageWidth = surface.getWidth()
-      const imageHeight = surface.getHeight()
-      const pattern = new giCairo.SurfacePattern(surface)
-      pattern.setFilter(giCairo.Filter.NEAREST)
+    cr.scale(w / imageWidth, h / imageHeight)
+    cr.setSource(pattern)
+    cr.paint()
+  }
 
-      cr.scale(w / imageWidth, h / imageHeight)
-      cr.setSource(pattern)
-      cr.paint()
-    })}
-  />
+  return (
+    <Gtk.DrawingArea
+      $={(self) => {
+        self.set_draw_func(onDraw)
+        if (postInitHook) postInitHook(self)
+      }}
+      widthRequest={width}
+      heightRequest={height}
+    />
+  )
+
 }
 
 /**
