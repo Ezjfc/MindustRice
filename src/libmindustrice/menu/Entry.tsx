@@ -2,8 +2,7 @@
  * @see Entry
  */
 
-import Gtk from "gi://Gtk?version=4.0";
-import { Accessor } from "gnim";
+import { $ } from "gnim-hooks";
 import GObject from "gnim/gobject";
 
 /**
@@ -14,12 +13,12 @@ export interface Parameters {
    * text is the editable content.
    * @efault ""
    */
-  text?: string|Accessor<string>
+  text?: $<string>
   /**
    * placeholderText is the non-editable content when text is empty.
    * @default ""
    */
-  placeholderText?: string|Accessor<string>
+  placeholderText?: $<string>
   /**
    * onNotifyText is called when text updates.
    */
@@ -29,7 +28,7 @@ export interface Parameters {
 /**
  * Entry mimics the text entry in common menus of the original game.
  *
- * Visual documentation:
+ * Visual documentation: TODO
  */
 export default function Entry({
   text,

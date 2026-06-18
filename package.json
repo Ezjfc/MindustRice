@@ -8,6 +8,7 @@
     "typescript-eslint": "^8.60.1"
   },
   "dependencies": {
-    "gnim": "^1.9.1"
+    "gnim": "^1.9.1",
+    "gnim-hooks": "^1.0.0"
   }
 }

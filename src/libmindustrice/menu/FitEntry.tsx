@@ -6,6 +6,7 @@ import { Accessor, createBinding, createEffect } from "gnim";
 import GObject from "gnim/gobject";
 import Entry, { Parameters as EntryParameters } from "./Entry";
 import Gtk from "gi://Gtk?version=4.0";
+import { $ } from "gnim-hooks";
 
 /**
  * Parameters of a fit entry component.
@@ -16,19 +17,20 @@ export interface Parameters extends EntryParameters {
    *           horizontally when the entry has text.
    * @default true
    */
-  fitToText?: boolean|Accessor<boolean>
+  fitToText?: $<boolean>
   /**
    * fitToPlaceholder enables the fitting behaviour when placeholder is visible (when the entry has
-   * no text). When disabled, it will expand horizontally when the placeholder is visible.
+   *                  no text). When disabled, it will expand horizontally when the placeholder is
+   *                  visible.
    * @default true
    */
-  fitToPlaceholder?: boolean|Accessor<boolean>
+  fitToPlaceholder?: $<boolean>
 }
 
 /**
  * FitEntry is an {@link Entry} that automatically fits to its content or placeholder.
  *
- * Visual documentation:
+ * Visual documentation: TODO
  */
 export default function FitEntry(params: Parameters) : GObject.Object {
     const { fitToText, fitToPlaceholder } = params
@@ -36,33 +38,24 @@ export default function FitEntry(params: Parameters) : GObject.Object {
     const entry = <Entry /> as Gtk.Entry
     const getText = createBinding(entry, "text")
     const getPlaceholder = createBinding(entry, "placeholderText").as(p => p || "")
+    const getFitToText = $(fitToText)
+    const getFitToPlaceholder = $(fitToPlaceholder)
     const init = ({}) => createEffect(() => {
       const text = getText()
-      let option: boolean|Accessor<boolean>|undefined
-      let content: string
       if (text !== "") {
-        option = fitToText
-        content = getText()
+        handleFitOption(entry, getFitToText() || true, text)
       } else {
-        option = fitToPlaceholder
-        content = getPlaceholder()
+        handleFitOption(entry, getFitToPlaceholder() || true, getPlaceholder())
       }
-
-      if (option instanceof Accessor) {
-        // TODO: extremely speghetti sounds like I really need gnim hooks
-        option = option()
-      }
-
-      handleFitOption(entry, option || true, content)
     })
 
     return <box $={init}>{entry}</box>
 }
 
 /**
- * handleFitOption checks if the given option is enabled. When enabled, it will disable horizontal
- *                 expand and updates the width request to fit with the content. Otherwise, it will
- *                 enable horizontal expand.
+ * handleFitOption will disable horizontal expand and updates the width request to fit with the
+ *                 content if the currently active option is enabled. Otherwise, it will enable
+ *                 horizontal expand.
  */
 function handleFitOption(widget: Gtk.Widget, enabled: boolean, content: string) {
   if (!enabled) {

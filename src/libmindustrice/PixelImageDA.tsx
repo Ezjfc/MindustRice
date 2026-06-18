@@ -6,6 +6,7 @@ import giCairo from "cairo";
 import Gdk from "gi://Gdk?version=4.0";
 import Gtk from "gi://Gtk?version=4.0";
 import { Accessor, With } from "gnim";
+import { $ } from "gnim-hooks";
 import GObject from "gnim/gobject";
 
 
@@ -15,13 +16,16 @@ import GObject from "gnim/gobject";
 interface Parameters {
   /**
    * file is the file path to the PNG pixel image to render.
+   *
+   * Texture is NOT cached upon loading. Changing scale will cause the file to be read again.
+   * Please ensure the file always exists.
    */
-  file: string|Accessor<string>
+  file: $<string>
   /**
    * scale controls the rendering size of the pixel image.
    * @default 1.0
    */
-  scale?: number|Accessor<number>
+  scale?: $<number>
 }
 
 /**
@@ -60,21 +64,14 @@ export default function PixelImageDA({ file, scale }: Parameters) : GObject.Obje
 }
 
 /**
- * scaleDA returns the dimension or accessors of dimension for the drawing area.
+ * scaleDA returns the dimension for the drawing area.
  */
-function scaleDA(
-  texture: Gdk.Texture,
-  scale: number|Accessor<number>,
-) : number[]|Accessor<number>[] {
+function scaleDA(texture: Gdk.Texture, scale: $<number>) : $<number>[] {
   const width = texture.get_width()
   const height = texture.get_height()
 
-  if (scale instanceof Accessor) {
-    return [
-      scale.as(s => s * width),
-      scale.as(s => s * height),
-    ]
-  }
-
-  return [width * scale, height * scale]
+  return [
+    $(scale).as(s => s * width),
+    $(scale).as(s => s * height),
+  ]
 }

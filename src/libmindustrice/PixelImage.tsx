@@ -4,11 +4,11 @@
 
 import Gdk from "gi://Gdk?version=4.0"
 import Gtk from "gi://Gtk?version=4.0"
-import { Accessor, createEffect } from "gnim"
-import { condAccessorAs, condAccessorPeek } from "./component"
+import { createEffect, createMemo } from "gnim"
 import { register } from "gnim/gobject"
 import Graphene from "gi://Graphene?version=1.0"
 import Gsk from "gi://Gsk?version=4.0"
+import { $ } from "gnim-hooks"
 
 /**
  * Parameters of a pixel image (drawing area) component, which includes a set of mutually exlusive
@@ -24,29 +24,31 @@ export interface BaseParameters {
    * scale controls the rendering size of the pixel image.
    * @default 1.0
    */
-  scale?: number|Accessor<number>
+  scale?: $<number>
 }
 
 /**
- * ParametersOfFile holds parameters for a pixel image (drawing area) component that renders from
+ * ParametersOfFile holds parameters for a pixel image component that renders from
  * a file.
  */
 export interface ParametersOfFile extends BaseParameters {
   /**
    * file is the file path to the PNG pixel image to render.
+   *
+   * Texture is cached upon loading. Changing scale will use the cached texture.
    */
-  file: string|Accessor<string>
+  file: $<string>
 }
 
 /**
- * ParametersOfFile holds parameters for a pixel image (drawing area) component that renders from
+ * ParametersOfFile holds parameters for a pixel image component that renders from
  *                  a {@link Gdk.Texture}.
  */
 export interface ParametersOfTexture extends BaseParameters {
   /**
    * texture contains the data of the pixel image to render.
    */
-  texture: Gdk.Texture|Accessor<Gdk.Texture>
+  texture: $<Gdk.Texture>
 }
 
 /**
@@ -72,21 +74,20 @@ export default class PixelImage extends Gtk.Widget {
   constructor(params: Parameters) {
     super()
     const file = (params as ParametersOfFile).file
-    let texture
-    if (file) {
-      const fileToTexture = (f: string) => Gdk.Texture.new_from_filename(f)
-      texture = condAccessorAs(file, fileToTexture)
-    } else {
-      texture = (params as ParametersOfTexture).texture
-    }
-
+    const texture = (params as ParametersOfTexture).texture
     const { scale } = params
-    if (scale) this.scale = condAccessorPeek(scale)
-    this.texture = condAccessorPeek(texture)
+
+    const getFile = $(file)
+    const fileToTexture = () => Gdk.Texture.new_from_filename(getFile())
+    const getTexture = file ? createMemo(fileToTexture) : $(texture)
+    const getScale = $(scale)
+
+    this.texture = getTexture.peek()
+    this.scale = getScale.peek() || this.scale
 
     createEffect(() => {
-      if (scale instanceof Accessor) this.scale = scale()
-      if (texture instanceof Accessor) this.texture = texture()
+      this.texture = getTexture()
+      this.scale = getScale() || this.scale
 
       this.queue_resize()
     })
@@ -114,6 +115,9 @@ export default class PixelImage extends Gtk.Widget {
     return [px, px, -1, -1]
   }
 
+  /**
+   * vfunc_snapshot renders a snapshot of the component.
+   */
   vfunc_snapshot(snapshot: Gtk.Snapshot): void {
     const rect = new Graphene.Rect
     rect.init(0, 0, this.get_width(), this.get_height())

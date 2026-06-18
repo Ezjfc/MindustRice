@@ -4,8 +4,9 @@
 
 import GObject from "gi://GObject?version=2.0"
 import Gtk from "gi://Gtk?version=4.0"
-import { Accessor, createBinding, createEffect } from "gnim"
+import { createBinding, createEffect } from "gnim"
 import { appearenceToCss } from "../component"
+import { $ } from "gnim-hooks"
 
 /**
  * Parameters of a progress bar component.
@@ -15,12 +16,12 @@ export interface Parameters {
    * progress controls how much the bar is filled. The value should be within 0..=1.
    * @default 1.0
    */
-  progress?: number|Accessor<number>
+  progress?: $<number>
 
   /**
    * appearence controls the generation of dynamic CSS.
    */
-  appearence?: Appearence|Accessor<Appearence>
+  appearence?: $<Appearence>
 }
 
 /**
@@ -57,7 +58,7 @@ export default function ProgressBar({ appearence, progress }: Parameters) : GObj
     <box
       hexpand={true}
       class="progressBar"
-      css={appearenceToCss("progressBar", appearence)}
+      css={appearenceToCss("progressBar", appearence || {})}
     >
       <box $={fillInit} class="fill" />
     </box>
@@ -72,7 +73,9 @@ export default function ProgressBar({ appearence, progress }: Parameters) : GObj
  *
  * Another constraint depends on the progress and is from {@link progressToConstraint}.
  */
-function handleProgress(progress: number|Accessor<number>) {
+function handleProgress(progress: $<number>) {
+  progress = $(progress)
+
   const getOrInitParentLayout = (self: Gtk.Widget, parent: Gtk.Widget) => {
     let layout: Gtk.ConstraintLayout
     const parent_layout = parent.layout_manager
@@ -100,10 +103,7 @@ function handleProgress(progress: number|Accessor<number>) {
         layout.remove_constraint(lastConstraint)
       }
 
-      if (progress instanceof Accessor) {
-        progress = progress()
-      }
-      const newConstraint = progressToConstraint(self, progress)
+      const newConstraint = progressToConstraint(self, progress())
       layout.add_constraint(newConstraint)
       lastConstraint = newConstraint
     })

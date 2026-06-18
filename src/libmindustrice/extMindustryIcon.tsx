@@ -4,6 +4,8 @@
  *                  be imported directly.
  */
 
+import { $ } from "gnim-hooks"
+
 // Future impl example:
 // import iconMap from "../../resources/Mindustry/core/assets-raw/icons/map.png"
 
@@ -15,6 +17,6 @@ const RESOURCES_PATH = `${import.meta.pkgDataDir}/resources`
 /**
  * getExtMindustryIcon returns the absolute path to a Mindustry icon.
  */
-export default function getExtMindustryIcon(iconName: string) : string {
-  return `${RESOURCES_PATH}/Mindustry/core/assets-raw/icons/${iconName}.png`
+export default function getExtMindustryIcon(iconName: $<string>) : $<string> {
+  return $(iconName).as(n => `${RESOURCES_PATH}/Mindustry/core/assets-raw/icons/${n}.png`)
 }
