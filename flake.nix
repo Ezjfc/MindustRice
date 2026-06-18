@@ -99,11 +99,19 @@
         # NodeJS was added for development purposes.
         pkgs.nodejs
         pkgs.esbuild
-        (pkgs.neovim.withLsps {
-          ts_ls = pkgs.typescript-language-server;
-          cssls = pkgs.vscode-css-languageserver;
+        (with pkgs; neovim.withLsps {
+          ts_ls = typescript-language-server;
+          cssls = vscode-css-languageserver;
+          css_variables = css-variables-language-server;
+          nil_ls = nil; # Nix LSP
+
           # To generate types, run `ags types -u -d <where tsconfig.json is>`
         })
+
+        # whoever caused this please ban them from open source development
+        (pkgs.writeShellScriptBin "vscode-css-language-server" ''
+          vscode-css-languageserver $*
+        '')
 
         pkgs.xdg-utils # xdg-open
         (writeCatScriptBin "doc" "xdg-open https://aylur.github.io/ags/guide/intrinsics.html")

@@ -3,13 +3,28 @@
 
 $prefix: "entry";
 
-// TODO: colour vars
+@function font() {
+  @return c.v($prefix, "font", theme.$font);
+}
+
+@function background() {
+  @return c.v($prefix, "background", transparent);
+}
+
+@function border-bottom() {
+  @return c.v($prefix, "border-bottom", 0px solid theme.$entry-line-colour);
+}
 
 .entry {
-  font-family: theme.$font;
+  font-family: font();
   text-shadow: 0px 3px 0px theme.$placeholder-colour;
-  background-color: #00000000;
+  background-color: background();
+
   border: 0px solid;
+  border-bottom: border-bottom();
+  border-radius: 0px;
+  padding-bottom: 10px;
+
   color: white;
   font-size: 28px;
   selection {
