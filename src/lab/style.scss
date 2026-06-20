@@ -1,4 +1,4 @@
-@use '../libmindustrice/menu/theme.scss';
+@use '../libmindustrice/menu/theme.scss' as menu;
 @use '../libmindustrice/menu/Entry.scss';
 @use '../libmindustrice/hud/ProgressBar.scss';
 
@@ -10,13 +10,13 @@ button {
 .Toolbar {
 
   label {
-    font-family: theme.$font;
-    color: theme.$placeholder-colour;
+    font-family: menu.$font;
+    color: menu.$gray;
     font-size: 18px;
   }
 
   padding-bottom: 10px;
-  border-bottom: 3px solid theme.$entry-line-colour;
+  border-bottom: 3px solid menu.$gray;
 }
 
 window {

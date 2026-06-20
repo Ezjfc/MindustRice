@@ -42,11 +42,13 @@ type Appearence = object
 
 /**
  * appearenceToCss converts appearence parameters of a component to CSS variable codes alongside
- *                 prefixing them.
+ *                 prefixing them. Fields having the value `undefined` will be ignored.
  */
 export function appearenceToCss(prefix: string, appearence: $<Appearence>) : $<string> {
   const convertCase = (k: string) => k.replace(/([A-Z])/g, '-$1').toLowerCase()
-  const outputCss = (a: Appearence) => Object.entries(a) .map(([k, v]) => `--${prefix}-${convertCase(k)}: ${v};`)
+  const outputCss = (a: Appearence) => Object.entries(a)
+    .filter(([_k, v]) => v !== undefined)
+    .map(([k, v]) => `--${prefix}-${convertCase(k)}: ${v};`)
     .join(" ")
   return $(appearence).as(outputCss)
 }

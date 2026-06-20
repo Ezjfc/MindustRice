@@ -7,43 +7,58 @@ $prefix: "entry";
   @return c.v($prefix, "font", theme.$font);
 }
 
-@function background() {
-  @return c.v($prefix, "background", transparent);
-}
-
-@function underline-thickness() {
-  @return c.v($prefix, "border-thickness", 3px)
+@function font-size() {
+  @return c.v($prefix, "font-size", 28px);
 }
 
 @function underline-colour() {
-  @return c.v($prefix, "border-colour", #454545);
+  @return c.v($prefix, "underline-colour", theme.$gray);
+}
+
+@function underline-thickness() {
+  @return c.v($prefix, "underline-thickness", 3px)
 }
 
 @function underline-padding() {
   @return c.v($prefix, "underline-padding", 10px);
 }
 
+@function text-colour() {
+  @return c.v($prefix, "text-colour", white);
+}
+
+@function text-shadow-colour() {
+  @return c.v($prefix, "text-shadow-colour", theme.$gray);
+}
+
+@function selection-highlight() {
+  @return c.v($prefix, "selection-highlight", rgba(255, 255, 255, 0.5));
+}
+
+@function selection-text-colour() {
+  @return c.v($prefix, "selection-highlight", white);
+}
+
 .entry {
   font-family: font();
-  text-shadow: 0px 3px 0px theme.$placeholder-colour;
-  background-color: background();
+  font-size: font-size();
+  background-color: transparent;
 
   border: 0px solid;
-  border-bottom: border-colour() solid border-thickness();
+  border-bottom: underline-colour() solid underline-thickness();
   border-radius: 0px;
   padding-bottom: underline-padding();
 
-  color: white;
-  font-size: 28px;
+  color: text-colour();
+  text-shadow: 0px 3px 0px text-shadow-colour();
   selection {
-    background-color: rgba(255, 255, 255, 0.5);
-    color: white;
+    background-color: selection-highlight();
+    color: selection-text-colour();
   }
   placeholder {
     text-shadow: none;
     opacity: 1;
-    color: theme.$placeholder-colour;
+    color: theme.$gray;
   }
-  box-shadow: none;
   outline: none;
 }

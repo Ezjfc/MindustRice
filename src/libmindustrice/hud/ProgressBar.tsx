@@ -24,7 +24,7 @@ export interface Parameters extends PostInitHookParameters<Gtk.Box> {
 }
 
 /**
- * Appearence holds CSS appearence parameters for a progress bar component.
+ * Appearence of a progress bar component.
  */
 export interface Appearence {
   /**

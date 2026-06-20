@@ -79,6 +79,7 @@ function Toolbar({ name, setName, generateName }: {
     <box class="Toolbar" valign={Gtk.Align.START} >
       <FitEntry
         $={(self) => getText = createBinding(self, "text")}
+        appearence={{ noUnderline: true }}
         fitToText={false}
         placeholderText={generateName}
         text={name}
