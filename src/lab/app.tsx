@@ -12,6 +12,8 @@ import { programInvocationName, programArgs } from "system"
 import style from "style.scss"
 import ProgressBarPreview from "./ProgresBarPreview"
 import Ribbon from "./Ribbon"
+import Preview from "./Preview"
+import OPBackground from "../libmindustrice/opening/OPBackground"
 
 export const BUTTON_PIXEL_SCALE = 2.0
 
@@ -48,20 +50,26 @@ class MyApp extends Gtk.Application {
           $={(self) => (this.window = self).present()}
           opacity={50}
         >
-          <box orientation={Gtk.Orientation.VERTICAL}>
+          <Gtk.Box orientation={Gtk.Orientation.VERTICAL}>
             <Ribbon />
-            <ProgressBarPreview defaultAppearence={{
-              fill: "#FF341C",
-              fillShade: "#C12817",
-            }} />
             <ProgressBarPreview />
-            <ProgressBarPreview defaultAppearence={{
-              fill: "#596AB8",
-              fillShade: "#435195",
-            }} />
-          </box >
+            <Preview
+              component={<OPBackground />}
+              defaultName="Opening Background"
+              defaultHeight={281.25} // 16:9
+            />
+          </Gtk.Box>
         </Gtk.ApplicationWindow>
       )
+            // <ProgressBarPreview defaultAppearence={{
+            //   fill: "#FF341C",
+            //   fillShade: "#C12817",
+            // }} />
+            // <ProgressBarPreview />
+            // <ProgressBarPreview defaultAppearence={{
+            //   fill: "#596AB8",
+            //   fillShade: "#435195",
+            // }} />
     })
   }
 }

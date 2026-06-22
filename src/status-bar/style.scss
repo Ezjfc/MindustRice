@@ -233,6 +233,7 @@ label {
       border-bottom: 2px solid;
       // border-right: 2px solid;
       border-color: #FFD37F;
+      // why not 45deg repeating gradient: it will overflow the progress bar
       background: repeating-linear-gradient(
         90deg, transparent 0px, transparent 10px,
       #FFD37F 10px, #FFD37F 20px, transparent 20px,

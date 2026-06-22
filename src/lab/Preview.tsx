@@ -22,13 +22,28 @@ export interface Parameters {
    * defaultName holds the name for newly added component until the user changes it.
    */
   defaultName: string
+  /**
+   * defaultWidth decides initial width until the user resizes it.
+   * @default 40
+   */
+  defaultWidth?: number
+  /**
+   * defaultHeight decides initial width until the user resizes it.
+   * @default 500
+   */
+  defaultHeight?: number
 }
 
 /**
  * Preview is a wrapper to display a component for preview alongside allowing users to tweaks the
  *         settings for that component.
  */
-export default function Preview({ component, defaultName }: Parameters) : GObject.Object {
+export default function Preview({
+  component,
+  defaultName,
+  defaultWidth,
+  defaultHeight,
+}: Parameters) : GObject.Object {
   const [name, setName] = createState(defaultName)
 
   return (
@@ -38,7 +53,7 @@ export default function Preview({ component, defaultName }: Parameters) : GObjec
         setName={setName}
         generateName={name}
       />
-      <Resizer component={component} />
+      <Resizer component={component} defaultWidth={defaultWidth} defaultHeight={defaultHeight} />
     </box>
   )
 }
@@ -46,9 +61,13 @@ export default function Preview({ component, defaultName }: Parameters) : GObjec
 /**
  * Resizer initialises vertical and horizontal resizing panes that wraps the component.
  */
-function Resizer({ component }: { component: GObject.Object }) : GObject.Object {
-  const defaultHeight = 40
-  const defaultWidth = 500
+function Resizer({ component, defaultWidth, defaultHeight }: {
+  component: GObject.Object,
+  defaultWidth?: number,
+  defaultHeight?: number,
+}) : GObject.Object {
+  defaultWidth = defaultWidth ?? 500
+  defaultHeight = defaultHeight ?? 40
 
   return (
     <Gtk.Paned orientation={Gtk.Orientation.VERTICAL} position={defaultHeight} >

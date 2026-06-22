@@ -1,6 +1,7 @@
-@use '../libmindustrice/menu/theme.scss' as menu;
-@use '../libmindustrice/menu/Entry.scss';
-@use '../libmindustrice/hud/ProgressBar.scss';
+@use "../libmindustrice/theme.scss" as menu;
+@use "../libmindustrice/menu/Entry.scss";
+@use "../libmindustrice/hud/ProgressBar.scss";
+@use "../libmindustrice/opening/OPBackground.scss";
 
 button {
   background: #00000000;

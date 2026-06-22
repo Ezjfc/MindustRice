@@ -1,0 +1,26 @@
+@use "../theme.scss";
+
+$thickness: 3px;
+
+.opBackground {
+  // border-top: 2px solid;
+  // border-bottom: 2px solid;
+  // // border-right: 2px solid;
+  // border-color: #FFD37F;
+  background: repeating-linear-gradient(
+    45deg,
+    theme.$accent-colour,
+    theme.$accent-colour $thickness,
+    transparent $thickness,
+    transparent 20px
+  ), repeating-linear-gradient(
+    -45deg,
+    theme.$accent-colour,
+    theme.$accent-colour $thickness,
+    transparent $thickness,
+    transparent 20px
+  );
+  // transform: skewX(10deg) skewY(10deg);
+  // margin-left: calc(var(--corner-radius) * 2);
+  // margin-right: 0px;
+}
