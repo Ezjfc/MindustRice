@@ -120,6 +120,14 @@
           echo "${pname}: project root is set to $INIT_WD \
           (if this is incorrect, please alter the env INIT_WD)"
         '';
+        commonDefs = ''
+          --define "import.meta.pkgDataDir='$INIT_WD'"
+        '';
+        yazi = ''
+          ${echoRoot}
+          yazi "$INIT_WD/resources/Mindustry/core/assets-raw/"
+        '';
+
         watch = ''
           ${echoRoot}
 
@@ -138,16 +146,19 @@
         lab = ''
           ${echoRoot}
           ags run "$INIT_WD/src/lab/app.tsx" \
-              --define "import.meta.pkgDataDir='$INIT_WD'"
+            ${commonDefs}
         '';
-        yazi = ''
+        lock-preview = ''
           ${echoRoot}
-          yazi "$INIT_WD/resources/Mindustry/core/assets-raw/"
+          ags run "$INIT_WD/src/lock/app.tsx" \
+            --define "import.meta.lock.previewMode=true" \
+            ${commonDefs}
         '';
       in [
         pkgs.toybox # pkill
         pkgs.screen
         pkgs.entr
+        (writeCatScriptBin "mr-yazi" yazi)
         (writeCatScriptBin "mr-watch" watch)
         (writeCatScriptBin "mr-watch-keep-waybar" watch)
         (writeCatScriptBin "mr-kill" ''
@@ -155,7 +166,7 @@
           screen -XS "${pname}" quit
         '')
         (writeCatScriptBin "mr-lab" lab)
-        (writeCatScriptBin "mr-yazi" yazi)
+        (writeCatScriptBin "mr-lock-preview" lock-preview)
 
         pkgs.fontconfig
         (writeCatScriptBin "reload-tmp-fonts" ''

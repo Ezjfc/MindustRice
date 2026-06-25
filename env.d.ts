@@ -1,8 +1,16 @@
-interface ImportMeta {
+interface ImportMeta extends ImportMetaStatusBar {
   pkgDataDir: string
 
+  lock: ImportMetaLock
+}
+
+interface ImportMetaStatusBar {
   executableFree: string
   executableMpstat: string
+}
+
+interface ImportMetaLock {
+  previewMode: boolean
 }
 
 
