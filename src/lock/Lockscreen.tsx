@@ -2,12 +2,14 @@
  * @see Lockscreen
  */
 
-import app from "ags/gtk4/app";
 import Astal from "gi://Astal?version=4.0";
 import Gdk from "gi://Gdk?version=4.0";
 import { onCleanup } from "gnim";
 import Decoration from "./Decoration";
 import { PostInitHookParameters } from "../libmindustrice/component";
+import GObject from "gnim/gobject";
+import Gtk from "gi://Gtk?version=4.0";
+import OPBackground from "../libmindustrice/opening/OPBackground";
 
 /**
  * Parameters of a lockscreen component.
@@ -22,7 +24,8 @@ export interface Parameters extends PostInitHookParameters<Astal.Window> {
 /**
  * Lockscreen is a window to display on each monitor when the session is locked.
  *
- * NOTE: the window will be shown directly once intialised and void will be returned.
+ * NOTE: the window will be shown directly once intialised, the session will then be locked, and
+ *       void will be returned.
  */
 export default function Lockscreen({ monitor: gdkmonitor, $: postInitHook }: Parameters) : void {
   const { TOP, BOTTOM, LEFT, RIGHT } = Astal.WindowAnchor
@@ -50,4 +53,27 @@ export default function Lockscreen({ monitor: gdkmonitor, $: postInitHook }: Par
   )
     // <Gtk.Overlay hexpand vexpand>
     // </Gtk.Overlay>
+}
+
+/**
+ * LockscreenPreview is a window to display to preview the lockscreen.
+ *
+ * NOTE: this will not lock the session.
+ */
+export function LockscreenPreviewWindow({ app, ...passthrus }: ({
+  app: Gtk.Application,
+} & object)) : GObject.Object {
+  return (
+    <Gtk.ApplicationWindow
+      application={app}
+      title="MindustRice Lockscreen [PREVIEW]"
+      fullscreened={true}
+      defaultWidth={300}
+      defaultHeight={150}
+      opacity={50}
+      {...passthrus}
+    >
+      <Decoration />
+    </Gtk.ApplicationWindow>
+  )
 }

@@ -7,8 +7,7 @@ import app from "ags/gtk4/app"
 import style from "./style.scss"
 import GObject, { register } from "gnim/gobject"
 import GnimApp, { Abstractions } from "../libmindustrice/GnimApp"
-import Gtk from "gi://Gtk?version=4.0"
-import OPBackground from "../libmindustrice/opening/OPBackground"
+import { LockscreenPreviewWindow } from "./Lockscreen"
 
 @register()
 class LockscreenPreview extends GnimApp implements Abstractions {
@@ -18,17 +17,7 @@ class LockscreenPreview extends GnimApp implements Abstractions {
 
   buildUI(passthrus: object): GObject.Object {
     return (
-      <Gtk.ApplicationWindow
-        application={this}
-        title="MindustRice Lockscreen [PREVIEW]"
-        fullscreened={true}
-        defaultWidth={300}
-        defaultHeight={150}
-        opacity={50}
-        {...passthrus}
-      >
-      <OPBackground />
-      </Gtk.ApplicationWindow>
+      <LockscreenPreviewWindow app={this} {...passthrus} />
     )
   }
 }
