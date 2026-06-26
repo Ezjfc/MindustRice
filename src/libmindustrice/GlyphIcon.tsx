@@ -51,33 +51,40 @@ export interface Appearence {
  *
  * @see {@link PixelImage}
  */
-export default function GlyphIcon({
-  appearence,
-  $: postInitHook,
-  ...passthrus
-}: Parameters) : GObject.Object {
+export default function GlyphIcon({ appearence, ...passthrus }: Parameters) : GObject.Object {
   return (
     <Gtk.Label
-      $={postInitHook}
       class="glyphIcon"
       css={appearence ? appearenceToCss("glyphIcon", appearence) : undefined}
       label={flagToChar(passthrus)}
+      {...passthrus}
     />
   )
 }
 
 /**
- * flagToChar returns the character if the icons based on their flag.
+ * flagToChar modifies passthrus to set all icon flags to undefined before returning the character
+ *            of the icons based on their flag.
  */
-export function flagToChar(passthrus: object) : string {
-  const isIcon = (name: string) => `icon${name}` in passthrus
+export function flagToChar(passthrus: Record<string, unknown>) : string {
+  const matchAndClean = (name: string) => {
+    const key = `icon${name}`
+    if (key in passthrus) {
+      passthrus[key] = undefined
+      return true
+    }
 
-  if (isIcon("UpOpen")) {
-    return "\ue826"
-  }
-  if (isIcon("DownOpen")) {
-    return "\ue824"
+    return false
   }
 
-  throw new Error("unknown glyph icon")
+  let icon: string|undefined
+  if (matchAndClean("UpOpen")) {
+    icon = "\ue826"
+  }
+  if (matchAndClean("DownOpen")) {
+    icon = "\ue824"
+  }
+
+  if (!icon) throw new Error("unknown glyph icon")
+  return icon
 }
