@@ -22,9 +22,9 @@ export interface Parameters extends PostInitHookParameters<Gtk.Overlay> {
  */
 export default function OPBackground({ children, ...passthrus }: Parameters) : GObject.Object {
   return (
-    <Gtk.Overlay>
+    <Gtk.Overlay {...passthrus} >
       {children}
-      <Gtk.Box $type="overlay" class="opBackground" vexpand={true} hexpand={true} />
+      <Gtk.Box $type="overlay" class="opBackground" vexpand hexpand />
     </Gtk.Overlay>
   )
 }

@@ -49,20 +49,16 @@ export interface Appearence {
  *
  * Visual documentation: TODO
  */
-export default function ProgressBar({
-  appearence,
-  progress,
-  $: postInitHook,
-}: Parameters) : GObject.Object {
+export default function ProgressBar({ appearence, progress, ...passthrus }: Parameters) : GObject.Object {
   progress = progress ?? 1.0
   const fillInit = handleProgress(progress)
 
   return (
     <Gtk.Box
-      $={postInitHook}
       hexpand={true}
       class="progressBar"
       css={appearenceToCss("progressBar", appearence ?? {})}
+      {...passthrus}
     >
       <Gtk.Box $={fillInit} class="fill" />
     </Gtk.Box>

@@ -35,24 +35,24 @@ class Lab extends GnimApp implements Abstractions {
       >
         <Gtk.Box orientation={Gtk.Orientation.VERTICAL}>
           <Ribbon />
-          <ProgressBarPreview />
+          <ProgressBarPreview defaultName="Health Bar" defaultAppearence={{
+            fill: "#FF341C",
+            fillShade: "#C12817",
+          }} />
+          <ProgressBarPreview defaultName="Power Bar" />
+          <ProgressBarPreview defaultName="Water Bar" defaultAppearence={{
+            fill: "#596AB8",
+            fillShade: "#435195",
+          }} />
           <Preview
-            component={<OPBackground />}
             defaultName="Opening Background"
             defaultHeight={281.25} // 16:9
-          />
+          >
+            <OPBackground />
+          </Preview>
         </Gtk.Box>
       </Gtk.ApplicationWindow>
     )
-            // <ProgressBarPreview defaultAppearence={{
-            //   fill: "#FF341C",
-            //   fillShade: "#C12817",
-            // }} />
-            // <ProgressBarPreview />
-            // <ProgressBarPreview defaultAppearence={{
-            //   fill: "#596AB8",
-            //   fillShade: "#435195",
-            // }} />
   }
 }
 

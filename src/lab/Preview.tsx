@@ -16,9 +16,9 @@ import GlyphIcon from "../libmindustrice/GlyphIcon";
  */
 export interface Parameters {
   /**
-   * component decides what component is being previewed.
+   * children decides what component is being previewed.
    */
-  component: GObject.Object
+  children: GObject.Object
   /**
    * defaultName holds the name for newly added component until the user changes it.
    */
@@ -40,7 +40,7 @@ export interface Parameters {
  *         settings for that component.
  */
 export default function Preview({
-  component,
+  children,
   defaultName,
   defaultWidth,
   defaultHeight,
@@ -57,7 +57,7 @@ export default function Preview({
         setCollapsed={setCollapsed}
       />
       <Resizer
-        component={component}
+        component={children}
         defaultWidth={defaultWidth}
         defaultHeight={defaultHeight}
         visible={collapsed.as(c => !c)}
@@ -82,9 +82,9 @@ function Resizer({ component, defaultWidth, defaultHeight, visible }: {
     <Gtk.Paned orientation={Gtk.Orientation.VERTICAL} position={defaultHeight} visible={visible} >
       <Gtk.Paned orientation={Gtk.Orientation.HORIZONTAL} position={defaultWidth} >
           {component}
-          <box hexpand={true} />
+          <Gtk.Box hexpand />
       </Gtk.Paned>
-      <box vexpand={true} />
+      <Gtk.Box vexpand />
     </Gtk.Paned>
   )
 }

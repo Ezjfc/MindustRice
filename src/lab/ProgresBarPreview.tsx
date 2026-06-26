@@ -9,21 +9,27 @@ import Preview from "./Preview"
 
 export interface Parameters {
   defaultAppearence?: Appearence
+  defaultName?: string
 }
 
 /**
  * ProgressBarPreview implements the space preview for {@link ../components/progress_bar.tsx}.
  */
-export default function ProgressBarPreview({ defaultAppearence }: Parameters) : GObject.Object {
+export default function ProgressBarPreview({
+  defaultAppearence,
+  defaultName,
+}: Parameters) : GObject.Object {
   const defaultProgress = 1.0
 
   const [appearence, setAppearence] = createState(defaultAppearence ?? {})
   const [progress, setProgress] = createState(defaultProgress)
 
-  return <Preview
-    component={ProgressBar({ appearence, progress })}
-    defaultName="Progress Bar"
-  />
+  return (
+    <Preview defaultName={defaultName || "Progress Bar"}
+    >
+      <ProgressBar appearence={appearence} progress={progress} />
+    </Preview>
+  )
 }
 
 /**

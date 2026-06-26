@@ -6,17 +6,18 @@ import GObject from "gnim/gobject"
 import getExtMindustryIcon from "../libmindustrice/extMindustryIcon"
 import { BUTTON_PIXEL_SCALE } from "./app"
 import PixelImage from "../libmindustrice/PixelImage"
+import Gtk from "gi://Gtk?version=4.0"
 
 /**
  * Ribbon is the title ribbon of the program.
  */
 export default function Ribbon() : GObject.Object {
   return (
-    <box>
-      <box hexpand={true} />
+    <Gtk.Box >
+      <Gtk.Box hexpand />
       <FreeCanvasButton />
       <AddcomponentButton />
-    </box>
+    </Gtk.Box>
   )
 }
 

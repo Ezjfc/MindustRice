@@ -123,17 +123,12 @@ export interface AppearenceOfNoUnderline extends BaseAppearence {
  *
  * Visual documentation: TODO
  */
-export default function Entry({
-  appearence,
-  $: postInitHook,
-  ...pasthrus
-}: Parameters) : GObject.Object {
+export default function Entry({ appearence, ...pasthrus }: Parameters) : GObject.Object {
     let css: $<string>|undefined
     if (appearence) css = appearenceToCss("entry", $(appearence).as(handleUnderline))
 
     return (
       <Gtk.Entry
-        $={postInitHook}
         css={css}
         class="entry"
         {...pasthrus}
