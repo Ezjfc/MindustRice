@@ -2,13 +2,15 @@
  * @see Preview
  */
 import Gtk from "gi://Gtk?version=4.0";
-import { Accessor, createBinding, createComputed, createEffect, createState, Setter } from "gnim";
+import { Accessor, createBinding, createComputed, createEffect, createState, Setter, With } from "gnim";
 import GObject from "gnim/gobject";
 import { BUTTON_PIXEL_SCALE } from "./app";
 import getExtMindustryIcon from "../libmindustrice/extMindustryIcon";
 import PixelImage from "../libmindustrice/PixelImage";
 import FitEntry from "../libmindustrice/menu/FitEntry";
 import { $ } from "gnim-hooks";
+import GlyphIcon from "../libmindustrice/GlyphIcon";
+import Gly from "gi://Gly?version=2";
 
 /**
  * Parameters of a preview component.
@@ -96,6 +98,7 @@ function Toolbar({ name, setName, generateName }: {
 
   return (
     <box class="Toolbar" valign={Gtk.Align.START} >
+    <FoldButton />
       <FitEntry
         $={(self) => getText = createBinding(self, "text")}
         appearence={{ noUnderline: true }}
@@ -104,7 +107,10 @@ function Toolbar({ name, setName, generateName }: {
         text={name}
       />
       <box visible={placeholderVisible} hexpand={true} >
-        <label label="(press Enter to use default name, Esc to cancel edit)" />
+        <label
+          class="entry-placeholder-small"
+          label="(press Enter to use default name, Esc to cancel edit)"
+        />
       </box>
       <box halign={Gtk.Align.END}>
         <DuplicatePreviewButton />
@@ -115,14 +121,29 @@ function Toolbar({ name, setName, generateName }: {
 }
 
 /**
+ * FoldButton initialises a button that expands or collapses the preview on click.
+ */
+function FoldButton() : GObject.Object {
+  const [active, setActive] = createState(false)
+
+  return (
+    <Gtk.ToggleButton onToggled={({ active }) => setActive(active)}>
+      <With value={active}>
+      {a => a ? (<GlyphIcon iconDownOpen />) : (<GlyphIcon iconUpOpen />)}
+      </With>
+    </Gtk.ToggleButton>
+  )
+}
+
+/**
  * RemovePreviewButton initialises a button that when being clicked, will show a confirmation popup
  *                     asking whether or not to remove the preview.
  */
 function RemovePreviewButton() : GObject.Object {
   return (
-    <button>
+    <Gtk.Button>
       <PixelImage file={getExtMindustryIcon("trash")} scale={BUTTON_PIXEL_SCALE} />
-    </button>
+    </Gtk.Button>
   )
 }
 
@@ -134,9 +155,9 @@ function RemovePreviewButton() : GObject.Object {
  */
 function DuplicatePreviewButton() : GObject.Object {
   return (
-    <button>
+    <Gtk.Button>
       <PixelImage file={getExtMindustryIcon("copy")} scale={BUTTON_PIXEL_SCALE * 0.86} />
-    </button>
+    </Gtk.Button>
   )
 }
 

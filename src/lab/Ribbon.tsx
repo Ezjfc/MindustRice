@@ -4,7 +4,6 @@
 
 import GObject from "gnim/gobject"
 import getExtMindustryIcon from "../libmindustrice/extMindustryIcon"
-import PixelImageDA from "../libmindustrice/PixelImageDA"
 import { BUTTON_PIXEL_SCALE } from "./app"
 import PixelImage from "../libmindustrice/PixelImage"
 

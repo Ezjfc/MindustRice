@@ -3,17 +3,19 @@
 @use "../libmindustrice/menu/Entry.scss";
 @use "../libmindustrice/hud/ProgressBar.scss";
 @use "../libmindustrice/opening/OPBackground.scss";
+@use "../libmindustrice/GlyphIcon.scss";
 
 button {
   @include MainMenuButton.button;
 }
 
 .Toolbar {
-
   label {
     font-family: theme.$font;
-    color: theme.$gray;
     font-size: 18px;
+  }
+  .entry-placeholder-small {
+    color: theme.$gray;
   }
 
   padding-bottom: 10px;
