@@ -129,11 +129,13 @@ function RemovePreviewButton() : GObject.Object {
 /**
  * DuplicatePreviewButton initialises a button that when being clicked, will duplicate the current
  *                        preview to a space directly below, including its component and settings.
+ *
+ * NOTE: 14% smaller than other buttons because it seems the Copy icon is slightly larger.
  */
 function DuplicatePreviewButton() : GObject.Object {
   return (
     <button>
-      <PixelImage file={getExtMindustryIcon("copy")} scale={BUTTON_PIXEL_SCALE} />
+      <PixelImage file={getExtMindustryIcon("copy")} scale={BUTTON_PIXEL_SCALE * 0.86} />
     </button>
   )
 }

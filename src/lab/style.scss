@@ -1,23 +1,23 @@
-@use "../libmindustrice/theme.scss" as menu;
+@use "../libmindustrice/theme.scss";
+@use "../libmindustrice/menu/MainMenuButton.scss";
 @use "../libmindustrice/menu/Entry.scss";
 @use "../libmindustrice/hud/ProgressBar.scss";
 @use "../libmindustrice/opening/OPBackground.scss";
 
 button {
-  background: transparent;
-  border: 0px solid;
+  @include MainMenuButton.button;
 }
 
 .Toolbar {
 
   label {
-    font-family: menu.$font;
-    color: menu.$gray;
+    font-family: theme.$font;
+    color: theme.$gray;
     font-size: 18px;
   }
 
   padding-bottom: 10px;
-  border-bottom: 3px solid menu.$gray;
+  border-bottom: 3px solid theme.$gray;
 }
 
 window {

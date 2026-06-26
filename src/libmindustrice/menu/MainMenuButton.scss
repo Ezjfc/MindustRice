@@ -1,0 +1,14 @@
+/// MainMenuButton styles the button appearing in the main menu of the original game. It has no
+///                borders and it background lights up on hover.
+///
+/// Visual documentation: TODO
+
+@mixin button {
+  background: transparent;
+  border: 0px solid;
+  border-radius: 0px;
+
+  &:hover, &:focus-visible {
+    background: rgba(white, 0.25);
+  }
+}
