@@ -4,7 +4,7 @@
 @use "../libmindustrice/opening/OPBackground.scss";
 
 button {
-  background: #00000000;
+  background: transparent;
   border: 0px solid;
 }
 
@@ -21,7 +21,7 @@ button {
 }
 
 window {
-  background-color: rgba(0, 0, 0, 0.75);
+  background-color: rgba(black, 0.75);
   padding: 20px;
 }
 

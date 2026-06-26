@@ -32,7 +32,7 @@ $prefix: "entry";
 }
 
 @function selection-highlight() {
-  @return c.v($prefix, "selection-highlight", rgba(255, 255, 255, 0.5));
+  @return c.v($prefix, "selection-highlight", rgba(white, 0.5));
 }
 
 @function selection-text-colour() {

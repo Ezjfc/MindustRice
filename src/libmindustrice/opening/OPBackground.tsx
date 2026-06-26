@@ -4,11 +4,12 @@
 
 import Gtk from "gi://Gtk?version=4.0";
 import GObject from "gnim/gobject";
+import { PostInitHookParameters } from "../component";
 
 /**
  * Parameters of a opening background component.
  */
-export interface Parameters {
+export interface Parameters extends PostInitHookParameters<Gtk.Overlay> {
   /**
    * children is the tree of elements inside the opening background.
    */
@@ -21,8 +22,9 @@ export interface Parameters {
  */
 export default function OPBackground({ children, ...passthrus }: Parameters) : GObject.Object {
   return (
-    <Gtk.Box class="opBackground" vexpand={true} hexpand={true} >{children}</Gtk.Box>
+    <Gtk.Overlay>
+      {children}
+      <Gtk.Box $type="overlay" class="opBackground" vexpand={true} hexpand={true} />
+    </Gtk.Overlay>
   )
-      // <Gtk.Box>
-      // </Gtk.Box>
 }

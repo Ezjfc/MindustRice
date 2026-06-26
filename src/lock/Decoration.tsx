@@ -6,6 +6,7 @@ import GObject from "gnim/gobject"
 import { PostInitHookParameters } from "../libmindustrice/component"
 import Gtk from "gi://Gtk?version=4.0"
 import OPBackground from "../libmindustrice/opening/OPBackground"
+import Entry from "../libmindustrice/menu/Entry"
 
 /**
  * Parameters of a (lockscreen) decoration component.
@@ -19,7 +20,7 @@ export interface Parameters extends PostInitHookParameters<Gtk.Box> {
 export default function Decoration({ $: postInitHook }: Parameters) : GObject.Object {
   return (
     <OPBackground>
-      <box vexpand={true} hexpand={true} />
+      <Entry />
     </OPBackground>
   )
 }
