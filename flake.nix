@@ -95,6 +95,7 @@
         (ags.packages.${system}.default.override {
           inherit extraPackages;
         })
+        pkgs.fontforge
         # Note: GJS is not NodeJS and AGS is not React!
         # NodeJS was added for development purposes.
         pkgs.nodejs

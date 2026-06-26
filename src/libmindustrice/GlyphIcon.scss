@@ -1,0 +1,18 @@
+@use "./component.scss" as c;
+@use "./theme.scss";
+
+$prefix: "glyphIcon";
+
+@function font-size() {
+  @return c.v($prefix, "font-size", 18px);
+}
+
+@function text-colour() {
+  @return c.v($prefix, "text-colour", white);
+}
+
+.glyphIcon {
+  font-family: theme.$icon;
+  font-size: font-size();
+  color: text-colour();
+}

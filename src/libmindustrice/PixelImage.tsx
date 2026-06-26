@@ -10,6 +10,7 @@ import Graphene from "gi://Graphene?version=1.0"
 import Gsk from "gi://Gsk?version=4.0"
 import { $ } from "gnim-hooks"
 import { PostInitHookParameters } from "./component"
+import PixelImageDA from "./PixelImageDA"
 
 /**
  * Parameters of a pixel image (drawing area) component, which includes a set of mutually exlusive
@@ -53,13 +54,16 @@ export interface ParametersOfTexture extends BaseParameters {
 }
 
 /**
- * PixelImage is the class of the component. This class can be used with Gnim in the form of
- *            `<PixelImage />`. Please refer to {@link Parameters} to see what are required for the
- *            initialisation.
+ * PixelImage scales up pixelated arts, such as icons, blocks, and sprites without making them
+ *            blurry.
  *
  * Unlike {@link PixelImageDA}, PixelImage uses GTK Snapshot, which supports hardware acceleration,
  * instead of Drawing Area. PixelImage also accepts a {@link Gdk.Texture} rather than its its file
  * path to load from.
+ *
+ * This component is implemented as a class. However, it can still be used with Gnim in the form of
+ * `<PixelImage />`. Please refer to {@link Parameters} to see what are required for the
+ * initialisation.
  */
 @register({ GTypeName: "PixelImage" })
 export default class PixelImage extends Gtk.Widget {
