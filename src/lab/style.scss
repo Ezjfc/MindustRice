@@ -1,6 +1,7 @@
 @use "../libmindustrice/theme.scss";
 @use "../libmindustrice/menu/MainMenuButton.scss";
 @use "../libmindustrice/menu/Entry.scss";
+@use "../libmindustrice/menu/Scrollbar.scss";
 @use "../libmindustrice/hud/ProgressBar.scss";
 @use "../libmindustrice/opening/OPBackground.scss";
 @use "../libmindustrice/GlyphIcon.scss";
@@ -31,11 +32,16 @@ button {
   border-bottom: 3px solid theme.$gray;
 }
 
-window {
-  background-color: rgba(black, 0.75);
-  padding: 20px;
+.previewPage {
+  margin: 20px;
+  margin-left: 50px;
+  margin-right: 50px;
 }
 
-// .Preview {
-  // margin: 20px;
-// }
+window {
+  background-color: rgba(black, 0.75);
+}
+
+.preview-drag-area {
+  margin-bottom: 12px;
+}
