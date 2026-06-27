@@ -81,6 +81,7 @@ of the implementation in MindustRice.
    Accessor and return the derivative, which is another Accessor. The ideal way to design that
    function would be overloading its return type and using recursion. When in doubt, remove all
    uses of Accessor from it and let its caller handle the logic.
+3. Avoid using Gnim-hooks (`$`) in functions that are not exported, including closures.
 
 **Good example**
 

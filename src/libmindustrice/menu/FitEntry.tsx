@@ -2,7 +2,7 @@
  * @see FitEntry
  */
 
-import { createBinding, createEffect } from "gnim";
+import { createBinding, createEffect, createState } from "gnim";
 import GObject from "gnim/gobject";
 import Entry, { Parameters as EntryParameters } from "./Entry";
 import Gtk from "gi://Gtk?version=4.0";
@@ -35,18 +35,21 @@ export interface Parameters extends EntryParameters {
 export default function FitEntry({
   fitToText,
   fitToPlaceholder,
+  placeholderText,
   $: postInitHook,
   ...passthrus
 }: Parameters) : GObject.Object {
-  fitToText = fitToText ?? true
-  fitToPlaceholder = fitToPlaceholder ?? true
+  fitToText ??= true
+  fitToPlaceholder ??= true
+  placeholderText ??= ""
 
   return (
     <Entry
       $={(self) => {
-        initFitEntry(fitToText, fitToPlaceholder)(self)
+        initFitEntry(fitToText, fitToPlaceholder, placeholderText)(self)
         if (postInitHook) postInitHook(self)
       }}
+      placeholderText={placeholderText}
       {...passthrus}
     />
   )
@@ -56,12 +59,18 @@ export default function FitEntry({
 /**
  * initFitEntry returns an initialiser that converts an entry to fit entry.
  */
-export function initFitEntry(fitToText: $<boolean>, fitToPlaceholder: $<boolean>) {
+export function initFitEntry(
+  fitToText: $<boolean>,
+  fitToPlaceholder: $<boolean>,
+  placeholderText: $<string>,
+) {
+  const getPlaceholder = $(placeholderText)
+  const getFitToText = $(fitToText)
+  const getFitToPlaceholder = $(fitToPlaceholder)
+
   return (self: Gtk.Entry) => {
-    const getText = createBinding(self, "text")
-    const getPlaceholder = createBinding(self, "placeholderText").as(p => p ?? "")
-    const getFitToText = $(fitToText)
-    const getFitToPlaceholder = $(fitToPlaceholder)
+    const [getText, setText] = createState(self.text)
+    self.connect("changed", ({ text }) => setText(text))
 
     createEffect(() => {
       const text = getText()
@@ -70,7 +79,6 @@ export function initFitEntry(fitToText: $<boolean>, fitToPlaceholder: $<boolean>
       } else {
         handleFitOption(self, getFitToPlaceholder(), getPlaceholder())
       }
-
     })
   }
 }
