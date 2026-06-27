@@ -12,6 +12,7 @@ import Ribbon from "./Ribbon"
 import Preview from "./Preview"
 import OPBackground from "../libmindustrice/opening/OPBackground"
 import GnimApp, { Abstractions } from "../libmindustrice/GnimApp"
+import { ResizeHandler } from "./Resizer"
 
 export const BUTTON_PIXEL_SCALE = 2.0
 

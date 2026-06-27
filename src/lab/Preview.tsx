@@ -10,7 +10,7 @@ import PixelImage from "../libmindustrice/PixelImage";
 import FitEntry from "../libmindustrice/menu/FitEntry";
 import { $ } from "gnim-hooks";
 import GlyphIcon from "../libmindustrice/GlyphIcon";
-import Resizer, { ResizeHandler } from "./Resizer";
+import Resizer from "./Resizer";
 
 /**
  * Parameters of a preview component. The default name option is made required instead of optional.
