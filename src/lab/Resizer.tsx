@@ -3,42 +3,60 @@
  */
 
 import Gtk from "gi://Gtk?version=4.0"
-import { createState } from "gnim"
+import { Accessor, Setter } from "gnim"
 import GObject from "gnim/gobject"
+import { PostInitHookParameters } from "../libmindustrice/component"
 
 /**
  * Parameters of a resizer component.
  */
-export interface Parameters {
-  children: GObject.Object,
-  defaultWidth?: number,
-  defaultHeight?: number,
+export interface Parameters extends PostInitHookParameters<Gtk.Box> {
+  children: GObject.Object
+  width: Accessor<number>
+  height: Accessor<number>
+  setWidth: Setter<number>
+  setHeight: Setter<number>
 }
 
 /**
  * Resizer allows the previewing component to be resized freely.
+ *
+ * Top to bottom DOM explanations:
+ * - Gtk.Box: prevents overlays from overflowing vertically, such as the options pane.
+ * - Gtk.ScrolledWindow: prevents the right-aligned elements to overflow horizontally, such as the
+ *   toolbar and options pane.
+ * - Gtk.Box: gives a little margin between the component and horizontal scrollbar.
+ * - Gtk.GestureDrag: handle cursor drags.
+ * - Gtk.Box: sizes the component.
+ * - children: the component.
  */
-export default function Resizer({ children, defaultWidth, defaultHeight }: Parameters) : GObject.Object {
-  const [height, setHeight] = createState(defaultHeight ?? 40)
-  const [width, setWidth] = createState(defaultWidth ?? 500)
-
-  let stableHeight = height.peek()
+export default function Resizer({
+  children,
+  width,
+  height,
+  setWidth,
+  setHeight,
+  ...passthrus
+}: Parameters) : GObject.Object {
   let stableWidth = width.peek()
+  let stableHeight = height.peek()
 
   return (
-    <Gtk.ScrolledWindow vscrollbarPolicy={Gtk.PolicyType.NEVER} >
-      <Gtk.Box class="preview-drag-area" >
-        <Gtk.GestureDrag onDragBegin={() => {
-          stableHeight = height.peek()
-          stableWidth = width.peek()
-        }} onDragUpdate={(self, offsetX, offsetY) => {
-          setHeight(Math.max(stableHeight + offsetY, 1))
-          setWidth(Math.max(stableWidth + offsetX, 1))
-        }} />
-        <Gtk.Box hexpand={false} heightRequest={height} widthRequest={width}>
-        {children}
+    <Gtk.Box orientation={Gtk.Orientation.VERTICAL} >
+      <Gtk.ScrolledWindow vscrollbarPolicy={Gtk.PolicyType.NEVER} hexpand>
+        <Gtk.Box class="preview-drag-area" >
+          <Gtk.GestureDrag onDragBegin={() => {
+            stableWidth = width.peek()
+            stableHeight = height.peek()
+          }} onDragUpdate={(self, offsetX, offsetY) => {
+            setWidth(Math.max(stableWidth + offsetX, 1))
+            setHeight(Math.max(stableHeight + offsetY, 1))
+          }} />
+          <Gtk.Box hexpand={false} heightRequest={height} widthRequest={width} {...passthrus} >
+          {children}
+          </Gtk.Box>
         </Gtk.Box>
-      </Gtk.Box>
-    </Gtk.ScrolledWindow>
+      </Gtk.ScrolledWindow>
+    </Gtk.Box>
   )
 }

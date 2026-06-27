@@ -77,14 +77,12 @@ export function flagToChar(passthrus: Record<string, unknown>) : string {
     return false
   }
 
-  let icon: string|undefined
   if (matchAndClean("UpOpen")) {
-    icon = "\ue826"
+    return "\ue826"
   }
   if (matchAndClean("DownOpen")) {
-    icon = "\ue824"
+    return "\ue824"
   }
 
-  if (!icon) throw new Error("unknown glyph icon")
-  return icon
+  throw new Error("unknown glyph icon")
 }

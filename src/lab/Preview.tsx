@@ -2,7 +2,7 @@
  * @see Preview
  */
 import Gtk from "gi://Gtk?version=4.0";
-import { Accessor, createBinding, createComputed, createState, Setter, With } from "gnim";
+import { Accessor, createBinding, createComputed, createEffect, createState, Setter, With } from "gnim";
 import GObject from "gnim/gobject";
 import { BUTTON_PIXEL_SCALE } from "./app";
 import getExtMindustryIcon from "../libmindustrice/extMindustryIcon";
@@ -11,6 +11,7 @@ import FitEntry from "../libmindustrice/menu/FitEntry";
 import { $ } from "gnim-hooks";
 import GlyphIcon from "../libmindustrice/GlyphIcon";
 import Resizer from "./Resizer";
+import OptionsPane from "./OptionsPane";
 
 /**
  * Parameters of a preview component. The default name option is made required instead of optional.
@@ -54,11 +55,31 @@ export default function Preview({
   defaultWidth,
   defaultHeight,
 }: Parameters) : GObject.Object {
+  defaultWidth ??= 500
+  defaultHeight ??= 40
   const [name, setName] = createState(defaultName)
   const [collapsed, setCollapsed] = createState(false)
+  const [optionsVisible, setOptionsVisible] = createState(true)
+  const [width, setWidth] = createState(defaultWidth)
+  const [height, setHeight] = createState(defaultHeight)
+
+  const dimensionParams = {
+    width: width,
+    height: height,
+    setWidth: setWidth,
+    setHeight: setHeight,
+  }
+  const $layer = ({ children }: { children: GObject.Object }) => (
+    <Gtk.Box $={(self) => {
+      const getParent = createBinding(self, "parent") as Accessor<Gtk.Overlay>
+      createEffect(() => getParent().set_measure_overlay(self, true))
+    }} $type="overlay" hexpand halign={Gtk.Align.END} >
+    {children}
+    </Gtk.Box>
+  )
 
   return (
-    <box orientation={Gtk.Orientation.VERTICAL} class="Preview">
+    <box orientation={Gtk.Orientation.VERTICAL} class="Preview" >
       <Toolbar
         name={name}
         setName={setName}
@@ -66,18 +87,12 @@ export default function Preview({
         setCollapsed={setCollapsed}
       />
       <Gtk.Overlay visible={collapsed.as(c => !c)} >
-        <Resizer
-          defaultWidth={defaultWidth}
-          defaultHeight={defaultHeight}
-        >
+        <Resizer {...dimensionParams} >
         {children}
         </Resizer>
 
-        <Gtk.Box $type="overlay" hexpand halign={Gtk.Align.END}>
-          <Gtk.Box class="settingsPane">
-            <label label="settings"/>
-          </Gtk.Box>
-        </Gtk.Box>
+        <$layer><OptionsPane optionsVisible={optionsVisible} {...dimensionParams} /></$layer>
+        <$layer><OptionsButton active={optionsVisible} setActive={setOptionsVisible} /></$layer>
       </Gtk.Overlay>
     </box>
   )
@@ -155,8 +170,8 @@ function RemovePreviewButton() : GObject.Object {
 }
 
 /**
- * DuplicatePreviewButton initialises a button that when being clicked, will duplicate the current
- *                        preview to a space directly below, including its component and settings.
+ * DuplicatePreviewButton initialises a button that when being clicked, will show a popup asking
+ *                        if the exact preview should be duplicated or just its base component.
  *
  * NOTE: 14% smaller than other buttons because it seems the Copy icon is slightly larger.
  */
@@ -169,9 +184,17 @@ function DuplicatePreviewButton() : GObject.Object {
 }
 
 /**
- * AddBaseComponentButton initialises a button that when being clicked, will add a new preview
- *                        with the same component as the current preview to a space directly below.
- *                        The new preview will have all default settings.
+ * OptionsButton initialises a button that toggles the visibility of the options pane in a preview.
  */
-// function DuplicatePreviewButton() : GObject.Object {
-// }
+function OptionsButton({ active, setActive }: {
+  active: Accessor<boolean>,
+  setActive: Setter<boolean>,
+}) : GObject.Object {
+  return (
+    <Gtk.Box class="optionsToggle" orientation={Gtk.Orientation.VERTICAL} >
+      <Gtk.ToggleButton active={active} onToggled={({ active }) => setActive(active)} >
+        <PixelImage file={getExtMindustryIcon("tools")} scale={BUTTON_PIXEL_SCALE} />
+      </Gtk.ToggleButton>
+    </Gtk.Box>
+  )
+}

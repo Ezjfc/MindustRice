@@ -12,9 +12,9 @@ import Ribbon from "./Ribbon"
 import Preview from "./Preview"
 import OPBackground from "../libmindustrice/opening/OPBackground"
 import GnimApp, { Abstractions } from "../libmindustrice/GnimApp"
-import { ResizeHandler } from "./Resizer"
 
 export const BUTTON_PIXEL_SCALE = 2.0
+export const BUTTON_PIXEL_SCALE_SMALL = 1.0
 
 @register()
 class Lab extends GnimApp implements Abstractions {
@@ -35,7 +35,7 @@ class Lab extends GnimApp implements Abstractions {
         {...passthrus}
       >
         <Gtk.ScrolledWindow hscrollbarPolicy={Gtk.PolicyType.NEVER} >
-          <Gtk.Box orientation={Gtk.Orientation.VERTICAL} class="previewPage" >
+          <Gtk.Box orientation={Gtk.Orientation.VERTICAL} class="preview-page" >
             <Ribbon />
             <ProgressBarPreview defaultName="Health Bar" defaultAppearence={{
               fill: "#FF341C",

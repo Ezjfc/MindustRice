@@ -6,12 +6,8 @@
 @use "../libmindustrice/opening/OPBackground.scss";
 @use "../libmindustrice/GlyphIcon.scss";
 
-.settingsPane {
-  border: 3px solid;
-  border-color: theme.$gray;
-  border-radius: 0px;
-  margin-top: 10px;
-  background: black;
+window {
+  background-color: rgba(black, 0.75);
 }
 
 button {
@@ -32,16 +28,49 @@ button {
   border-bottom: 3px solid theme.$gray;
 }
 
-.previewPage {
+.preview-page {
   margin: 20px;
   margin-left: 50px;
   margin-right: 50px;
 }
 
-window {
-  background-color: rgba(black, 0.75);
-}
-
 .preview-drag-area {
   margin-bottom: 12px;
+}
+
+@mixin preview-layer {
+  margin-top: 10px;
+}
+
+.optionsPane {
+  @include preview-layer;
+  border: 3px solid;
+  border-color: theme.$gray;
+  border-radius: 0px;
+  background: black;
+  padding: 5px;
+  padding-right: 50px;
+}
+
+.optionsToggle {
+  @include preview-layer;
+
+  button {
+    &:checked {
+      background: theme.$gray;
+    }
+    &:hover, &:focus-visible {
+      background: rgba(white, 0.3);
+    }
+  }
+}
+
+.option-item {
+  entry {
+    font-size: 12px;
+  }
+  label {
+    font-family: theme.$font;
+    color: white;
+  }
 }

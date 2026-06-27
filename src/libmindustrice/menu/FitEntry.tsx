@@ -2,7 +2,7 @@
  * @see FitEntry
  */
 
-import { createBinding, createEffect, createState } from "gnim";
+import { createEffect, createState } from "gnim";
 import GObject from "gnim/gobject";
 import Entry, { Parameters as EntryParameters } from "./Entry";
 import Gtk from "gi://Gtk?version=4.0";
