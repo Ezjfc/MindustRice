@@ -27,7 +27,7 @@ export default function ProgressBarPreview({
   return (
     <Preview defaultName={defaultName || "Progress Bar"}
     >
-      <ProgressBar appearence={appearence} progress={progress} />
+      <ProgressBar appearence={appearence} progress={progress} hexpand />
     </Preview>
   )
 }

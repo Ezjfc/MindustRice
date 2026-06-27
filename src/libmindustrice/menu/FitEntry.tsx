@@ -76,9 +76,9 @@ export function initFitEntry(fitToText: $<boolean>, fitToPlaceholder: $<boolean>
 }
 
 /**
- * handleFitOption will disable horizontal expand and updates the width request to fit with the
+ * handleFitOption will disable horizontal expansion and updates the width request to fit with the
  *                 content if the currently active option is enabled. Otherwise, it will enable
- *                 horizontal expand.
+ *                 horizontal expansion.
  */
 function handleFitOption(widget: Gtk.Widget, enabled: boolean, content: string) {
   if (!enabled) {

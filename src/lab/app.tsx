@@ -7,7 +7,7 @@ import Gtk from "gi://Gtk?version=4.0"
 import GObject, { register } from "gnim/gobject"
 
 import style from "style.scss"
-import ProgressBarPreview from "./ProgresBarPreview"
+import ProgressBarPreview from "./ProgressBarPreview"
 import Ribbon from "./Ribbon"
 import Preview from "./Preview"
 import OPBackground from "../libmindustrice/opening/OPBackground"

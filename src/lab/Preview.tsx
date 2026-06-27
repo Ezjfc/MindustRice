@@ -10,6 +10,7 @@ import PixelImage from "../libmindustrice/PixelImage";
 import FitEntry from "../libmindustrice/menu/FitEntry";
 import { $ } from "gnim-hooks";
 import GlyphIcon from "../libmindustrice/GlyphIcon";
+import Resizer from "./Resizer";
 
 /**
  * Parameters of a preview component.
@@ -56,36 +57,15 @@ export default function Preview({
         generateName={name}
         setCollapsed={setCollapsed}
       />
-      <Resizer
-        component={children}
-        defaultWidth={defaultWidth}
-        defaultHeight={defaultHeight}
-        visible={collapsed.as(c => !c)}
-      />
+      <Gtk.Box visible={collapsed.as(c => !c)} >
+        <Resizer
+          defaultWidth={defaultWidth}
+          defaultHeight={defaultHeight}
+        >
+        {children}
+        </Resizer>
+      </Gtk.Box>
     </box>
-  )
-}
-
-/**
- * Resizer initialises vertical and horizontal resizing panes that wraps the component.
- */
-function Resizer({ component, defaultWidth, defaultHeight, visible }: {
-  component: GObject.Object,
-  defaultWidth?: number,
-  defaultHeight?: number,
-  visible: Accessor<boolean>
-}) : GObject.Object {
-  defaultWidth = defaultWidth ?? 500
-  defaultHeight = defaultHeight ?? 40
-
-  return (
-    <Gtk.Paned orientation={Gtk.Orientation.VERTICAL} position={defaultHeight} visible={visible} >
-      <Gtk.Paned orientation={Gtk.Orientation.HORIZONTAL} position={defaultWidth} >
-          {component}
-          <Gtk.Box hexpand />
-      </Gtk.Paned>
-      <Gtk.Box vexpand />
-    </Gtk.Paned>
   )
 }
 

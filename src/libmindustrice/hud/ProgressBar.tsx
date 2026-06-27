@@ -21,6 +21,17 @@ export interface Parameters extends PostInitHookParameters<Gtk.Box> {
    * appearence controls the generation of dynamic CSS.
    */
   appearence?: $<Appearence>
+
+  /**
+   * widthRequest controls the length of the bar.
+   *              This option will be ignored during horizontal expansion.
+   */
+  widthRequest?: $<number>
+  /**
+   * hexpand controls the horizontal expansion.
+   * @default false
+   */
+  hexpand?: $<boolean>
 }
 
 /**
@@ -49,15 +60,22 @@ export interface Appearence {
  *
  * Visual documentation: TODO
  */
-export default function ProgressBar({ appearence, progress, ...passthrus }: Parameters) : GObject.Object {
+export default function ProgressBar({
+  appearence,
+  progress,
+  widthRequest,
+  hexpand,
+  ...passthrus
+}: Parameters) : GObject.Object {
   progress = progress ?? 1.0
   const fillInit = handleProgress(progress)
 
   return (
     <Gtk.Box
-      hexpand={true}
       class="progressBar"
       css={appearenceToCss("progressBar", appearence ?? {})}
+      widthRequest={widthRequest}
+      hexpand={hexpand}
       {...passthrus}
     >
       <Gtk.Box $={fillInit} class="fill" />
