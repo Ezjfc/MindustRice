@@ -21,17 +21,6 @@ export interface Parameters extends PostInitHookParameters<Gtk.Box> {
    * appearence controls the generation of dynamic CSS.
    */
   appearence?: $<Appearence>
-
-  /**
-   * widthRequest controls the length of the bar.
-   *              This option will be ignored during horizontal expansion.
-   */
-  widthRequest?: $<number>
-  /**
-   * hexpand controls the horizontal expansion.
-   * @default false
-   */
-  hexpand?: $<boolean>
 }
 
 /**
@@ -58,13 +47,14 @@ export interface Appearence {
 /**
  * ProgressBar mimics the "chamfer-styled" progress bar in the HUD of the original game.
  *
+ * This component is horizontally expanded by default for it to render. To change the width, wrap
+ * it with a box that EXPLICITLY sets hexpand to false alongside setting that width request.
+ *
  * Visual documentation: TODO
  */
 export default function ProgressBar({
   appearence,
   progress,
-  widthRequest,
-  hexpand,
   ...passthrus
 }: Parameters) : GObject.Object {
   progress = progress ?? 1.0
@@ -74,8 +64,7 @@ export default function ProgressBar({
     <Gtk.Box
       class="progressBar"
       css={appearenceToCss("progressBar", appearence ?? {})}
-      widthRequest={widthRequest}
-      hexpand={hexpand}
+      hexpand
       {...passthrus}
     >
       <Gtk.Box $={fillInit} class="fill" />

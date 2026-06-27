@@ -10,20 +10,28 @@ import PixelImage from "../libmindustrice/PixelImage";
 import FitEntry from "../libmindustrice/menu/FitEntry";
 import { $ } from "gnim-hooks";
 import GlyphIcon from "../libmindustrice/GlyphIcon";
-import Resizer from "./Resizer";
+import Resizer, { ResizeHandler } from "./Resizer";
 
 /**
- * Parameters of a preview component.
+ * Parameters of a preview component. The default name option is made required instead of optional.
  */
-export interface Parameters {
+export interface Parameters
+extends Omit<BaseParameters, "defaultName">,
+        Required<Pick<BaseParameters, "defaultName">> {
   /**
    * children decides what component is being previewed.
    */
   children: GObject.Object
+}
+
+/**
+ * BaseParameters of a preview component.
+ */
+export interface BaseParameters {
   /**
    * defaultName holds the name for newly added component until the user changes it.
    */
-  defaultName: string
+  defaultName?: string
   /**
    * defaultWidth decides initial width until the user resizes it.
    * @default 40
@@ -57,14 +65,20 @@ export default function Preview({
         generateName={name}
         setCollapsed={setCollapsed}
       />
-      <Gtk.Box visible={collapsed.as(c => !c)} >
+      <Gtk.Overlay visible={collapsed.as(c => !c)} >
         <Resizer
           defaultWidth={defaultWidth}
           defaultHeight={defaultHeight}
         >
         {children}
         </Resizer>
-      </Gtk.Box>
+
+        <Gtk.Box $type="overlay" hexpand halign={Gtk.Align.END}>
+          <Gtk.Box class="settingsPane">
+            <label label="settings"/>
+          </Gtk.Box>
+        </Gtk.Box>
+      </Gtk.Overlay>
     </box>
   )
 }

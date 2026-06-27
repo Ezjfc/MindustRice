@@ -5,11 +5,10 @@
 import GObject from "gi://GObject?version=2.0"
 import { createState } from "gnim"
 import ProgressBar, { Appearence } from "../libmindustrice/hud/ProgressBar"
-import Preview from "./Preview"
+import Preview, { BaseParameters as PreviewParameters } from "./Preview"
 
-export interface Parameters {
+export interface Parameters extends PreviewParameters {
   defaultAppearence?: Appearence
-  defaultName?: string
 }
 
 /**
@@ -27,7 +26,7 @@ export default function ProgressBarPreview({
   return (
     <Preview defaultName={defaultName || "Progress Bar"}
     >
-      <ProgressBar appearence={appearence} progress={progress} hexpand />
+      <ProgressBar appearence={appearence} progress={progress} />
     </Preview>
   )
 }
