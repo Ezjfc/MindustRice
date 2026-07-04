@@ -1,0 +1,25 @@
+@use "../theme.scss";
+@use "sass:math";
+@use "../../libmindustrice/menu/Entry.scss";
+
+// TODO: review style sheet
+
+$blend-accent: rgba(#9E8343, 1);
+$blend-accent-shadow: rgba(#9E8343, 0.2);
+
+.centralBanner {
+  // inset shadow doesn't work great here (it spread to left and right):
+  background:
+    linear-gradient(to bottom, $blend-accent-shadow, transparent 40%) top,
+    linear-gradient(to top, $blend-accent-shadow, transparent 40%) bottom,
+    black;
+  box-shadow:
+    0 15px 10px $blend-accent-shadow, // top
+    0 -15px 10px $blend-accent-shadow;  // bottom
+
+  background-repeat: no-repeat;
+  background-size: 100% 50%, 100% 50%, 100% 100%;
+
+  border-top: 4.5px solid $blend-accent;
+  border-bottom: 4.5px solid $blend-accent;
+}

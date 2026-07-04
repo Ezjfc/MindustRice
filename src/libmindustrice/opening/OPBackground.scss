@@ -2,10 +2,12 @@
 @use "sass:math";
 @use "../../libmindustrice/menu/Entry.scss";
 
-$thickness: 3px;
+// TODO: review style sheet
+
+$thickness: 4.5px;
 $grid-colour: theme.$accent-colour;
-$gap: 40px;
-$offset: math.div($gap, 3);
+$gap: 43px;
+$offset: 42.3px;
 
 .opBackground {
   // border-top: 2px solid;
