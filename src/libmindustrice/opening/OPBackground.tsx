@@ -9,7 +9,7 @@ import { PostInitHookParameters } from "../component";
 /**
  * Parameters of a opening background component.
  */
-export interface Parameters extends PostInitHookParameters<Gtk.Overlay> {
+export interface Parameters extends PostInitHookParameters<Gtk.Box> {
   /**
    * children is the tree of elements inside the opening background.
    */
@@ -22,11 +22,6 @@ export interface Parameters extends PostInitHookParameters<Gtk.Overlay> {
  */
 export default function OPBackground({ children, ...passthrus }: Parameters) : GObject.Object {
   return (
-    <Gtk.Overlay {...passthrus} >
-      <Gtk.Box $type="overlay" class="opBackground" vexpand hexpand />
-      <Gtk.Box $type="overlay">
-      {children}
-      </Gtk.Box>
-    </Gtk.Overlay>
+    <Gtk.Box $type="overlay" class="opBackground" vexpand hexpand />
   )
 }

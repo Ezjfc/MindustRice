@@ -1,6 +1,33 @@
+@use "../libmindustrice/theme.scss";
 @use "../libmindustrice/opening/OPBackground.scss";
 @use "../libmindustrice/opening/CentralBanner.scss";
+@use 'sass:math';
 
 window {
   background-color: rgba(black, 0.75);
+}
+
+$blend-accent: theme.$start-screen-accent-colour;
+$blend-accent-shadow: rgba($blend-accent, 0.2);
+
+$border-thickness: 5px;
+$margin: 235px;
+
+.diagonalSquare {
+  border: $border-thickness solid;
+  border-color: $blend-accent;
+  margin: $margin;
+  transform: rotate(45deg);
+}
+
+$shadow-spread: 15px;
+$shadow-border: $shadow-spread * 2 + $border-thickness;
+
+.as-shadow {
+  margin: calc(#{$margin} - #{$shadow-spread});
+  border: $shadow-border solid;
+  border-color: $blend-accent;
+  // border-color: white;
+  opacity: 0.2;
+  filter: blur(5px);
 }

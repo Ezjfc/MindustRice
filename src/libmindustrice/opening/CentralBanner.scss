@@ -4,8 +4,14 @@
 
 // TODO: review style sheet
 
-$blend-accent: rgba(#9E8343, 1);
-$blend-accent-shadow: rgba(#9E8343, 0.2);
+$blend-accent: theme.$start-screen-accent-colour;
+$blend-accent-shadow: rgba($blend-accent, 0.2);
+
+@mixin shadow {
+  box-shadow:
+    0 15px 10px $blend-accent-shadow, // top
+    0 -15px 10px $blend-accent-shadow;  // bottom
+}
 
 .centralBanner {
   // inset shadow doesn't work great here (it spread to left and right):
@@ -13,9 +19,7 @@ $blend-accent-shadow: rgba(#9E8343, 0.2);
     linear-gradient(to bottom, $blend-accent-shadow, transparent 40%) top,
     linear-gradient(to top, $blend-accent-shadow, transparent 40%) bottom,
     black;
-  box-shadow:
-    0 15px 10px $blend-accent-shadow, // top
-    0 -15px 10px $blend-accent-shadow;  // bottom
+  @include shadow;
 
   background-repeat: no-repeat;
   background-size: 100% 50%, 100% 50%, 100% 100%;

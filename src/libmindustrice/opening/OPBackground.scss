@@ -5,18 +5,11 @@
 // TODO: review style sheet
 
 $thickness: 4.5px;
-$grid-colour: theme.$accent-colour;
+$grid-colour: theme.$start-screen-accent-colour;
 $gap: 43px;
 $offset: 42.3px;
 
 .opBackground {
-  // border-top: 2px solid;
-  // border-bottom: 2px solid;
-  // // border-right: 2px solid;
-  // border-color: #FFD37F;
-  // transform: skewX(10deg) skewY(10deg);
-  // margin-left: calc(var(--corner-radius) * 2);
-  // margin-right: 0px;
   background: repeating-linear-gradient(
     45deg,
     transparent 0,
@@ -35,5 +28,5 @@ $offset: 42.3px;
     transparent $gap
   );
 
-  opacity: 0.25;
+  opacity: 0.3;
 }
