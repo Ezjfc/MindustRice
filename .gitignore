@@ -1,5 +1,7 @@
 .direnv
 result*
 resources/Mindustry
+resources/mindustryFonts
+resources/animdustryFonts
 @girs
 node_modules
