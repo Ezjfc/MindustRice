@@ -12,6 +12,7 @@ import Ribbon from "./Ribbon"
 import Preview from "./Preview"
 import OPBackground from "../libmindustrice/opening/OPBackground"
 import GnimApp, { Abstractions } from "../libmindustrice/GnimApp"
+import Trapezoid from "../libmindustrice/opening/Trapezoid"
 
 export const BUTTON_PIXEL_SCALE = 2.0
 export const BUTTON_PIXEL_SCALE_SMALL = 1.0
@@ -35,28 +36,42 @@ class Lab extends GnimApp implements Abstractions {
         {...passthrus}
       >
         <Gtk.ScrolledWindow hscrollbarPolicy={Gtk.PolicyType.NEVER} >
-          <Gtk.Box orientation={Gtk.Orientation.VERTICAL} class="preview-page" >
-            <Ribbon />
-            <ProgressBarPreview defaultName="Health Bar" defaultAppearence={{
-              fill: "#FF341C",
-              fillShade: "#C12817",
-            }} />
-            <ProgressBarPreview defaultName="Power Bar" />
-            <ProgressBarPreview defaultName="Water Bar" defaultAppearence={{
-              fill: "#596AB8",
-              fillShade: "#435195",
-            }} />
-            <Preview
-              defaultName="Opening Background"
-              defaultHeight={281.25} // 16:9
-            >
-              <OPBackground />
-            </Preview>
-          </Gtk.Box>
+          <PreviewPage />
         </Gtk.ScrolledWindow>
       </Gtk.ApplicationWindow>
     )
   }
+}
+
+function PreviewPage() : GObject.Object {
+  return (
+    <Gtk.Box orientation={Gtk.Orientation.VERTICAL} class="preview-page" >
+      <Ribbon />
+      <ProgressBarPreview defaultName="Health Bar" defaultAppearence={{
+        fill: "#FF341C",
+        fillShade: "#C12817",
+        }} />
+      <ProgressBarPreview defaultName="Power Bar" />
+      <ProgressBarPreview defaultName="Water Bar" defaultAppearence={{
+        fill: "#596AB8",
+        fillShade: "#435195",
+      }} />
+      <Preview
+        defaultName="Trapezoid"
+        // defaultHeight={281.25} // 16:9
+      >
+        <Trapezoid>
+          <OPBackground />
+        </Trapezoid>
+      </Preview>
+      <Preview
+        defaultName="Opening Background"
+        defaultHeight={281.25} // 16:9
+      >
+        <OPBackground />
+      </Preview>
+    </Gtk.Box>
+  )
 }
 
 export const app = new Lab()
