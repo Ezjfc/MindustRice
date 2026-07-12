@@ -50,6 +50,7 @@ export default class Trapezoid extends Gtk.Box {
 
     this.set_vexpand(true)
     this.set_hexpand(true)
+    this.cssClasses = ["trapezoid"]
     if (children) this.append(children as Gtk.Widget)
     // const file = (params as ParametersOfFile).file
     // const texture = (params as ParametersOfTexture).texture
@@ -89,7 +90,7 @@ export default class Trapezoid extends Gtk.Box {
     // 2. top-right
     // 3. bottom-right
     // 4. bottom-left
-    b.move_to(slant, 0)
+    b.move_to(0, 0)
     b.line_to(w - slant, 0)
     b.line_to(w, h)
     b.line_to(0, h)

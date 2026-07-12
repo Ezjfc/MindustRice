@@ -49,8 +49,8 @@ export default function Resizer({
             stableWidth = width.peek()
             stableHeight = height.peek()
           }} onDragUpdate={(self, offsetX, offsetY) => {
-            setWidth(Math.max(stableWidth + offsetX, 1))
-            setHeight(Math.max(stableHeight + offsetY, 1))
+            setWidth(Math.max(0, stableWidth + offsetX))
+            setHeight(Math.max(0, stableHeight + offsetY))
           }} />
           <Gtk.Box hexpand={false} heightRequest={height} widthRequest={width} {...passthrus} >
           {children}
