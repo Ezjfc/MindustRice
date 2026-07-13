@@ -12,7 +12,7 @@ import Ribbon from "./Ribbon"
 import Preview from "./Preview"
 import OPBackground from "../libmindustrice/opening/OPBackground"
 import GnimApp, { Abstractions } from "../libmindustrice/GnimApp"
-import Trapezoid from "../libmindustrice/opening/Trapezoid"
+import TrapezoidPreview from "./TrapezoidPreview"
 
 export const BUTTON_PIXEL_SCALE = 2.0
 export const BUTTON_PIXEL_SCALE_SMALL = 1.0
@@ -56,14 +56,7 @@ function PreviewPage() : GObject.Object {
         fill: "#596AB8",
         fillShade: "#435195",
       }} />
-      <Preview
-        defaultName="Trapezoid"
-        // defaultHeight={281.25} // 16:9
-      >
-        <Trapezoid>
-          <OPBackground />
-        </Trapezoid>
-      </Preview>
+      <TrapezoidPreview />
       <Preview
         defaultName="Opening Background"
         defaultHeight={281.25} // 16:9

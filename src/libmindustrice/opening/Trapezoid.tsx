@@ -20,6 +20,16 @@ export interface Parameters extends PostInitHookParameters<Trapezoid> {
   tangent?: number
 }
 
+export default function Trapezoid({ children, $: postInitHook } = params) {
+  return (
+    <$Trapezoid>
+      <Gtk.Box class="trapezoid-1" >
+      {children}
+      </Gtk.Box>
+    </$Trapezoid>
+  )
+}
+
 /**
  * Trapezoid mimics a (right-angle) trapezoid in the opening (start screen) of the original game.
  *
@@ -31,8 +41,8 @@ export interface Parameters extends PostInitHookParameters<Trapezoid> {
  * right-angle trapezoidal shape. Everything it contains will clip to the shape and any overflowing
  * content would not be visible.
  */
-@register({ GTypeName: "Trapezoid" })
-export default class Trapezoid extends Gtk.Box {
+@register({ GTypeName: "$Trapezoid" })
+class $Trapezoid extends Gtk.Box {
   /**
    * TODO
    */
@@ -43,15 +53,13 @@ export default class Trapezoid extends Gtk.Box {
    */
   private tangent: number = 0.25
 
-  constructor(params: Parameters) {
+  constructor() {
     super()
 
-    const { children, $: postInitHook } = params
+    // const { children, $: postInitHook } = params
 
     this.set_vexpand(true)
     this.set_hexpand(true)
-    this.cssClasses = ["trapezoid"]
-    if (children) this.append(children as Gtk.Widget)
     // const file = (params as ParametersOfFile).file
     // const texture = (params as ParametersOfTexture).texture
     // const { scale, $: postInitHook } = params
@@ -71,7 +79,7 @@ export default class Trapezoid extends Gtk.Box {
     //   this.queue_resize()
     // })
     //
-    if (postInitHook) postInitHook(this)
+    // if (postInitHook) postInitHook(this)
   }
 
   /**
@@ -91,8 +99,8 @@ export default class Trapezoid extends Gtk.Box {
     // 3. bottom-right
     // 4. bottom-left
     b.move_to(0, 0)
-    b.line_to(w - slant, 0)
-    b.line_to(w, h)
+    b.line_to(w, 0)
+    b.line_to(w - slant, h)
     b.line_to(0, h)
     b.close()
     const path = b.to_path()

@@ -109,6 +109,7 @@
         # Although AGS does not use the Node runtime at all, NPM is needed for deps management:
         pkgs.nodejs
 
+        nvim-conf
         pkgs.typescript-language-server
         pkgs.vscode-css-languageserver
         pkgs.css-variables-language-server
