@@ -52,7 +52,7 @@ export default function Resizer({
             setWidth(Math.max(0, stableWidth + offsetX))
             setHeight(Math.max(0, stableHeight + offsetY))
           }} />
-          <Gtk.Box hexpand={false} heightRequest={height} widthRequest={width} {...passthrus} >
+          <Gtk.Box hexpand={false} vexpand={false} heightRequest={height} widthRequest={width} {...passthrus} >
           {children}
           </Gtk.Box>
         </Gtk.Box>

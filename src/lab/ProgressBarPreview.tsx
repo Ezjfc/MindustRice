@@ -12,7 +12,7 @@ export interface Parameters extends PreviewParameters {
 }
 
 /**
- * ProgressBarPreview implements the space preview for {@link ../components/progress_bar.tsx}.
+ * ProgressBarPreview implements the preview space for {@link ../components/progress_bar.tsx}.
  */
 export default function ProgressBarPreview({
   defaultAppearence,
@@ -32,7 +32,7 @@ export default function ProgressBarPreview({
 }
 
 /**
- * PreviewSettings of the progress bar preview.
+ * PreviewSettings of a progress bar preview.
  */
 export interface PreviewSettings {
   invert_chamfers: boolean
