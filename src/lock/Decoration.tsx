@@ -25,12 +25,7 @@ export default function Decoration({ ...passthrus }: Parameters) : GObject.Objec
   return (
     <Gtk.Overlay {...passthrus} >
       <$layer><OPBackground /></$layer>
-
-      <$layer><DiagonalSquare asShadow /></$layer>
-      <$layer><DiagonalSquare /></$layer>
-
-      <$layer><DiagonalSquare asShadow /></$layer>
-      <$layer><DiagonalSquare /></$layer>
+      <$layer><DiagonalSquares /></$layer>
       <$layer><CentralBanner /></$layer>
     </Gtk.Overlay>
   )
@@ -40,12 +35,12 @@ export default function Decoration({ ...passthrus }: Parameters) : GObject.Objec
  * DiagonalSquare mimics the two squares rotated 45 degrees in the opening (start screen) of the
  *                original game.
  */
-function DiagonalSquare({ asShadow }: { asShadow?: boolean }) {
-  const asShadowClass = asShadow ? "as-shadow" : ""
-
+function DiagonalSquares() {
   return (
-    <Gtk.AspectFrame hexpand >
-      <Gtk.Box class={`diagonalSquare ${asShadowClass}`} />
+    <Gtk.AspectFrame>
+      <Gtk.Box vexpand hexpand class="diagonalSquares">
+        <Gtk.Box vexpand hexpand />
+      </Gtk.Box>
     </Gtk.AspectFrame>
   )
 }

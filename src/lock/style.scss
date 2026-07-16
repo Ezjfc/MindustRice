@@ -8,26 +8,30 @@ window {
 }
 
 $blend-accent: theme.$start-screen-accent-colour;
-$blend-accent-shadow: rgba($blend-accent, 0.2);
+$blend-accent-shadow: rgba($blend-accent, 0.6);
 
 $border-thickness: 5px;
 $margin: 235px;
+$shadow-size: 15px;
+$shadow-blur: 10px;
 
-.diagonalSquare {
-  border: $border-thickness solid;
-  border-color: $blend-accent;
-  margin: $margin;
+.diagonalSquares {
+  &, box{
+    border: $border-thickness solid;
+    border-color: $blend-accent;
+  }
+
   transform: rotate(45deg);
+  margin: $margin;
+
+  filter:
+    drop-shadow($shadow-size 0px $shadow-blur $blend-accent-shadow)
+    drop-shadow(calc(-#{$shadow-size}) 0px $shadow-blur $blend-accent-shadow)
+    drop-shadow(0px $shadow-size $shadow-blur $blend-accent-shadow)
+    drop-shadow(0px calc(-#{$shadow-size}) $shadow-blur $blend-accent-shadow);
+
+  box {
+    margin: 75px;
+  }
 }
 
-$shadow-spread: 15px;
-$shadow-border: $shadow-spread * 2 + $border-thickness;
-
-.as-shadow {
-  margin: calc(#{$margin} - #{$shadow-spread});
-  border: $shadow-border solid;
-  border-color: $blend-accent;
-  // border-color: white;
-  opacity: 0.2;
-  filter: blur(5px);
-}
