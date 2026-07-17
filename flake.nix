@@ -27,6 +27,7 @@
     animdustry-src,
   }: flake-utils.lib.eachDefaultSystem(system: let
     pkgs = nixpkgs.legacyPackages.${system}.extend nixche.overlays.neovim-with-lsps;
+    nixchePkgs = nixche.packages.${system};
     pname = "MindustRice";
     entry = "src/status-bar/app.tsx";
 
@@ -99,7 +100,8 @@
     };
 
     devShells.default = let
-      writeCatScriptBin = (pkgs.callPackage nixche.packages.${system}.write-cat-script {}).writeCatScriptBin;
+      writeCatScriptBin = (nixchePkgs.write-cat-script').writeCatScriptBin;
+      writeAliasScriptBin = (nixchePkgs.write-alias-script).writeAliasScriptBin;
     in pkgs.mkShell {
       packages = ([
         (ags.packages.${system}.default.override {
@@ -109,7 +111,7 @@
         # Although AGS does not use the Node runtime at all, NPM is needed for deps management:
         pkgs.nodejs
 
-        nvim-conf
+        (writeAliasScriptBin "nvim" "${nvim-conf}")
         pkgs.typescript-language-server
         pkgs.vscode-css-languageserver
         pkgs.css-variables-language-server
@@ -214,7 +216,6 @@
 
       shellHook = ''
         export INIT_WD="$(pwd)"
-        alias nvim="${nvim-conf}"
       '';
     };
   });
