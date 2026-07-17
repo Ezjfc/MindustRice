@@ -7,6 +7,8 @@ import GObject, { register } from "gnim/gobject"
 import Gsk from "gi://Gsk?version=4.0"
 import { $ } from "gnim-hooks"
 import { PostInitHookParameters } from "../component"
+import { createEffect } from "gnim"
+import Graphene from "gi://Graphene?version=1.0"
 
 /**
  * Parameters of a opening (start screen) trapezoid component.
@@ -14,20 +16,29 @@ import { PostInitHookParameters } from "../component"
 export interface Parameters extends PostInitHookParameters<Trapezoid> {
   /**
    * children is the tree of elements clipped to the trapezoid.
+   *
+   * NOTE: the value of this field is completely ignored. This field exists just for explictness.
+   *
+   * To add children, use the component with Gnim `<Trapezoid>{children}</Trapezoid>` or call its
+   * relevant methods inherited from Gtk.Box.
    */
   children?: GObject.Object
-  side?: number
-  tangent?: number
-}
 
-export default function Trapezoid({ children, $: postInitHook } = params) {
-  return (
-    <$Trapezoid>
-      <Gtk.Box class="trapezoid-1" >
-      {children}
-      </Gtk.Box>
-    </$Trapezoid>
-  )
+  /**
+   * hmirror controls whether or not the path will be shape will be mirror horizontally.
+   * @default false
+   */
+  hmirror?: $<boolean>
+  /**
+   * vmirror controls whether or not the path will be shape will be mirror virtically.
+   * @default false
+   */
+  vmirror?: $<boolean>
+  /**
+   * tangent is the ratio of height to bases difference (longer base - shorter base).
+   * @default 1.0
+   */
+  tangent?: $<number>
 }
 
 /**
@@ -42,44 +53,40 @@ export default function Trapezoid({ children, $: postInitHook } = params) {
  * content would not be visible.
  */
 @register({ GTypeName: "$Trapezoid" })
-class $Trapezoid extends Gtk.Box {
+export default class Trapezoid extends Gtk.Box {
   /**
-   * TODO
+   * hmirror controls whether or not the path will be shape will be mirror horizontally.
    */
-  private side: number = 1.0
+  private hmirror: boolean = false
+  /**
+   * vmirror controls whether or not the path will be shape will be mirror virtically.
+   */
+  private vmirror: boolean = false
 
   /**
-   * tangent is the ratio.
+   * tangent is the ratio of height to bases difference (longer base - shorter base).
    */
-  private tangent: number = 0.25
+  private tangent: number = 1.0
 
-  constructor() {
+  constructor(params: Parameters) {
     super()
-
-    // const { children, $: postInitHook } = params
-
     this.set_vexpand(true)
     this.set_hexpand(true)
-    // const file = (params as ParametersOfFile).file
-    // const texture = (params as ParametersOfTexture).texture
-    // const { scale, $: postInitHook } = params
-    //
-    // const getFile = $(file)
-    // const fileToTexture = () => Gdk.Texture.new_from_filename(getFile())
-    // const getTexture = file ? createMemo(fileToTexture) : $(texture)
-    // const getScale = $(scale)
-    //
-    // this.texture = getTexture.peek()
-    // this.scale = getScale.peek() ?? this.scale
-    //
-    // createEffect(() => {
-    //   this.texture = getTexture()
-    //   this.scale = getScale() ?? this.scale
-    //
-    //   this.queue_resize()
-    // })
-    //
-    // if (postInitHook) postInitHook(this)
+
+    const { hmirror, vmirror, tangent, $: postInitHook } = params
+    const getHMirror = $(hmirror)
+    const getVMirror = $(vmirror)
+    const getTangent = $(tangent)
+
+    createEffect(() => {
+      this.hmirror = getHMirror() ?? this.hmirror
+      this.vmirror = getVMirror() ?? this.vmirror
+      this.tangent = getTangent() ?? this.tangent
+
+      this.queue_resize()
+    })
+
+    if (postInitHook) postInitHook(this)
   }
 
   /**
@@ -88,11 +95,9 @@ class $Trapezoid extends Gtk.Box {
   vfunc_snapshot(snapshot: Gtk.Snapshot): void {
     const w = this.get_width()
     const h = this.get_height()
-    const slant = Math.min(w * this.tangent, h)
+    const slant = h * this.tangent
 
     const b = new Gsk.PathBuilder()
-    // TODO: currently not a right-angle trapezoid but at least it renders
-
     // Steps of drawing:
     // 1. top-left
     // 2. top-right
@@ -104,6 +109,15 @@ class $Trapezoid extends Gtk.Box {
     b.line_to(0, h)
     b.close()
     const path = b.to_path()
+
+    if (this.hmirror) {
+      snapshot.translate(new Graphene.Point().init(w, 0))
+      snapshot.scale(-1, 1)
+    }
+    if (this.vmirror) {
+      snapshot.translate(new Graphene.Point().init(0, h))
+      snapshot.scale(1, -1)
+    }
 
     // Clip children elements to the shaped path:
     snapshot.push_fill(path, Gsk.FillRule.WINDING)
